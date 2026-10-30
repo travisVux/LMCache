@@ -97,7 +97,9 @@ L1 managers that own payload are `LOCAL`. The segment names the primary pool:
 | shadow (brought by a lending L2 adapter) | the borrowed segment, `REMOTE` |
 
 A shadow L1 only indexes a peer's bytes, hence `REMOTE`
-(`l1_manager/l1-manager-types.md`, "Shadow L1").
+(`l1_manager/l1-manager-types.md`, "Shadow L1"). The `p2p_gdr` adapter wants
+`((DRAM, REMOTE),)`: it lends remote handles of a peer's DRAM L1 and gets a
+DRAM shadow L1 of its own.
 
 ### L2 own tags
 

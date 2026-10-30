@@ -29,6 +29,8 @@ from lmcache.v1.distributed.l1_manager import (
 )
 from lmcache.v1.distributed.memory_manager import (
     BorrowedTensorMemoryObj,
+    PendingRead,
+    RemoteBorrowedMemoryObj,
     ShadowL1MemoryManager,
 )
 from lmcache.v1.memory_management import (
@@ -299,6 +301,49 @@ def test_shadow_publishes_no_l1_events(fake_pinned_memory: None) -> None:
         assert manager.config.tag not in tags
     finally:
         init_event_bus(EventBusConfig(enabled=False))
+
+
+def _remote_handle(lease: Lease, address: int = 0) -> RemoteBorrowedMemoryObj:
+    def read_into(region_id: int, offset: int) -> PendingRead:
+        raise AssertionError("not read in this test")
+
+    return RemoteBorrowedMemoryObj(
+        MemoryObjMetadata(
+            shape=torch.Size([PAGE]),
+            dtype=torch.uint8,
+            address=address,
+            phy_size=PAGE,
+            ref_count=1,
+            fmt=MemoryFormat.KV_2LTD,
+            shapes=[torch.Size([PAGE])],
+            dtypes=[torch.uint8],
+        ),
+        lease_is_valid=lease.is_valid,
+        on_release=lease.release,
+        read_into=read_into,
+    )
+
+
+def test_remote_handles_are_admitted_and_renewed_like_views(
+    shadow: ShadowL1Manager,
+) -> None:
+    """A borrowed object without local bytes goes through the same index,
+    read locks, lease adoption and release as a tensor view; adoption keys on
+    the owner's address."""
+    lease, fresh, elsewhere = Lease(), Lease(), Lease()
+    handle = _remote_handle(lease)
+    assert shadow.admit({KEY: handle})[KEY] == (L1Error.SUCCESS, handle)
+    assert shadow.unsafe_read([KEY])[KEY] == (L1Error.SUCCESS, handle)
+    assert shadow.get_memory_usage() == (0, 0)
+    assert shadow.admit({KEY: _remote_handle(fresh)})[KEY] == (L1Error.SUCCESS, handle)
+    assert (lease.releases, fresh.releases) == (1, 0)
+    assert shadow.admit({KEY: _remote_handle(elsewhere, address=PAGE)})[KEY] == (
+        L1Error.KEY_NOT_READABLE,
+        None,
+    )
+    assert elsewhere.releases == 1
+    assert shadow.finish_read([KEY], read_locks=2)[KEY] == L1Error.SUCCESS
+    assert fresh.releases == 1
 
 
 def test_shadow_memory_manager_rejects_unleased_objects() -> None:

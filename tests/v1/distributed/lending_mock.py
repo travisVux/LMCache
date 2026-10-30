@@ -181,7 +181,11 @@ class LendingMockL2Adapter(LendingPeerL2AdapterBase):
         self._lookup_efd.notify()
 
     def _process_lookup_result(
-        self, keys: list[ObjectKey], addresses: list[TransferChannelAddress]
+        self,
+        task_id: L2TaskId,
+        keys: list[ObjectKey],
+        addresses: list[TransferChannelAddress],
+        started_at: float,
     ) -> Bitmap:
         bitmap = Bitmap(len(keys))
         for i, (key, address) in enumerate(zip(keys, addresses, strict=True)):
@@ -190,11 +194,11 @@ class LendingMockL2Adapter(LendingPeerL2AdapterBase):
                 self._reserved[key] = self._reserved.get(key, 0) + 1
         return bitmap
 
-    def submit_unlock(self, keys: list[ObjectKey]) -> None:
+    def submit_unlock(self, keys: list[ObjectKey], *, wait: bool = False) -> None:
         """Return one reservation per key; the controller never names a lent key."""
         for key in keys:
             self._reserved[key] -= 1
-        super().submit_unlock(keys)
+        super().submit_unlock(keys, wait=wait)
 
     # -- lending ------------------------------------------------------------
 

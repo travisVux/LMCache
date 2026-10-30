@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The borrowed objects a lender hands over, and the memory manager that frees
-them."""
+"""The borrowed objects a lender hands over (local views and remote handles),
+and the memory manager that frees them."""
 
 # Standard
 from typing import Callable
@@ -13,7 +13,12 @@ import torch
 from lmcache.v1.distributed.api import MemoryLayoutDesc
 from lmcache.v1.distributed.error import L1Error
 from lmcache.v1.distributed.internal_api import L1MemoryDesc
-from lmcache.v1.memory_management import MemoryObj, MemoryObjMetadata, TensorMemoryObj
+from lmcache.v1.memory_management import (
+    MemoryFormat,
+    MemoryObj,
+    MemoryObjMetadata,
+    TensorMemoryObj,
+)
 
 
 class BorrowedMemoryObj(MemoryObj):
@@ -110,6 +115,174 @@ class BorrowedTensorMemoryObj(TensorMemoryObj, BorrowedMemoryObj):
     def is_valid(self) -> bool:
         """Return whether the view is unreleased and its lease still holds."""
         return super().is_valid() and self._lease_is_valid()
+
+
+class PendingRead(abc.ABC):
+    """A read of a remote object into local device memory, in flight."""
+
+    @abc.abstractmethod
+    def is_finished(self) -> bool:
+        """Return whether the read reached a terminal state."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def succeeded(self) -> bool:
+        """Return whether a finished read delivered every byte."""
+        raise NotImplementedError
+
+
+class RemoteBorrowedMemoryObj(BorrowedMemoryObj):
+    """A borrowed object whose bytes stay on the lender's host.
+
+    Nothing local backs it: ``tensor`` is None and ``data_ptr`` raises. A
+    reader moves the bytes with :meth:`read_into`, which the lender serves
+    (e.g. an RDMA read of a peer's DRAM straight into GPU memory).
+
+    Args:
+        metadata: Layout of the object; ``address`` is the lender-relative
+            offset and ``phy_size`` the byte length.
+        lease_is_valid: Nonblocking check that the lease still holds.
+        on_release: Ends the lease; idempotent, nonblocking, and takes no lock
+            the caller might hold.
+        read_into: Starts a read of the whole object into a registered local
+            region at a byte offset; see :meth:`read_into`.
+    """
+
+    def __init__(
+        self,
+        metadata: MemoryObjMetadata,
+        *,
+        lease_is_valid: Callable[[], bool],
+        on_release: Callable[[], None],
+        read_into: Callable[[int, int], PendingRead],
+    ) -> None:
+        super().__init__(metadata)
+        self.valid = True
+        self._lease_is_valid = lease_is_valid
+        self._on_release = on_release
+        self._read_into = read_into
+
+    def read_into(self, region_id: int, offset: int) -> PendingRead:
+        """Start reading the object into a registered local memory region.
+
+        Args:
+            region_id: Local region registered with the lender's transport
+                (e.g. the GPU staging buffer).
+            offset: Byte offset of the destination within that region.
+
+        Returns:
+            The in-flight read; poll it until finished. It fails instead of
+            reading when the lease has already ended.
+        """
+        return self._read_into(region_id, offset)
+
+    def same_bytes(self, other: BorrowedMemoryObj) -> bool:
+        """Same lender-relative address and length: the same remote bytes."""
+        return (
+            isinstance(other, RemoteBorrowedMemoryObj)
+            and self.meta.address == other.meta.address
+            and self.meta.phy_size == other.meta.phy_size
+        )
+
+    def local_device(self) -> None:
+        """Read wherever the reader lands it, so every device may hold it."""
+        return None
+
+    def invalidate(self) -> None:
+        self.valid = False
+
+    def is_valid(self) -> bool:
+        """Return whether the object is unreleased and its lease still holds."""
+        return self.valid and self._lease_is_valid()
+
+    def get_size(self) -> int:
+        return self.meta.get_size()
+
+    def get_shape(self) -> torch.Size:
+        return self.meta.shape
+
+    def get_dtype(self) -> torch.dtype | None:
+        return self.meta.dtype
+
+    def get_shapes(self) -> list[torch.Size]:
+        return (
+            list(self.meta.shapes)
+            if self.meta.shapes is not None
+            else [self.meta.shape]
+        )
+
+    def get_dtypes(self) -> list[torch.dtype]:
+        if self.meta.dtypes is not None:
+            return list(self.meta.dtypes)
+        if self.meta.dtype is None:
+            raise ValueError("Remote borrowed object has no dtype")
+        return [self.meta.dtype]
+
+    def get_memory_format(self) -> MemoryFormat:
+        return self.meta.fmt
+
+    def get_physical_size(self) -> int:
+        return self.meta.phy_size
+
+    def ref_count_up(self) -> None:
+        raise NotImplementedError("RemoteBorrowedMemoryObj has no local allocation")
+
+    def ref_count_down(self) -> None:
+        raise NotImplementedError("RemoteBorrowedMemoryObj has no local allocation")
+
+    def get_ref_count(self) -> int:
+        raise NotImplementedError("RemoteBorrowedMemoryObj has no local allocation")
+
+    def get_num_tokens(self) -> int:
+        raise NotImplementedError("RemoteBorrowedMemoryObj has no local allocation")
+
+    def pin(self) -> bool:
+        raise NotImplementedError("RemoteBorrowedMemoryObj has no local allocation")
+
+    def unpin(self) -> bool:
+        raise NotImplementedError("RemoteBorrowedMemoryObj has no local allocation")
+
+    @property
+    def metadata(self) -> MemoryObjMetadata:
+        return self.meta
+
+    @property
+    def is_pinned(self) -> bool:
+        return False
+
+    @property
+    def can_evict(self) -> bool:
+        return True
+
+    @property
+    def tensor(self) -> torch.Tensor | None:
+        return None
+
+    @property
+    def raw_tensor(self) -> torch.Tensor | None:
+        return None
+
+    def get_tensor(self, index: int) -> torch.Tensor | None:
+        return None
+
+    @property
+    def byte_array(self) -> bytes:
+        raise NotImplementedError("RemoteBorrowedMemoryObj holds no local bytes")
+
+    @property
+    def data_ptr(self) -> int:
+        raise NotImplementedError("RemoteBorrowedMemoryObj holds no local bytes")
+
+    @property
+    def shm_offset(self) -> int:
+        raise NotImplementedError("RemoteBorrowedMemoryObj holds no local bytes")
+
+    @property
+    def shm_byte_length(self) -> int:
+        raise NotImplementedError("RemoteBorrowedMemoryObj holds no local bytes")
+
+    def parent(self) -> None:
+        return None
 
 
 class ShadowL1MemoryManager:

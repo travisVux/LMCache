@@ -34,6 +34,8 @@ the full system context.
 PeerL2AdapterBase             lookup/unlock RPCs, event fds, no-op stores, close
 ├── P2PL2Adapter              import the peer region; RDMA load over the transfer channel
 └── LendingPeerL2AdapterBase  abstract: lend views of the peer's bytes into a shadow L1
+    └── LeasedPeerL2AdapterBase  per-key reservations under the owner's lock (see
+        └── GdrPeerL2Adapter       [gdr_peer_l2_adapter.md](gdr_peer_l2_adapter.md))
 ```
 
 The base holds the RPC control plane so another way of reading a peer can
@@ -58,7 +60,11 @@ means, while the polling, timeout and failure handling around it stay shared:
 | Lend (`LendingPeerL2AdapterBase`, e.g. GPU-direct or CXL in place) | keeps the reservation and hands L1 a borrowed view; no copy, no local capacity |
 
 `LendingPeerL2AdapterBase` adds two abstract hooks, `take_borrowed_objects`
-and `get_active_borrow_count`. A reservation moved into a view belongs to the
+and `get_active_borrow_count`. `_process_lookup_result(task_id, keys,
+addresses, started_at)` receives the time just before the lookup RPC was sent,
+a lower bound on when the owner's read locks started; `submit_unlock(keys,
+wait=True)` waits for the owner's acknowledgment, which lenders use so peer
+removal drains their unlocks. A reservation moved into a view belongs to the
 view; the controller unlocks only the other keys. The adapter wants a `REMOTE`
 L1 first (`borrowed_segment`), carries the shadow L1 the storage manager binds
 to it (`bind_shadow_l1`) and closes it with itself; serde is refused. See

@@ -142,6 +142,10 @@ lender ── take_borrowed_objects ──► views ── admit ──► shado
   view lives only while read-locked.
 - **Status.** Tags are `(segment, REMOTE)`, so P2P never re-exports a view.
   A shadow is listed under `l1_managers` and makes `is_multi_l1` true.
+- **Lenders.** The GPU-direct peer adapter (`p2p_gdr`,
+  [../l2_adapters/gdr_peer_l2_adapter.md](../l2_adapters/gdr_peer_l2_adapter.md))
+  lends `RemoteBorrowedMemoryObj` handles of a peer's DRAM L1 that are read
+  into GPU memory at retrieve time.
 
 ## Addressing one L1
 
