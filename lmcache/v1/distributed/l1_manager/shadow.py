@@ -4,7 +4,7 @@
 # Standard
 from collections.abc import Mapping
 from dataclasses import replace
-from typing import Any, cast
+from typing import cast
 
 # Third Party
 import torch
@@ -33,7 +33,6 @@ from lmcache.v1.distributed.memory_manager import (
     ShadowL1MemoryManager,
 )
 from lmcache.v1.memory_management import MemoryObj
-from lmcache.v1.mp_observability.event import Event, EventType
 from lmcache.v1.mp_observability.event_bus import EventBus, EventBusConfig
 
 # The L1 medium a borrowed segment is reported as; other segments cannot be
@@ -43,27 +42,6 @@ _BACKEND_BY_SEGMENT: dict[MemorySegment, L1BackendType] = {
     MemorySegment.CXL: L1BackendType.DEVDAX,
     MemorySegment.GDS: L1BackendType.GDS,
 }
-
-
-class _NoEvents(EventBus):
-    """An event bus that publishes nothing.
-
-    L1 events announce this node's residency per backend, and a shadow's keys
-    are the peer's residency: an eviction event from a DRAM shadow would be
-    recorded against this node's own DRAM copy of the key.
-    """
-
-    def __init__(self) -> None:
-        self._config = EventBusConfig(enabled=False)
-
-    def publish(self, event: Event) -> None:
-        pass
-
-    def publish_on_stream(self, stream: Any, event: Event) -> None:
-        pass
-
-    def has_subscribers(self, event_type: EventType) -> bool:
-        return False
 
 
 class ShadowL1Manager(BaseL1Manager):
@@ -104,7 +82,10 @@ class ShadowL1Manager(BaseL1Manager):
             segment=segment, residency=MemoryResidency.REMOTE
         )
         super().__init__(config, ShadowL1MemoryManager())
-        self._event_bus = _NoEvents()
+        # L1 events announce this node's residency per backend, and a
+        # shadow's keys are the peer's residency: an eviction event from a
+        # DRAM shadow would be recorded against this node's own DRAM copy.
+        self._event_bus = EventBus(EventBusConfig(enabled=False))
 
     @classmethod
     def for_lender(
