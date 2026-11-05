@@ -33,7 +33,10 @@ from lmcache.v1.distributed.l2_adapters.p2p_l2_adapter import (
     PeerL2AdapterBase,
     PeerL2AdapterConfigBase,
 )
-from lmcache.v1.distributed.memory_manager import BorrowedTensorMemoryObj
+from lmcache.v1.distributed.memory_manager import (
+    BorrowedMemoryObj,
+    BorrowedTensorMemoryObj,
+)
 from lmcache.v1.distributed.transfer_channel.api import TransferChannelAddress
 from lmcache.v1.memory_management import MemoryObj
 
@@ -197,8 +200,8 @@ class LendingMockL2Adapter(LendingPeerL2AdapterBase):
 
     def take_borrowed_objects(
         self, keys: list[ObjectKey], layouts: dict[int, MemoryLayoutDesc]
-    ) -> dict[ObjectKey, BorrowedTensorMemoryObj]:
-        views = {}
+    ) -> dict[ObjectKey, BorrowedMemoryObj]:
+        views: dict[ObjectKey, BorrowedMemoryObj] = {}
         for key in keys:
             if not self._reserved.get(key, 0):
                 continue

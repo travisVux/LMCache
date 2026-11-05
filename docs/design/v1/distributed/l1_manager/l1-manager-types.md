@@ -120,6 +120,12 @@ lender ── take_borrowed_objects ──► views ── admit ──► shado
   `shadow.<segment>.<adapter_id>`), binds it (`bind_shadow_l1`), and the
   adapter closes it with itself. Serde on a lender, or a lender/`REMOTE`
   mismatch in either direction, is refused before anything is registered.
+- **What is lent.** A borrowed object is a `BorrowedMemoryObj`
+  (`memory_manager/shadow_l1_memory_manager.py`): the lender's
+  `(lease_is_valid, on_release)` lease, `release`, `same_bytes` (lease
+  adoption) and `local_device` (fenced on close). `BorrowedTensorMemoryObj`
+  is the view of bytes mapped locally; a lender whose bytes stay remote adds
+  its own subclass.
 - **Nothing is written, stored or evicted here.** The peer owns the bytes.
   Store and eviction controllers, prefetch admission and L1 residency events
   apply to owned L1s.

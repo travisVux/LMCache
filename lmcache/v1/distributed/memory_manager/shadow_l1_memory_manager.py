@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The borrowed view a lender hands over, and the memory manager that frees it."""
+"""The borrowed objects a lender hands over, and the memory manager that frees
+them."""
 
 # Standard
 from typing import Callable
+import abc
 
 # Third Party
 import torch
@@ -14,14 +16,61 @@ from lmcache.v1.distributed.internal_api import L1MemoryDesc
 from lmcache.v1.memory_management import MemoryObj, MemoryObjMetadata, TensorMemoryObj
 
 
-class BorrowedTensorMemoryObj(TensorMemoryObj):
+class BorrowedMemoryObj(MemoryObj):
+    """A memory object held under a lease that someone else grants.
+
+    The lender (e.g. an L2 adapter holding a peer's read reservation) decides
+    how long the bytes stay valid: ``is_valid()`` is False once the lease
+    ended, and :meth:`release` ends it from this side. A lender must release
+    an object that is garbage-collected without :meth:`release`. Subclasses
+    set ``_lease_is_valid`` and ``_on_release`` in their constructor.
+    """
+
+    _lease_is_valid: Callable[[], bool]
+    _on_release: Callable[[], None]
+
+    @property
+    def lease(self) -> tuple[Callable[[], bool], Callable[[], None]]:
+        """Return the object's ``(lease_is_valid, on_release)`` pair."""
+        return self._lease_is_valid, self._on_release
+
+    def replace_lease(
+        self, lease_is_valid: Callable[[], bool], on_release: Callable[[], None]
+    ) -> None:
+        """Put the object under another lease, a newer reservation of the
+        same bytes. The caller owns the previous lease.
+
+        Args:
+            lease_is_valid: Nonblocking check that the new lease still holds.
+            on_release: Ends the new lease; same rules as the constructor's.
+        """
+        self._lease_is_valid = lease_is_valid
+        self._on_release = on_release
+
+    def release(self) -> None:
+        """Invalidate the object and end the lease; repeated calls are no-ops."""
+        self.invalidate()
+        self._on_release()
+
+    @abc.abstractmethod
+    def same_bytes(self, other: "BorrowedMemoryObj") -> bool:
+        """Return whether ``other`` is a view of the same bytes as this one,
+        so that a shadow L1 may renew this object from ``other``'s lease."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def local_device(self) -> torch.device | None:
+        """Return the device a reader touches the bytes on, or None when the
+        bytes are read wherever the reader lands them."""
+        raise NotImplementedError
+
+
+class BorrowedTensorMemoryObj(TensorMemoryObj, BorrowedMemoryObj):
     """A tensor view of bytes another party owns, held under a lease.
 
     It allocates nothing locally. Whoever lends the bytes (e.g. an L2 adapter
     holding a peer's read reservation) supplies the lease: ``is_valid()``
-    also reports whether the lease still holds, and :meth:`release` ends it.
-    A lender must release a view that is garbage-collected without
-    :meth:`release`.
+    also reports whether the lease still holds, and ``release`` ends it.
 
     Args:
         raw_data: The borrowed bytes; a view, never a copy.
@@ -46,56 +95,29 @@ class BorrowedTensorMemoryObj(TensorMemoryObj):
         self._lease_is_valid = lease_is_valid
         self._on_release = on_release
 
-    @property
-    def lease(self) -> tuple[Callable[[], bool], Callable[[], None]]:
-        """Return the view's ``(lease_is_valid, on_release)`` pair."""
-        return self._lease_is_valid, self._on_release
-
-    def replace_lease(
-        self, lease_is_valid: Callable[[], bool], on_release: Callable[[], None]
-    ) -> None:
-        """Put the view under another lease, a newer reservation of the same
-        bytes. The caller owns the previous lease.
-
-        Args:
-            lease_is_valid: Nonblocking check that the new lease still holds.
-            on_release: Ends the new lease; same rules as the constructor's.
-        """
-        self._lease_is_valid = lease_is_valid
-        self._on_release = on_release
-
-    def same_bytes(self, other: "BorrowedTensorMemoryObj") -> bool:
-        """Return whether ``other`` is a view of the same bytes as this one.
-
-        Args:
-            other: A view of the same key from a later lookup.
-
-        Returns:
-            True when both views alias one buffer of one size. A lender whose
-            views land in local buffers overrides this to compare the peer
-            address instead.
-        """
+    def same_bytes(self, other: BorrowedMemoryObj) -> bool:
+        """Both views alias one buffer of one size."""
         return (
-            self.raw_data.data_ptr() == other.raw_data.data_ptr()
+            isinstance(other, BorrowedTensorMemoryObj)
+            and self.raw_data.data_ptr() == other.raw_data.data_ptr()
             and self.get_size() == other.get_size()
         )
+
+    def local_device(self) -> torch.device:
+        """The device the aliased buffer lives on."""
+        return self.raw_data.device
 
     def is_valid(self) -> bool:
         """Return whether the view is unreleased and its lease still holds."""
         return super().is_valid() and self._lease_is_valid()
 
-    def release(self) -> None:
-        """Invalidate the view and end the lease; repeated calls are no-ops."""
-        self.invalidate()
-        self._on_release()
-
 
 class ShadowL1MemoryManager:
     """Memory manager behind :class:`ShadowL1Manager`.
 
-    Its objects are :class:`BorrowedTensorMemoryObj` views whose bytes
-    someone else owns, so it never allocates and has no capacity; freeing an
-    object ends its lease. Satisfies ``L1MemoryManagerProtocol``.
+    Its objects are :class:`BorrowedMemoryObj` views whose bytes someone else
+    owns, so it never allocates and has no capacity; freeing an object ends
+    its lease. Satisfies ``L1MemoryManagerProtocol``.
     """
 
     def allocate(
@@ -122,11 +144,11 @@ class ShadowL1MemoryManager:
             ``SUCCESS``.
 
         Raises:
-            TypeError: If an object is not a :class:`BorrowedTensorMemoryObj`,
+            TypeError: If an object is not a :class:`BorrowedMemoryObj`,
                 which would mean a wiring bug placed local memory here.
         """
         for obj in mem_objs:
-            if not isinstance(obj, BorrowedTensorMemoryObj):
+            if not isinstance(obj, BorrowedMemoryObj):
                 raise TypeError(f"Shadow L1 holds only borrowed views, got {obj!r}")
             obj.release()
         return L1Error.SUCCESS

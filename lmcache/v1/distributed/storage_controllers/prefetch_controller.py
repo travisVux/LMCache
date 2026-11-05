@@ -49,7 +49,7 @@ from lmcache.v1.distributed.l2_adapters.base import L2AdapterInterface, L2TaskId
 from lmcache.v1.distributed.l2_adapters.p2p_l2_adapter import (
     LendingPeerL2AdapterBase,
 )
-from lmcache.v1.distributed.memory_manager import BorrowedTensorMemoryObj
+from lmcache.v1.distributed.memory_manager import BorrowedMemoryObj
 from lmcache.v1.distributed.storage_controller import StorageControllerInterface
 from lmcache.v1.distributed.storage_controllers.adapter_lifecycle import (
     AddAdapterOp,
@@ -1621,7 +1621,7 @@ class PrefetchController(StorageControllerInterface):
                 continue
             lender = cast(LendingPeerL2AdapterBase, self._l2_adapters[adapter_idx])
             keys = _gather_keys(request.key_groups, cells)
-            views: dict[ObjectKey, BorrowedTensorMemoryObj] = {}
+            views: dict[ObjectKey, BorrowedMemoryObj] = {}
             admitted = Bitmap(len(keys))
             try:
                 views = lender.take_borrowed_objects(keys, layouts)

@@ -43,7 +43,7 @@ from lmcache.v1.distributed.l2_adapters.config import (
     register_l2_adapter_type,
 )
 from lmcache.v1.distributed.l2_adapters.factory import register_l2_adapter_factory
-from lmcache.v1.distributed.memory_manager import BorrowedTensorMemoryObj
+from lmcache.v1.distributed.memory_manager import BorrowedMemoryObj
 from lmcache.v1.distributed.transfer_channel import get_transfer_channel_context
 from lmcache.v1.distributed.transfer_channel.api import TransferChannelAddress
 from lmcache.v1.memory_management import MemoryObj
@@ -464,7 +464,7 @@ class LendingPeerL2AdapterBase(PeerL2AdapterBase):
         self,
         keys: list[ObjectKey],
         layouts: dict[int, MemoryLayoutDesc],
-    ) -> dict[ObjectKey, BorrowedTensorMemoryObj]:
+    ) -> dict[ObjectKey, BorrowedMemoryObj]:
         """Lend views of the keys this adapter holds reservations for.
 
         Args:

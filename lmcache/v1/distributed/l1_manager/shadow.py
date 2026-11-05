@@ -6,6 +6,9 @@ from collections.abc import Mapping
 from dataclasses import replace
 from typing import Any, cast
 
+# Third Party
+import torch
+
 # First Party
 from lmcache import torch_dev
 from lmcache.lmcache_native import TTLLock
@@ -26,7 +29,7 @@ from lmcache.v1.distributed.l1_manager.base import (
     validate_read_locks,
 )
 from lmcache.v1.distributed.memory_manager import (
-    BorrowedTensorMemoryObj,
+    BorrowedMemoryObj,
     ShadowL1MemoryManager,
 )
 from lmcache.v1.memory_management import MemoryObj
@@ -67,7 +70,7 @@ class ShadowL1Manager(BaseL1Manager):
     """L1 manager whose objects are borrowed views: metadata only, no payload.
 
     An L2 adapter that lends views (e.g. of a peer's memory) produces
-    :class:`BorrowedTensorMemoryObj` objects; this manager indexes them by key
+    :class:`BorrowedMemoryObj` objects; this manager indexes them by key
     so the ordinary read path (read locks, ``finish_read``, events) serves
     them. Freeing an object ends its lease. The manager has no capacity: write
     placement targets owned L1s, and the peer that owns the bytes evicts them.
@@ -150,7 +153,7 @@ class ShadowL1Manager(BaseL1Manager):
     @l1_mgr_synchronized
     def admit(
         self,
-        objects: Mapping[ObjectKey, BorrowedTensorMemoryObj],
+        objects: Mapping[ObjectKey, BorrowedMemoryObj],
         read_locks: int = 1,
     ) -> dict[ObjectKey, L1OperationResult]:
         """Make borrowed views resident and read-lock them, without allocating.
@@ -189,7 +192,7 @@ class ShadowL1Manager(BaseL1Manager):
                 continue
             entry = self._objects.get(key)
             if entry is not None:
-                resident = cast(BorrowedTensorMemoryObj, entry.memory_obj)
+                resident = cast(BorrowedMemoryObj, entry.memory_obj)
                 if not resident.same_bytes(obj):
                     # The peer moved the key since the holders' lease: they
                     # keep their bytes, this request misses.
@@ -250,13 +253,14 @@ class ShadowL1Manager(BaseL1Manager):
         """
         with self._lock:
             devices = {
-                entry.memory_obj.raw_data.device for entry in self._objects.values()
+                cast(BorrowedMemoryObj, entry.memory_obj).local_device()
+                for entry in self._objects.values()
             }
         if torch_dev.is_available():
-            if any(device.type == "cpu" for device in devices):
+            if any(device is None or device.type == "cpu" for device in devices):
                 indices = list(range(torch_dev.device_count()))
             else:
-                indices = [device.index for device in devices]
+                indices = [cast(torch.device, device).index for device in devices]
             for index in indices:
                 torch_dev.synchronize(index)
         super().close()

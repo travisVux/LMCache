@@ -31,7 +31,11 @@ from lmcache.v1.distributed.memory_manager import (
     BorrowedTensorMemoryObj,
     ShadowL1MemoryManager,
 )
-from lmcache.v1.memory_management import MemoryFormat, MemoryObjMetadata
+from lmcache.v1.memory_management import (
+    MemoryFormat,
+    MemoryObjMetadata,
+    TensorMemoryObj,
+)
 from lmcache.v1.mp_observability.event import Event, EventType
 from lmcache.v1.mp_observability.event_bus import EventBusConfig, init_event_bus
 import lmcache.v1.memory_management as memory_management
@@ -295,3 +299,14 @@ def test_shadow_publishes_no_l1_events(fake_pinned_memory: None) -> None:
         assert manager.config.tag not in tags
     finally:
         init_event_bus(EventBusConfig(enabled=False))
+
+
+def test_shadow_memory_manager_rejects_unleased_objects() -> None:
+    with pytest.raises(TypeError):
+        ShadowL1MemoryManager().free(
+            [
+                TensorMemoryObj(
+                    torch.zeros(PAGE, dtype=torch.uint8), _view(Lease()).meta, None
+                )
+            ]
+        )
