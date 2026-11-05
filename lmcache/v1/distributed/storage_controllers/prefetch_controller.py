@@ -1379,7 +1379,47 @@ class PrefetchController(StorageControllerInterface):
             if self._is_l2_eligible(request, l2_idx)
         }
         self._plan_load(request, active_l2_descs)
-        self._admit_borrowed_views(request)
+
+        # Step 2b: a lender's planned keys become borrowed views in its
+        # shadow L1, read-locked for the request, and leave the L2 plan.
+        # Only keys that became no view are unlocked: a view owns its
+        # reservation.
+        layouts = {
+            group.object_group_id: group.layout_desc for group in request.key_groups
+        }
+        for adapter_idx, cells in list(states.l2_locked_keys.items()):
+            shadow = self._shadow_l1s.get(adapter_idx)
+            if shadow is None:
+                continue
+            lender = cast(LendingPeerL2AdapterBase, self._l2_adapters[adapter_idx])
+            keys = _gather_keys(request.key_groups, cells)
+            views: dict[ObjectKey, BorrowedMemoryObj] = {}
+            admitted = Bitmap(len(keys))
+            try:
+                views = lender.take_borrowed_objects(keys, layouts)
+                # admit releases every view it does not keep; a lender never
+                # raises after creating a view, so admit sees all of them.
+                results = shadow.admit(views, read_locks=request.num_kv_readers)
+                for i, key in enumerate(keys):
+                    if key in results and results[key][0] == L1Error.SUCCESS:
+                        admitted.set(i)
+            except Exception:
+                for view in views.values():
+                    view.release()
+                raise
+            finally:
+                lender.submit_unlock([key for key in keys if key not in views])
+                loaded = _scatter_bitmaps(cells, admitted)
+                l1_idx = shadow.l1_manager_id
+                if l1_idx in states.l1_locked_keys:
+                    states.l1_locked_keys[l1_idx] += loaded
+                else:
+                    states.l1_locked_keys[l1_idx] = loaded
+                if len(request.l2_loaded_cells):
+                    request.l2_loaded_cells += loaded
+                else:
+                    request.l2_loaded_cells = loaded.copy()
+                del states.l2_locked_keys[adapter_idx]
 
         # Step 3: reserve L1 write buffers for the planned L2 keys
         # with L1-L2 affinity.
@@ -1603,51 +1643,6 @@ class PrefetchController(StorageControllerInterface):
             self._l1_manager_descriptors = {
                 k: v for k, v in self._l1_manager_descriptors.items() if k != l1_id
             }
-
-    def _admit_borrowed_views(self, request: InFlightPrefetchRequest) -> None:
-        """Move each lender's planned keys into its shadow L1 as borrowed views.
-
-        The views are admitted into the lender's shadow L1, read-locked for
-        the request, and leave the L2 plan; only keys that became no view
-        are unlocked, since a view owns its reservation.
-        """
-        states = request.key_states
-        layouts = {
-            group.object_group_id: group.layout_desc for group in request.key_groups
-        }
-        for adapter_idx, cells in list(states.l2_locked_keys.items()):
-            shadow = self._shadow_l1s.get(adapter_idx)
-            if shadow is None:
-                continue
-            lender = cast(LendingPeerL2AdapterBase, self._l2_adapters[adapter_idx])
-            keys = _gather_keys(request.key_groups, cells)
-            views: dict[ObjectKey, BorrowedMemoryObj] = {}
-            admitted = Bitmap(len(keys))
-            try:
-                views = lender.take_borrowed_objects(keys, layouts)
-                # admit releases every view it does not keep; a lender never
-                # raises after creating a view, so admit sees all of them.
-                results = shadow.admit(views, read_locks=request.num_kv_readers)
-                for i, key in enumerate(keys):
-                    if key in results and results[key][0] == L1Error.SUCCESS:
-                        admitted.set(i)
-            except Exception:
-                for view in views.values():
-                    view.release()
-                raise
-            finally:
-                lender.submit_unlock([key for key in keys if key not in views])
-                loaded = _scatter_bitmaps(cells, admitted)
-                l1_idx = shadow.l1_manager_id
-                if l1_idx in states.l1_locked_keys:
-                    states.l1_locked_keys[l1_idx] += loaded
-                else:
-                    states.l1_locked_keys[l1_idx] = loaded
-                if len(request.l2_loaded_cells):
-                    request.l2_loaded_cells += loaded
-                else:
-                    request.l2_loaded_cells = loaded.copy()
-                del states.l2_locked_keys[adapter_idx]
 
     def _poll_load_results(
         self,
