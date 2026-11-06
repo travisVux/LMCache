@@ -10,7 +10,44 @@ zero changes to this file.
 from pathlib import Path
 from types import ModuleType
 import importlib.util
+import os
 import sys
+
+# ---------------------------------------------------------------------------
+# Dynamic Environment Variable Handling
+# ---------------------------------------------------------------------------
+TARGET_DEVICE = os.environ.get("LMCACHE_TARGET_DEVICE", "").strip().lower()
+if TARGET_DEVICE:
+    for var in ["BUILD_WITH_CUDA", "BUILD_WITH_ROCM", "BUILD_WITH_SYCL", "BUILD_WITH_MUSA", "BUILD_WITH_RBLN"]:
+        os.environ.pop(var, None)
+    if TARGET_DEVICE in ("cuda", "cu129", "cu128", "cu130", "cu124", "cu121"):
+        os.environ["BUILD_WITH_CUDA"] = "1"
+    elif TARGET_DEVICE in ("rocm", "rocm-torch210", "hip"):
+        os.environ["BUILD_WITH_ROCM"] = "1"
+    elif TARGET_DEVICE in ("xpu", "sycl", "intel"):
+        os.environ["BUILD_WITH_SYCL"] = "1"
+    elif TARGET_DEVICE in ("musa", "mthreads"):
+        os.environ["BUILD_WITH_MUSA"] = "1"
+    elif TARGET_DEVICE in ("rbln", "rebellions"):
+        os.environ["BUILD_WITH_RBLN"] = "1"
+    elif TARGET_DEVICE in ("cpu", "none"):
+        os.environ["NO_GPU_EXT"] = "1"
+
+PACKAGE_NAME = os.environ.get("LMCACHE_PACKAGE_NAME", "lmcache").strip()
+BUILD_VERSION = os.environ.get("LMCACHE_BUILD_VERSION", "").strip()
+if PACKAGE_NAME and PACKAGE_NAME != "lmcache":
+    import setuptools.dist
+
+    _orig_finalize = setuptools.dist.Distribution.finalize_options
+
+    def _finalize_options(self):
+        _orig_finalize(self)
+        self.metadata.name = PACKAGE_NAME
+
+    setuptools.dist.Distribution.finalize_options = _finalize_options
+
+if BUILD_VERSION:
+    os.environ["SETUPTOOLS_SCM_PRETEND_VERSION"] = BUILD_VERSION
 
 ROOT_DIR = Path(__file__).parent
 # Ensure the project root is importable when ``setup.py`` runs inside a
@@ -97,11 +134,15 @@ if __name__ == "__main__":
                 ROOT_DIR / "requirements" / extra_req_file
             )
 
-    setup(
-        packages=find_packages(exclude=("csrc",)),
-        ext_modules=ext_modules,
-        cmdclass=cmdclass,
-        include_package_data=True,
-        install_requires=install_requires,
-        extras_require=extras_require,
-    )
+    setup_kwargs = {
+        "packages": find_packages(exclude=("csrc",)),
+        "ext_modules": ext_modules,
+        "cmdclass": cmdclass,
+        "include_package_data": True,
+        "install_requires": install_requires,
+        "extras_require": extras_require,
+    }
+    if BUILD_VERSION:
+        setup_kwargs["version"] = BUILD_VERSION
+
+    setup(**setup_kwargs)

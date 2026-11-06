@@ -76,7 +76,6 @@ jobs:
                   free_disk_space: "true"
                   resolve_version: "true"
                   dev_version: ${{ inputs.dev_version }}
-                  version_suffix: +${{ env.MUSA_LOCAL_VERSION }}
                   version_environment_variable: MUSA_VERSION
 
             - name: Build MUSA wheel in the public MUSA image
@@ -99,6 +98,7 @@ jobs:
                   docker run --rm \
                       --ipc=host \
                       --network=host \
+                      -e LMCACHE_PACKAGE_NAME="lmcache-musa" \
                       -e SETUPTOOLS_SCM_PRETEND_VERSION="${MUSA_VERSION}" \
                       -e MUSA_HOME="${MUSA_HOME}" \
                       -e TORCH_DEVICE_BACKEND_AUTOLOAD="${TORCH_DEVICE_BACKEND_AUTOLOAD}" \

@@ -71,13 +71,13 @@ jobs:
                   free_disk_space: "true"
                   resolve_version: "true"
                   fallback_version: 0.0.0.dev
-                  version_suffix: +${{ env.ROCM_TORCH210_LOCAL_VERSION }}
                   version_environment_variable: ROCM_TORCH210_VERSION
 
             - name: Build ROCm torch 2.10 wheel
               run: |
                   echo "AMD torch wheel source: ${TORCH_WHEEL_SOURCE}"
                   docker run --rm \
+                    -e LMCACHE_PACKAGE_NAME="lmcache-rocm-torch210" \
                     -e EXPECTED_TORCH_VERSION="${EXPECTED_TORCH_VERSION}" \
                     -e EXPECTED_TORCH_GIT_VERSION="${EXPECTED_TORCH_GIT_VERSION}" \
                     -e EXPECTED_HIP_VERSION="${EXPECTED_HIP_VERSION}" \

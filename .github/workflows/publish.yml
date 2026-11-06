@@ -449,6 +449,40 @@ jobs:
                   \`\`\`" \
                     dist/*.whl
 
+    # Publish cu12.9 wheels to PyPI when a release is published
+    publish-cu129-pypi:
+        name: Publish lmcache-cu129 to pypi.org
+        if: |
+            needs.build-cu129.result == 'success' &&
+            needs.test.result == 'success' &&
+            needs.code-quality.result == 'success' &&
+            needs.changes.outputs.lmcache == 'true' &&
+            github.repository_owner == 'LMCache' && github.event.action == 'published'
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-24.04
+        needs: [changes, build-cu129, test, code-quality]
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+              with:
+                  disable-sudo-and-containers: false
+                  egress-policy: audit
+
+            - name: Fetch cu12.9 release artifacts
+              uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+              with:
+                  pattern: release-cu129-artifacts-*
+                  merge-multiple: true
+                  path: dist
+
+            - name: Upload lmcache-cu129 to PyPI
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+              with:
+                  verbose: true
+
     # Publish ROCm wheel to GitHub Release (not PyPI) when a release is published.
     # gfx942 (MI300X/MI325X) + gfx950 (MI350X/MI355X), ABI-matched to the
     # upstream vllm/vllm-openai-rocm image. Mirrors the cu129 flow.
@@ -498,6 +532,39 @@ jobs:
                     --find-links https://github.com/${{ github.repository }}/releases/expanded_assets/\${VERSION}-rocm
                   \`\`\`" \
                     dist/*.whl
+
+    # Publish ROCm wheels to PyPI when a release is published
+    publish-rocm-pypi:
+        name: Publish lmcache-rocm to pypi.org
+        if: |
+            needs.build-rocm.result == 'success' &&
+            needs.test.result == 'success' &&
+            needs.code-quality.result == 'success' &&
+            needs.changes.outputs.lmcache == 'true' &&
+            github.repository_owner == 'LMCache' && github.event.action == 'published'
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-24.04
+        needs: [changes, build-rocm, test, code-quality]
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+              with:
+                  disable-sudo-and-containers: false
+                  egress-policy: audit
+
+            - name: Fetch ROCm release artifacts
+              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+              with:
+                  name: release-rocm-artifacts
+                  path: dist
+
+            - name: Upload lmcache-rocm to PyPI
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+              with:
+                  verbose: true
 
     # Publish XPU wheel to GitHub Release (not PyPI) when a release is published.
     # Built with oneAPI + torch xpu pins; runtime binds to host oneAPI/SYCL libs.
@@ -549,6 +616,39 @@ jobs:
                   \`\`\`" \
                     dist/*.whl
 
+    # Publish XPU wheels to PyPI when a release is published
+    publish-xpu-pypi:
+        name: Publish lmcache-xpu to pypi.org
+        if: |
+            needs.build-xpu.result == 'success' &&
+            needs.test.result == 'success' &&
+            needs.code-quality.result == 'success' &&
+            needs.changes.outputs.lmcache == 'true' &&
+            github.repository_owner == 'LMCache' && github.event.action == 'published'
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-24.04
+        needs: [changes, build-xpu, test, code-quality]
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+              with:
+                  disable-sudo-and-containers: false
+                  egress-policy: audit
+
+            - name: Fetch XPU release artifacts
+              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+              with:
+                  name: release-xpu-artifacts
+                  path: dist
+
+            - name: Upload lmcache-xpu to PyPI
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+              with:
+                  verbose: true
+
     # Publish the MUSA-compatible wheel to GitHub Release (not PyPI) when a
     # release is published. TorchMUSA and the MUSA SDK remain host-owned.
     publish-musa-github-release:
@@ -599,6 +699,39 @@ jobs:
                   \`\`\`" \
                     dist/*.whl
 
+    # Publish MUSA wheels to PyPI when a release is published
+    publish-musa-pypi:
+        name: Publish lmcache-musa to pypi.org
+        if: |
+            needs.build-musa.result == 'success' &&
+            needs.test.result == 'success' &&
+            needs.code-quality.result == 'success' &&
+            needs.changes.outputs.lmcache == 'true' &&
+            github.repository_owner == 'LMCache' && github.event.action == 'published'
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-24.04
+        needs: [changes, build-musa, test, code-quality]
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+              with:
+                  disable-sudo-and-containers: false
+                  egress-policy: audit
+
+            - name: Fetch MUSA release artifacts
+              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+              with:
+                  name: release-musa-artifacts
+                  path: dist
+
+            - name: Upload lmcache-musa to PyPI
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+              with:
+                  verbose: true
+
     # Publish the RBLN wheel to GitHub Release (not PyPI) when a release is
     # published. torch-rbln and the RBLN runtime stay host-owned.
     publish-rbln-github-release:
@@ -648,6 +781,39 @@ jobs:
                     --find-links https://github.com/${{ github.repository }}/releases/expanded_assets/\${VERSION}-rbln
                   \`\`\`" \
                     dist/*.whl
+
+    # Publish RBLN wheels to PyPI when a release is published
+    publish-rbln-pypi:
+        name: Publish lmcache-rbln to pypi.org
+        if: |
+            needs.build-rbln.result == 'success' &&
+            needs.test.result == 'success' &&
+            needs.code-quality.result == 'success' &&
+            needs.changes.outputs.lmcache == 'true' &&
+            github.repository_owner == 'LMCache' && github.event.action == 'published'
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-24.04
+        needs: [changes, build-rbln, test, code-quality]
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+              with:
+                  disable-sudo-and-containers: false
+                  egress-policy: audit
+
+            - name: Fetch RBLN release artifacts
+              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+              with:
+                  name: release-rbln-artifacts
+                  path: dist
+
+            - name: Upload lmcache-rbln to PyPI
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+              with:
+                  verbose: true
 
     # Publish the general ROCm wheel built against the torch 2.10 ABI.
     publish-rocm-torch210-github-release:
@@ -707,6 +873,39 @@ jobs:
                   \`\`\`
                   " \
                     dist/*.whl
+
+    # Publish ROCm torch 2.10 wheels to PyPI when a release is published
+    publish-rocm-torch210-pypi:
+        name: Publish lmcache-rocm-torch210 to pypi.org
+        if: |
+            needs.build-rocm-torch210.result == 'success' &&
+            needs.test.result == 'success' &&
+            needs.code-quality.result == 'success' &&
+            needs.changes.outputs.lmcache == 'true' &&
+            github.repository_owner == 'LMCache' && github.event.action == 'published'
+        permissions:
+            id-token: write
+            contents: read
+        runs-on: ubuntu-24.04
+        needs: [changes, build-rocm-torch210, test, code-quality]
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+              with:
+                  disable-sudo-and-containers: false
+                  egress-policy: audit
+
+            - name: Fetch ROCm torch 2.10 release artifacts
+              uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+              with:
+                  name: release-rocm-torch210-artifacts
+                  path: dist
+
+            - name: Upload lmcache-rocm-torch210 to PyPI
+              uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+              with:
+                  verbose: true
 
     # Build container image and push to DockerHub when:
     # - a new stable GitHub release is created (non-RC)

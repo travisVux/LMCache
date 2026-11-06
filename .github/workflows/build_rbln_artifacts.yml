@@ -87,12 +87,12 @@ jobs:
                   python_version: ${{ env.RBLN_PYTHON_VERSION }}
                   resolve_version: "true"
                   dev_version: ${{ inputs.dev_version }}
-                  version_suffix: +rbln
                   version_environment_variable: RBLN_VERSION
 
             - name: Build RBLN wheel in the manylinux image
               run: |
                   docker run --rm \
+                      -e LMCACHE_PACKAGE_NAME="lmcache-rbln" \
                       -e SETUPTOOLS_SCM_PRETEND_VERSION="${RBLN_VERSION}" \
                       -e TORCH_RBLN_VERSION="${TORCH_RBLN_VERSION}" \
                       -e RBLN_PYTHON_VERSION="${RBLN_PYTHON_VERSION}" \

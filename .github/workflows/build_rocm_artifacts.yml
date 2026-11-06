@@ -93,7 +93,6 @@ jobs:
                 resolve_version: "true"
                 dev_version: ${{ inputs.dev_version }}
                 fallback_version: 0.0.0.dev
-                version_suffix: +${{ env.ROCM_LOCAL_VERSION }}
                 version_environment_variable: ROCM_VERSION
 
             # Build inside the ROCm dev image. No GPU is needed to compile HIP
@@ -103,6 +102,7 @@ jobs:
             - name: Build ROCm wheel
               run: |
                 docker run --rm \
+                  -e LMCACHE_PACKAGE_NAME="lmcache-rocm" \
                   -e PYTORCH_ROCM_ARCH="${PYTORCH_ROCM_ARCH}" \
                   -e SETUPTOOLS_SCM_PRETEND_VERSION="${ROCM_VERSION}" \
                   -e TORCH_ROCM_SPEC="${TORCH_ROCM_SPEC}" \
