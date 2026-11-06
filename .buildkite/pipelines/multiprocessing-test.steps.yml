@@ -4,6 +4,7 @@ env:
 steps:
   - label: ":compression: Multiprocessing tests / {{matrix.request_transport}}"
     key: "test"
+    cancel_on_build_failing: true
     timeout_in_minutes: 60
     matrix:
       setup:
@@ -21,3 +22,14 @@ steps:
       .buildkite/scripts/should-run-expensive-tests.sh || exit 0
       chmod +x .buildkite/scripts/multiprocessing-test/*.sh
       BUILD_ID=${BUILDKITE_BUILD_ID} .buildkite/scripts/multiprocessing-test/run-mp-test.sh
+
+  - label: ":skull: Fast Fail: Cancel sibling CI"
+    depends_on: "test"
+    allow_dependency_failure: true
+    if: build.state == "failing" || build.state == "failed"
+    command: |
+      python3 .buildkite/scripts/fast_fail_cancel.py \
+        --commit "$$BUILDKITE_COMMIT" \
+        --current-build-id "$$BUILDKITE_BUILD_ID" \
+        --reason "Multiprocessing test failed in build $$BUILDKITE_BUILD_NUMBER"
+

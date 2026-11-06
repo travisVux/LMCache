@@ -41,6 +41,9 @@ jobs:
     if: needs.changes.outputs.lmcache == 'true'
     name: Check code quality
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     steps:
         - name: Harden Runner
           uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -67,4 +70,18 @@ jobs:
           uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
           with:
             extra_args: --all-files
+
+        - name: "Fast Fail: Cancel sibling GHA runs and Buildkite CI"
+          if: failure() && github.event_name == 'pull_request'
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            BK_TOKEN: ${{ secrets.BUILDKITE_API_TOKEN }}
+            COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+            CURRENT_RUN_ID: ${{ github.run_id }}
+          run: |
+            python3 .buildkite/scripts/fast_fail_cancel.py \
+              --commit "$COMMIT_SHA" \
+              --current-run-id "$CURRENT_RUN_ID" \
+              --reason "Code quality / lint checks failed on PR #${{ github.event.pull_request.number }}"
+
 
