@@ -1,0 +1,50 @@
+# Paste THIS, verbatim, into the Buildkite pipeline's web "Steps" editor for
+# the Ascend NPU lane. It is the pipeline's ROOT OF TRUST: it is the only
+# orchestration that does not come from a git checkout, so a pull request can
+# never modify it. Everything it runs is pulled fresh from the trusted branch.
+#
+# Why this exists (the vulnerability it closes):
+#   The other vendor lanes (metax/amd/xpu/musa) run
+#   `.buildkite/.../upload-pipeline.sh` out of Buildkite's automatic checkout,
+#   which lands on the PULL REQUEST head commit. A PR can therefore rewrite the
+#   upload script, helpers, pipeline YAML and host test runner before the agent
+#   executes them -- Poisoned Pipeline Execution. That is acceptable only
+#   because those lanes run on disposable cloud/K8s agents. The Ascend lane
+#   runs on a bare-metal host with a route into GPU.intranet.Ascend, so PR code
+#   must never drive it.
+#
+# How the trust boundary is kept (see BK_WEB_SETUP.md for the full model):
+#   - This bootstrap step runs on a NON-intranet, low-privilege queue.
+#   - It IGNORES the auto-checkout and clones the trusted branch itself, then
+#     hands off to the trusted trusted-bootstrap.sh.
+#   - That script uploads pipeline.yml FROM the trusted clone; every later step
+#     re-clones the trusted branch before doing anything.
+#   - The pull request contributes exactly two things, both treated as data,
+#     never as orchestration: source built into a wheel on a non-intranet
+#     builder, and (opt-in only) its test files, run inside a sandbox.
+
+agents:
+  # Dedicated bootstrap queue with NO intranet route and NO device. Keep it
+  # separate from "ascend-npu" so a bug here can never touch the intranet host.
+  queue: "ascend-bootstrap"
+
+steps:
+  - label: ":lock: Trusted bootstrap"
+    command: |
+      set -euo pipefail
+      # Canonical, public repo. A fork PR cannot influence this URL -- it is
+      # defined here in the Buildkite UI, not in any checked-out file.
+      TRUSTED_REPO="${ASCEND_TRUSTED_REPO:-https://github.com/LMCache/LMCache.git}"
+      # Trusted ref the whole lane runs from. Pin to a reviewed tag for a
+      # stronger guarantee than a moving branch (see BK_WEB_SETUP.md).
+      TRUSTED_REF="${ASCEND_TRUSTED_REF:-dev}"
+
+      work="$(mktemp -d)"
+      trap 'rm -rf "${work}"' EXIT
+      git clone --depth 1 --branch "${TRUSTED_REF}" "${TRUSTED_REPO}" "${work}/trusted"
+      cd "${work}/trusted"
+
+      # From here on, only trusted code executes. The candidate commit under
+      # test is carried in Buildkite's own env (BUILDKITE_COMMIT), not taken
+      # from any file.
+      exec bash .buildkite/ascend/trusted-bootstrap.sh

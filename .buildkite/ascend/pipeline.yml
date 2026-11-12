@@ -1,0 +1,58 @@
+# Trusted Ascend NPU pipeline. Uploaded by trusted-bootstrap.sh FROM the
+# trusted clone, so these step definitions are trusted even though Buildkite
+# will also auto-check-out the PR head on each agent. Every step ignores that
+# auto-checkout and re-clones the trusted branch before running anything --
+# that preamble is the per-step half of the trust boundary.
+#
+# Two stages, split precisely along the intranet boundary:
+#
+#   build-wheel  (queue: ascend-build, NO intranet, NO device)
+#       Builds the LMCache wheel from the CANDIDATE commit (PR source). This is
+#       where the PR's setup.py / build hooks run -- contained on a disposable,
+#       intranet-less builder. LMCache itself has no NPU native build (the NPU
+#       c_ops ship in the external `lmcache_ascend` plugin), so this is an
+#       ordinary NO_GPU_EXT wheel. The wheel is stamped with its source commit.
+#
+#   npu-tests    (queue: ascend-npu, the bare-metal host inside the intranet)
+#       Downloads the prebuilt wheel, verifies its stamped commit, installs it
+#       (no build, so no PR setup.py runs here), and runs the NPU suite inside a
+#       sandbox. By default it runs the TRUSTED test tree against the candidate
+#       wheel, so no PR test code executes on the intranet host.
+#
+# See BK_WEB_SETUP.md for the queue/host hardening each stage assumes.
+
+env:
+  ASCEND_TRUSTED_REPO: "${ASCEND_TRUSTED_REPO:-https://github.com/LMCache/LMCache.git}"
+  ASCEND_TRUSTED_REF: "${ASCEND_TRUSTED_REF:-dev}"
+
+steps:
+  - label: ":package: Build Ascend wheel (candidate, off-intranet)"
+    key: "ascend_build"
+    agents:
+      queue: "ascend-build"
+    timeout_in_minutes: 40
+    command: |
+      set -euo pipefail
+      work="$(mktemp -d)"; trap 'rm -rf "${work}"' EXIT
+      git clone --depth 1 --branch "${ASCEND_TRUSTED_REF:-dev}" "${ASCEND_TRUSTED_REPO:-https://github.com/LMCache/LMCache.git}" "${work}/trusted"
+      cd "${work}/trusted"
+      exec bash .buildkite/ascend/build-wheel.sh
+
+  - wait: ~
+
+  - label: ":test_tube: Ascend NPU tests (intranet host)"
+    key: "ascend_tests"
+    depends_on: "ascend_build"
+    agents:
+      queue: "ascend-npu"
+    timeout_in_minutes: 60
+    command: |
+      set -euo pipefail
+      work="$(mktemp -d)"; trap 'rm -rf "${work}"' EXIT
+      git clone --depth 1 --branch "${ASCEND_TRUSTED_REF:-dev}" "${ASCEND_TRUSTED_REPO:-https://github.com/LMCache/LMCache.git}" "${work}/trusted"
+      cd "${work}/trusted"
+      exec bash .buildkite/ascend/run-tests.sh
+    artifact_paths:
+      - "durations/test.html"
+      - "coverage-test.xml"
+      - "coverage-test/**/*"
