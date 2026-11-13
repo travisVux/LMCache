@@ -83,7 +83,13 @@ if [[ -n "${TORCH_MUSA_PACKAGES:-}" ]]; then
     "${MUSA_PYTHON}" -m pip install "${pip_args[@]}" "${torch_packages[@]}"
 fi
 
-"${MUSA_PYTHON}" -c 'import torch; print("BUILD TORCH:", torch.__version__)'
+# Some public TorchMUSA images ship torch_musa as an editable install pointing
+# to a non-existent build-host path while keeping the package tree under /home/torch_musa.
+if ! "${MUSA_PYTHON}" -c 'import torch_musa' >/dev/null 2>&1 && [[ -d /home/torch_musa/torch_musa ]]; then
+    export PYTHONPATH="/home/torch_musa${PYTHONPATH:+:${PYTHONPATH}}"
+fi
+
+"${MUSA_PYTHON}" -c 'import torch, torch_musa; print("BUILD TORCH:", torch.__version__, "torch_musa:", torch_musa.__file__)'
 
 "${MUSA_PYTHON}" -m pip install --no-cache-dir \
     ninja \
@@ -101,8 +107,7 @@ cd "${PROJECT_DIR}"
 rm -rf build dist dist_musa
 
 # BUILD_WITH_MUSA selects the MUSA profile even when the image also exposes a
-# CUDA-compatible compiler.  The profile currently builds common C++ modules;
-# MUSA-specific kernels remain an explicit future extension of that profile.
+# CUDA-compatible compiler, building lmcache.musa_ops alongside common C++ modules.
 export BUILD_WITH_MUSA=1
 "${MUSA_PYTHON}" setup.py bdist_wheel --dist-dir=dist_musa
 
