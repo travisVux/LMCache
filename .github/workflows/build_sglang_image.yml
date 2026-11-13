@@ -42,7 +42,8 @@ jobs:
     # Resolved once so both architectures build on the same SGLang release and
     # the image label names it. Starts from the release tag lmsysorg/sglang:latest
     # points to (SGLang's GitHub release is tagged before its image is pushed) and
-    # walks back to the newest release pinning the torch LMCache is built against.
+    # walks back to the newest release pinning LMCache's exact torch, or falling
+    # back to the newest release on the same major.minor torch if no exact patch match exists.
     resolve-sglang-version:
         name: Resolve the newest SGLang release image
         runs-on: ubuntu-24.04
@@ -64,9 +65,12 @@ jobs:
               id: resolve
               run: |
                 TORCH=$(python3 -c 'import re, tomllib; reqs = tomllib.load(open("pyproject.toml", "rb"))["build-system"]["requires"]; print(next(re.sub(r"^torch\s*==\s*", "", r) for r in reqs if re.match(r"^torch\s*==", r)))')
+                TORCH_MINOR="${TORCH%.*}"
                 HUB=https://hub.docker.com/v2/repositories/lmsysorg/sglang/tags
                 LATEST=$(curl -fsSL "${HUB}/latest" | jq -r .digest)
                 VERSION=""
+                MINOR_VERSION=""
+                MINOR_TORCH=""
                 FOUND_LATEST=""
                 for TAG in $(git ls-remote --tags --refs https://github.com/sgl-project/sglang.git \
                     | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+(\.post[0-9]+)?$' | sort -rV); do
@@ -77,15 +81,26 @@ jobs:
                   SGLANG_TORCH=$(curl -fsSL "https://raw.githubusercontent.com/sgl-project/sglang/${TAG}/python/pyproject.toml" \
                     | grep -m1 -oP '^\s*"torch==\K[^"]+')
                   echo "${TAG}: torch ${SGLANG_TORCH}"
-                  if [[ "${SGLANG_TORCH}" == "${TORCH}" ]]; then VERSION=${TAG}; break; fi
+                  if [[ "${SGLANG_TORCH}" == "${TORCH}" ]]; then
+                    VERSION=${TAG}
+                    break
+                  fi
+                  if [[ -z "${MINOR_VERSION}" && "${SGLANG_TORCH%.*}" == "${TORCH_MINOR}" ]]; then
+                    MINOR_VERSION=${TAG}
+                    MINOR_TORCH=${SGLANG_TORCH}
+                  fi
                 done
+                if [[ -z "${VERSION}" && -n "${MINOR_VERSION}" ]]; then
+                  echo "No exact torch ${TORCH} match; falling back to ${MINOR_VERSION} (torch ${MINOR_TORCH})"
+                  VERSION=${MINOR_VERSION}
+                fi
                 if [[ -z "${VERSION}" ]]; then
-                  echo "::error::No lmsysorg/sglang release at or below latest ships torch ${TORCH}"
+                  echo "::error::No lmsysorg/sglang release at or below latest ships torch ${TORCH} (or ${TORCH_MINOR}.*)"
                   exit 1
                 fi
                 echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
                 echo "torch=${TORCH}" >> "$GITHUB_OUTPUT"
-                echo "Building on lmsysorg/sglang:${VERSION} (torch ${TORCH})"
+                echo "Building on lmsysorg/sglang:${VERSION} (expected torch ${TORCH})"
 
     build-sglang-image:
         name: Build lmcache/sglang (${{ matrix.arch }})

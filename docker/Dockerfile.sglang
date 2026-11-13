@@ -5,11 +5,12 @@
 # Please update any changes made here to docker/README.md
 #
 # The release workflow builds on the newest SGLang release, at or below the tag
-# lmsysorg/sglang:latest points to, that pins LMCache's torch. LMCache's compiled
-# extensions are tied to the torch they were built against (the torch pin in
-# pyproject.toml), so that SGLang release must ship the same torch. The build fails, instead of
-# shipping an image that silently falls back to slow paths, if:
-#   - SGLang's torch differs from EXPECTED_TORCH,
+# lmsysorg/sglang:latest points to, that pins LMCache's torch (preferring an
+# exact match and falling back to the same major.minor torch). LMCache's compiled
+# extensions are tied to the torch ABI they were built against (the torch pin in
+# pyproject.toml), so that SGLang release must ship a matching major.minor torch.
+# The build fails, instead of shipping an image that silently falls back to slow paths, if:
+#   - SGLang's torch major.minor differs from EXPECTED_TORCH,
 #   - installing lmcache would change SGLang's torch/CUDA stack,
 #   - lmcache's native extension or SGLang connector does not load,
 #   - SGLang lacks the --enable-lmcache flag.
@@ -34,7 +35,8 @@ RUN --mount=type=bind,source=.github/scripts/assert_native_ops.py,target=/tmp/as
     set -eux; \
     test -n "${LMCACHE_VERSION}"; \
     TORCH="$(python3 -c 'import torch; print(torch.__version__)')"; \
-    if [ -n "${EXPECTED_TORCH}" ] && [ "${TORCH%%+*}" != "${EXPECTED_TORCH}" ]; then \
+    TORCH_BASE="${TORCH%%+*}"; \
+    if [ -n "${EXPECTED_TORCH}" ] && [ "${TORCH_BASE%.*}" != "${EXPECTED_TORCH%.*}" ]; then \
         echo "SGLang ${SGLANG_VERSION} ships torch ${TORCH}; lmcache is built against torch ${EXPECTED_TORCH}" >&2; \
         exit 1; \
     fi; \
