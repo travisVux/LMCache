@@ -1,0 +1,1345 @@
+{
+ "updated_at": "2026-11-13T11:44:29+07:00",
+ "window": {
+  "start": "2026-10-05",
+  "end": "2026-11-04",
+  "pipeline": "k3-multiprocess-test",
+  "builds": 941
+ },
+ "weeks": [
+  {
+   "w": "W41",
+   "partial": true,
+   "builds": 128
+  },
+  {
+   "w": "W42",
+   "partial": false,
+   "builds": 282
+  },
+  {
+   "w": "W43",
+   "partial": false,
+   "builds": 266
+  },
+  {
+   "w": "W44",
+   "partial": false,
+   "builds": 197
+  },
+  {
+   "w": "W45",
+   "partial": true,
+   "builds": 68
+  }
+ ],
+ "flaky": {
+  "totals": {
+   "first_fail": 859,
+   "flaky": 309,
+   "still_fail": 53,
+   "retry_gpu_h": 198.6,
+   "test_kind": 270,
+   "infra_kind": 39,
+   "flips": 6
+  },
+  "workloads": [
+   {
+    "workload": "long_doc_qa_l2",
+    "gpus": "2",
+    "runs": 459,
+    "first_fail": 107,
+    "flaky": 96,
+    "still_fail": 3,
+    "canceled": 8,
+    "flaky_rate": 0.2092,
+    "retry_gpu_h": 67.7,
+    "exits": {
+     "1": 93,
+     "128": 3
+    },
+    "examples": [
+     {
+      "build": "6382",
+      "pr": "5713",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6382",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6374",
+      "pr": "6269",
+      "exit": "1",
+      "attempts": 3,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6374",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6371",
+      "pr": "6234",
+      "exit": "128",
+      "attempts": 3,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6371",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6370",
+      "pr": "3992",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6370",
+      "at": "2026-11-04"
+     }
+    ],
+    "weeks": {
+     "W45": 7,
+     "W44": 15,
+     "W43": 27,
+     "W42": 25,
+     "W41": 22
+    }
+   },
+   {
+    "workload": "long_doc_qa",
+    "gpus": "2",
+    "runs": 789,
+    "first_fail": 87,
+    "flaky": 74,
+    "still_fail": 5,
+    "canceled": 8,
+    "flaky_rate": 0.0938,
+    "retry_gpu_h": 46.0,
+    "exits": {
+     "1": 72,
+     "128": 2
+    },
+    "examples": [
+     {
+      "build": "6374",
+      "pr": "6269",
+      "exit": "1",
+      "attempts": 3,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6374",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6370",
+      "pr": "3992",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6370",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6364",
+      "pr": "6234",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6364",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6343",
+      "pr": "6197",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6343",
+      "at": "2026-11-03"
+     }
+    ],
+    "weeks": {
+     "W45": 8,
+     "W44": 24,
+     "W43": 14,
+     "W42": 22,
+     "W41": 6
+    }
+   },
+   {
+    "workload": "vllm_bench",
+    "gpus": "2",
+    "runs": 767,
+    "first_fail": 78,
+    "flaky": 65,
+    "still_fail": 1,
+    "canceled": 12,
+    "flaky_rate": 0.0847,
+    "retry_gpu_h": 22.5,
+    "exits": {
+     "1": 62,
+     "128": 2,
+     "2": 1
+    },
+    "examples": [
+     {
+      "build": "6378",
+      "pr": "6275",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6378",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6371",
+      "pr": "6234",
+      "exit": "128",
+      "attempts": 3,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6371",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6370",
+      "pr": "3992",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6370",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6366",
+      "pr": "6269",
+      "exit": "1",
+      "attempts": 4,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6366",
+      "at": "2026-11-04"
+     }
+    ],
+    "weeks": {
+     "W45": 6,
+     "W44": 14,
+     "W43": 14,
+     "W42": 21,
+     "W41": 10
+    }
+   },
+   {
+    "workload": "dsv4_flash_tp",
+    "gpus": "4",
+    "runs": 558,
+    "first_fail": 55,
+    "flaky": 26,
+    "still_fail": 18,
+    "canceled": 11,
+    "flaky_rate": 0.0466,
+    "retry_gpu_h": 39.4,
+    "exits": {
+     "255": 16,
+     "1": 5,
+     "128": 3,
+     "-1": 2
+    },
+    "examples": [
+     {
+      "build": "6371",
+      "pr": "6234",
+      "exit": "128",
+      "attempts": 3,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6371",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6370",
+      "pr": "3992",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6370",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6322",
+      "pr": "4072",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6322",
+      "at": "2026-11-02"
+     },
+     {
+      "build": "6234",
+      "pr": "6061",
+      "exit": "255",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6234",
+      "at": "2026-10-28"
+     }
+    ],
+    "weeks": {
+     "W45": 4,
+     "W44": 8,
+     "W43": 9,
+     "W42": 4,
+     "W41": 1
+    }
+   },
+   {
+    "workload": "kimi_linear_tp",
+    "gpus": "2",
+    "runs": 509,
+    "first_fail": 38,
+    "flaky": 25,
+    "still_fail": 8,
+    "canceled": 5,
+    "flaky_rate": 0.0491,
+    "retry_gpu_h": 14.8,
+    "exits": {
+     "1": 22,
+     "128": 3
+    },
+    "examples": [
+     {
+      "build": "6380",
+      "pr": "6266",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6380",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6371",
+      "pr": "6234",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6371",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6370",
+      "pr": "3992",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6370",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6329",
+      "pr": "6228",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6329",
+      "at": "2026-11-02"
+     }
+    ],
+    "weeks": {
+     "W45": 6,
+     "W44": 5,
+     "W43": 1,
+     "W42": 8,
+     "W41": 5
+    }
+   },
+   {
+    "workload": "unit_tests",
+    "gpus": "",
+    "runs": 0,
+    "first_fail": 373,
+    "flaky": 10,
+    "still_fail": 2,
+    "canceled": 2,
+    "flaky_rate": null,
+    "retry_gpu_h": 4.5,
+    "exits": {
+     "1": 10
+    },
+    "examples": [
+     {
+      "build": "14489",
+      "pr": "6278",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/14489",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "13976",
+      "pr": "6174",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/13976",
+      "at": "2026-10-30"
+     },
+     {
+      "build": "12988",
+      "pr": "5674",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/12988",
+      "at": "2026-10-22"
+     },
+     {
+      "build": "12565",
+      "pr": "5821",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/12565",
+      "at": "2026-10-20"
+     }
+    ],
+    "weeks": {
+     "W45": 1,
+     "W44": 1,
+     "W43": 3,
+     "W42": 5
+    }
+   },
+   {
+    "workload": "fault_tolerance",
+    "gpus": "1",
+    "runs": 358,
+    "first_fail": 15,
+    "flaky": 4,
+    "still_fail": 0,
+    "canceled": 1,
+    "flaky_rate": 0.0112,
+    "retry_gpu_h": 1.2,
+    "exits": {
+     "1": 4
+    },
+    "examples": [
+     {
+      "build": "5554",
+      "pr": "5633",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5554",
+      "at": "2026-10-11"
+     },
+     {
+      "build": "5472",
+      "pr": "5519",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5472",
+      "at": "2026-10-07"
+     },
+     {
+      "build": "5458",
+      "pr": "5464",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5458",
+      "at": "2026-10-05"
+     },
+     {
+      "build": "5453",
+      "pr": "5358",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5453",
+      "at": "2026-10-05"
+     }
+    ],
+    "weeks": {
+     "W41": 4
+    }
+   },
+   {
+    "workload": "lm_eval",
+    "gpus": "1",
+    "runs": 1388,
+    "first_fail": 12,
+    "flaky": 3,
+    "still_fail": 5,
+    "canceled": 4,
+    "flaky_rate": 0.0022,
+    "retry_gpu_h": 0.8,
+    "exits": {
+     "128": 3
+    },
+    "examples": [
+     {
+      "build": "6371",
+      "pr": "6234",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6371",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "6370",
+      "pr": "3992",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6370",
+      "at": "2026-11-04"
+     },
+     {
+      "build": "5692",
+      "pr": "5733",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5692",
+      "at": "2026-10-14"
+     }
+    ],
+    "weeks": {
+     "W45": 2,
+     "W42": 1
+    }
+   },
+   {
+    "workload": "cpu_e2e_validation",
+    "gpus": "0",
+    "runs": 1043,
+    "first_fail": 21,
+    "flaky": 3,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0029,
+    "retry_gpu_h": 0.0,
+    "exits": {
+     "100": 3
+    },
+    "examples": [
+     {
+      "build": "6229",
+      "pr": "6102",
+      "exit": "100",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6229",
+      "at": "2026-10-28"
+     },
+     {
+      "build": "5994",
+      "pr": "5889",
+      "exit": "100",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5994",
+      "at": "2026-10-21"
+     }
+    ],
+    "weeks": {
+     "W44": 1,
+     "W43": 2
+    }
+   },
+   {
+    "workload": "deadlock",
+    "gpus": "2",
+    "runs": 356,
+    "first_fail": 6,
+    "flaky": 1,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0028,
+    "retry_gpu_h": 0.4,
+    "exits": {
+     "128": 1
+    },
+    "examples": [
+     {
+      "build": "5691",
+      "pr": "5667",
+      "exit": "128",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5691",
+      "at": "2026-10-14"
+     }
+    ],
+    "weeks": {
+     "W42": 1
+    }
+   },
+   {
+    "workload": "restart_recovery",
+    "gpus": "1",
+    "runs": 707,
+    "first_fail": 15,
+    "flaky": 1,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0014,
+    "retry_gpu_h": 0.3,
+    "exits": {
+     "-1": 1
+    },
+    "examples": [
+     {
+      "build": "5794",
+      "pr": "5383",
+      "exit": "-1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5794",
+      "at": "2026-10-16"
+     }
+    ],
+    "weeks": {
+     "W42": 1
+    }
+   },
+   {
+    "workload": "kimi_linear_tp_engine_driven",
+    "gpus": "UNKNOWN",
+    "runs": 11,
+    "first_fail": 2,
+    "flaky": 1,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0909,
+    "retry_gpu_h": 0.0,
+    "exits": {
+     "1": 1
+    },
+    "examples": [
+     {
+      "build": "5862",
+      "pr": "4410",
+      "exit": "1",
+      "attempts": 2,
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5862",
+      "at": "2026-10-19"
+     }
+    ],
+    "weeks": {
+     "W43": 1
+    }
+   },
+   {
+    "workload": "hma_lm_eval_gemma4",
+    "gpus": "2",
+    "runs": 2,
+    "first_fail": 1,
+    "flaky": 0,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0,
+    "retry_gpu_h": 0.4,
+    "exits": {},
+    "examples": [],
+    "weeks": {}
+   },
+   {
+    "workload": "p2p",
+    "gpus": "2",
+    "runs": 354,
+    "first_fail": 3,
+    "flaky": 0,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0,
+    "retry_gpu_h": 0.3,
+    "exits": {},
+    "examples": [],
+    "weeks": {}
+   },
+   {
+    "workload": "gds_smoke",
+    "gpus": "1",
+    "runs": 348,
+    "first_fail": 8,
+    "flaky": 0,
+    "still_fail": 3,
+    "canceled": 0,
+    "flaky_rate": 0.0,
+    "retry_gpu_h": 0.2,
+    "exits": {},
+    "examples": [],
+    "weeks": {}
+   },
+   {
+    "workload": "cache_stats",
+    "gpus": "1",
+    "runs": 349,
+    "first_fail": 3,
+    "flaky": 0,
+    "still_fail": 1,
+    "canceled": 0,
+    "flaky_rate": 0.0,
+    "retry_gpu_h": 0.1,
+    "exits": {},
+    "examples": [],
+    "weeks": {}
+   },
+   {
+    "workload": "hma_dsv4_correctness",
+    "gpus": "UNKNOWN",
+    "runs": 23,
+    "first_fail": 2,
+    "flaky": 0,
+    "still_fail": 1,
+    "canceled": 1,
+    "flaky_rate": 0.0,
+    "retry_gpu_h": 0.0,
+    "exits": {},
+    "examples": [],
+    "weeks": {}
+   }
+  ],
+  "flips": [
+   {
+    "sha": "c2bbedb051",
+    "pr": "6269",
+    "branch": "chloroethylene:refactor/dim0-padding-spec",
+    "builds": [
+     {
+      "n": 6366,
+      "state": "failed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6366"
+     },
+     {
+      "n": 6374,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/6374"
+     }
+    ]
+   },
+   {
+    "sha": "1ed386c498",
+    "pr": null,
+    "branch": "dev",
+    "builds": [
+     {
+      "n": 5768,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5768"
+     },
+     {
+      "n": 5771,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5771"
+     },
+     {
+      "n": 5774,
+      "state": "failed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5774"
+     }
+    ]
+   },
+   {
+    "sha": "f06af81699",
+    "pr": null,
+    "branch": "dev",
+    "builds": [
+     {
+      "n": 5490,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5490"
+     },
+     {
+      "n": 5491,
+      "state": "failed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5491"
+     }
+    ]
+   },
+   {
+    "sha": "e64b43ef96",
+    "pr": null,
+    "branch": "dev",
+    "builds": [
+     {
+      "n": 5471,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5471"
+     },
+     {
+      "n": 5473,
+      "state": "failed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5473"
+     },
+     {
+      "n": 5474,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5474"
+     }
+    ]
+   },
+   {
+    "sha": "8c77a6f77b",
+    "pr": null,
+    "branch": "dev",
+    "builds": [
+     {
+      "n": 5460,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5460"
+     },
+     {
+      "n": 5462,
+      "state": "failed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5462"
+     },
+     {
+      "n": 5463,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5463"
+     }
+    ]
+   },
+   {
+    "sha": "3efdd261c4",
+    "pr": null,
+    "branch": "dev",
+    "builds": [
+     {
+      "n": 5442,
+      "state": "failed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5442"
+     },
+     {
+      "n": 5443,
+      "state": "passed",
+      "url": "https://buildkite.com/lmcache/k3-multiprocess-test/builds/5443"
+     }
+    ]
+   }
+  ],
+  "gha": {
+   "runs": 3273,
+   "rerun": 141,
+   "rerun_success": 108,
+   "first_failure": 426,
+   "start": "2026-10-04",
+   "end": "2026-11-07"
+  },
+  "weeks": {
+   "W45": 34,
+   "W44": 68,
+   "W43": 71,
+   "W42": 88,
+   "W41": 48
+  }
+ },
+ "gpuload": {
+  "total_gpu_h": 4125.6,
+  "by_state_h": {
+   "failed": 365.4,
+   "passed": 2948.7,
+   "canceled": 811.5,
+   "skipped": 0.0
+  },
+  "pr_build_p50_gpu_h": 8.03,
+  "retry_gpu_h": 198.6,
+  "cancel_reasons": {
+   "build_skipping": 230,
+   "user_canceled_via_ui": 5,
+   "user_canceled_via_api": 1
+  },
+  "superseded_gpu_h": 0.9,
+  "workloads": [
+   {
+    "workload": "preemption_correctness",
+    "gpus": "2",
+    "gpu_h": 622.9,
+    "share": 0.151,
+    "per_pr_build_min": 108.64,
+    "p50_wall_min": 28.53,
+    "first_try_fail_pct": 0.92,
+    "retry_gpu_h": 0.0,
+    "queue_p90_min": 64.81,
+    "canceled_runs": 33
+   },
+   {
+    "workload": "dsv4_flash_tp",
+    "gpus": "4",
+    "gpu_h": 484.3,
+    "share": 0.1174,
+    "per_pr_build_min": 87.53,
+    "p50_wall_min": 11.61,
+    "first_try_fail_pct": 11.18,
+    "retry_gpu_h": 39.4,
+    "queue_p90_min": 246.11,
+    "canceled_runs": 25
+   },
+   {
+    "workload": "long_doc_qa",
+    "gpus": "2",
+    "gpu_h": 369.9,
+    "share": 0.0897,
+    "per_pr_build_min": 62.34,
+    "p50_wall_min": 14.36,
+    "first_try_fail_pct": 11.36,
+    "retry_gpu_h": 46.0,
+    "queue_p90_min": 48.11,
+    "canceled_runs": 18
+   },
+   {
+    "workload": "lm_eval",
+    "gpus": "1",
+    "gpu_h": 244.8,
+    "share": 0.0593,
+    "per_pr_build_min": 39.48,
+    "p50_wall_min": 10.29,
+    "first_try_fail_pct": 0.91,
+    "retry_gpu_h": 0.8,
+    "queue_p90_min": 42.58,
+    "canceled_runs": 60
+   },
+   {
+    "workload": "long_doc_qa_l2",
+    "gpus": "2",
+    "gpu_h": 243.6,
+    "share": 0.0591,
+    "per_pr_build_min": 41.17,
+    "p50_wall_min": 16.55,
+    "first_try_fail_pct": 24.13,
+    "retry_gpu_h": 67.7,
+    "queue_p90_min": 47.8,
+    "canceled_runs": 17
+   },
+   {
+    "workload": "vllm_bench",
+    "gpus": "2",
+    "gpu_h": 225.4,
+    "share": 0.0546,
+    "per_pr_build_min": 37.35,
+    "p50_wall_min": 8.96,
+    "first_try_fail_pct": 8.47,
+    "retry_gpu_h": 22.5,
+    "queue_p90_min": 45.67,
+    "canceled_runs": 18
+   },
+   {
+    "workload": "kimi_linear_tp",
+    "gpus": "2",
+    "gpu_h": 169.1,
+    "share": 0.041,
+    "per_pr_build_min": 28.91,
+    "p50_wall_min": 10.34,
+    "first_try_fail_pct": 7.49,
+    "retry_gpu_h": 14.8,
+    "queue_p90_min": 60.63,
+    "canceled_runs": 11
+   },
+   {
+    "workload": "lm_eval_preemption",
+    "gpus": "1",
+    "gpu_h": 113.8,
+    "share": 0.0276,
+    "per_pr_build_min": 18.97,
+    "p50_wall_min": 9.71,
+    "first_try_fail_pct": 2.14,
+    "retry_gpu_h": 0.0,
+    "queue_p90_min": 46.49,
+    "canceled_runs": 18
+   },
+   {
+    "workload": "deadlock",
+    "gpus": "2",
+    "gpu_h": 113.3,
+    "share": 0.0275,
+    "per_pr_build_min": 19.37,
+    "p50_wall_min": 9.75,
+    "first_try_fail_pct": 1.73,
+    "retry_gpu_h": 0.4,
+    "queue_p90_min": 48.21,
+    "canceled_runs": 9
+   },
+   {
+    "workload": "restart_recovery",
+    "gpus": "1",
+    "gpu_h": 112.7,
+    "share": 0.0273,
+    "per_pr_build_min": 19.22,
+    "p50_wall_min": 9.81,
+    "first_try_fail_pct": 2.2,
+    "retry_gpu_h": 0.3,
+    "queue_p90_min": 53.19,
+    "canceled_runs": 22
+   },
+   {
+    "workload": "http_api",
+    "gpus": "1",
+    "gpu_h": 100.8,
+    "share": 0.0244,
+    "per_pr_build_min": 17.44,
+    "p50_wall_min": 7.93,
+    "first_try_fail_pct": 0.6,
+    "retry_gpu_h": 0.0,
+    "queue_p90_min": 58.28,
+    "canceled_runs": 18
+   },
+   {
+    "workload": "p2p",
+    "gpus": "2",
+    "gpu_h": 86.1,
+    "share": 0.0209,
+    "per_pr_build_min": 14.64,
+    "p50_wall_min": 7.35,
+    "first_try_fail_pct": 0.87,
+    "retry_gpu_h": 0.3,
+    "queue_p90_min": 58.93,
+    "canceled_runs": 8
+   },
+   {
+    "workload": "fault_tolerance",
+    "gpus": "1",
+    "gpu_h": 72.1,
+    "share": 0.0175,
+    "per_pr_build_min": 12.29,
+    "p50_wall_min": 12.23,
+    "first_try_fail_pct": 2.64,
+    "retry_gpu_h": 1.2,
+    "queue_p90_min": 51.04,
+    "canceled_runs": 12
+   },
+   {
+    "workload": "mp_autostart_tp2",
+    "gpus": "2",
+    "gpu_h": 49.2,
+    "share": 0.0119,
+    "per_pr_build_min": 8.53,
+    "p50_wall_min": 4.16,
+    "first_try_fail_pct": 0.88,
+    "retry_gpu_h": 0.0,
+    "queue_p90_min": 54.64,
+    "canceled_runs": 5
+   },
+   {
+    "workload": "gds_smoke",
+    "gpus": "1",
+    "gpu_h": 40.5,
+    "share": 0.0098,
+    "per_pr_build_min": 7.04,
+    "p50_wall_min": 7.12,
+    "first_try_fail_pct": 2.37,
+    "retry_gpu_h": 0.2,
+    "queue_p90_min": 59.99,
+    "canceled_runs": 7
+   },
+   {
+    "workload": "lazy_offload",
+    "gpus": "1",
+    "gpu_h": 39.8,
+    "share": 0.0097,
+    "per_pr_build_min": 6.88,
+    "p50_wall_min": 6.94,
+    "first_try_fail_pct": 0.59,
+    "retry_gpu_h": 0.0,
+    "queue_p90_min": 56.2,
+    "canceled_runs": 8
+   },
+   {
+    "workload": "cache_stats",
+    "gpus": "1",
+    "gpu_h": 39.6,
+    "share": 0.0096,
+    "per_pr_build_min": 6.83,
+    "p50_wall_min": 6.85,
+    "first_try_fail_pct": 0.88,
+    "retry_gpu_h": 0.1,
+    "queue_p90_min": 55.88,
+    "canceled_runs": 7
+   },
+   {
+    "workload": "hma_lm_eval_gemma4",
+    "gpus": "2",
+    "gpu_h": 0.9,
+    "share": 0.0002,
+    "per_pr_build_min": 51.89,
+    "p50_wall_min": 12.97,
+    "first_try_fail_pct": 100.0,
+    "retry_gpu_h": 0.4,
+    "queue_p90_min": 0.09,
+    "canceled_runs": 0
+   }
+  ],
+  "levers": [
+   {
+    "id": "ff",
+    "gpu_h": 188.4,
+    "basis": "estimated",
+    "ticket": "LM-1062",
+    "en": "Fast-fail: cancel the MP build when GHA Test, Lint or k3-unit is red on the same commit",
+    "vi": "Fast-fail: hủy build MP khi GHA Test, Lint hoặc k3-unit đỏ trên cùng commit",
+    "note_en": "40 MP builds; only the 2 required checks: 136.9 GPU-h",
+    "note_vi": "40 build MP; chỉ 2 check bắt buộc: 136.9 GPU-h",
+    "effect_en": "Frees 2-GPU & 4-GPU pool slots earlier on red commits → shorter queue wait (18.5m p50 / 56.5m p90) [hypothesis]",
+    "effect_vi": "Giải phóng sớm slot 2-GPU & 4-GPU ở commit đỏ → giảm thời gian chờ hàng đợi (18.5p p50 / 56.5p p90) [giả thuyết]"
+   },
+   {
+    "id": "flaky",
+    "gpu_h": 190.4,
+    "basis": "measured",
+    "ticket": "LM-762",
+    "goto": "#obs/flaky",
+    "en": "Fix the top flaky workloads (long_doc_qa_l2, long_doc_qa, dsv4_flash_tp) so their automatic retries stop",
+    "vi": "Sửa các workload flaky nhất (long_doc_qa_l2, long_doc_qa, dsv4_flash_tp) để hết retry tự động",
+    "note_en": "GPU spent on the retry attempts of the top 5 (out of 191.7 GPU-h all retries)",
+    "note_vi": "GPU đã tốn cho các lần retry của top 5 (trên tổng 191.7 GPU-giờ retry)",
+    "effect_en": "Removes 1–2 retry cycles (~15–30 min wall time) on affected PRs + frees 2-GPU/4-GPU queue [hypothesis]",
+    "effect_vi": "Bỏ được 1–2 vòng retry (~15–30 phút thời gian thực) trên PR bị vướng + giảm nghẽn hàng đợi 2-GPU/4-GPU [giả thuyết]"
+   },
+   {
+    "id": "sup",
+    "gpu_h": 0.9,
+    "basis": "measured",
+    "ticket": "LM-1115",
+    "en": "Cancel a PR build when a newer commit of the same PR starts",
+    "vi": "Hủy build PR khi commit mới hơn của cùng PR bắt đầu chạy",
+    "note_en": "Already done for MP: little left to gain",
+    "note_vi": "MP đã làm việc này: không còn nhiều để tiết kiệm",
+    "effect_en": "Already active via build_skipping (229/235 canceled builds)",
+    "effect_vi": "Đã bật sẵn qua build_skipping (229/235 build hủy)"
+   },
+   {
+    "id": "cancel",
+    "gpu_h": 811.5,
+    "basis": "spent",
+    "ticket": "LM-1115",
+    "en": "GPU burned by builds that ended canceled, so they gave no result",
+    "vi": "GPU đã đốt bởi build kết thúc bị hủy, nên không cho kết quả",
+    "note_en": "230 of 236 were canceled by build_skipping (a newer build on the same branch). Already spent, not a saving: push fewer times while CI runs, or skip GPU on draft PRs",
+    "note_vi": "230 trong 236 bị hủy bởi build_skipping (build mới hơn trên cùng branch). Đã tiêu rồi, không phải tiết kiệm: push ít lần hơn khi CI đang chạy, hoặc bỏ qua GPU cho PR draft",
+    "effect_en": "Skip GPU CI on draft PRs to avoid starting builds that get superseded [hypothesis]",
+    "effect_vi": "Bỏ chạy GPU CI trên PR draft để tránh khởi chạy các build sẽ bị hủy đè [giả thuyết]"
+   },
+   {
+    "id": "path",
+    "gpu_h": null,
+    "basis": "not measured",
+    "ticket": "LM-762",
+    "goto": "#gpu/explore",
+    "en": "Path-based gating: run preemption_correctness (622.9 GPU-h) only when its paths change",
+    "vi": "Chạy theo path: chỉ chạy preemption_correctness (622.9 GPU-h) khi path liên quan thay đổi",
+    "note_en": "Needs the path→workload map from plan P-tasks (see GPU E2E tab for shadow estimate)",
+    "note_vi": "Cần bảng path→workload trong kế hoạch P (xem ước tính shadow ở tab Pipeline E2E GPU)",
+    "effect_en": "Skips unaffected GPU jobs on doc/CPU/narrow PRs → direct wall-time & queue reduction [hypothesis]",
+    "effect_vi": "Bỏ qua job GPU không liên quan trên PR doc/CPU/hẹp → giảm trực tiếp thời gian chạy & chờ [giả thuyết]"
+   }
+  ],
+  "weeks": [
+   {
+    "w": "W41",
+    "gpu_h": 672.7,
+    "waste_h": 118.6
+   },
+   {
+    "w": "W42",
+    "gpu_h": 1150.4,
+    "waste_h": 382.4
+   },
+   {
+    "w": "W43",
+    "gpu_h": 1084.6,
+    "waste_h": 368.5
+   },
+   {
+    "w": "W44",
+    "gpu_h": 915.7,
+    "waste_h": 236.4
+   },
+   {
+    "w": "W45",
+    "gpu_h": 302.1,
+    "waste_h": 70.9
+   }
+  ],
+  "merge": {
+   "queue_p50_min": 18.5,
+   "queue_p90_min": 56.5,
+   "passed_dur_p50_min": 86.1,
+   "passed_dur_p90_min": 286.1,
+   "pr_builds": 621,
+   "distinct_prs": 224
+  },
+  "mp_pr_gpu_h": 3099
+ },
+ "bug": {
+  "target": {
+   "repo": "LMCache/LMCache",
+   "number": 6530,
+   "note": "upcoming GitHub issue / PR (did not exist on 2026-11-09)"
+  },
+  "fetched_at": "2026-11-12T22:58:50+07:00",
+  "exists": true,
+  "item": {
+   "number": 6530,
+   "title": "[MP][Refactor] Move kv_format and gpu_connector/utils.py to common",
+   "state": "closed",
+   "url": "https://github.com/LMCache/LMCache/pull/6530",
+   "is_pr": true,
+   "user": "theminjunchoi",
+   "labels": [
+    "full"
+   ],
+   "created_at": "2026-11-11T01:12:33Z",
+   "comments": 0,
+   "body": "\r\n\r\n**What this PR does / why we need it**:\r\n\r\nPart of #6310.\r\n\r\nMoves two modules from `lmcache/v1/gpu_connector/` to `lmcache/v1/common/`. Only import paths change.\r\n\r\n| What | From | To |\r\n|:--|:--|:--|\r\n| KV layout specs and engine detectors | `gpu_connector/kv_format/` | `common/kv_format/` |\r\n| KV cache geometry helpers | `gpu_connector/utils.py` | `common/utils.py` |\r\n\r\nWorkers import both through the vLLM and TRT-LLM integrations, `client`, `platform` and `sdk`. The server uses them too (`blend/rope.py`, `lmcache_driven_transfer.py`, `qstore.py`), so they go to `common` rather than `client`.\r\n\r\n`common/utils.py` still imports `PageBufferShapeDesc` from `platform.ops_types`. Where that type should live is tracked in #6531.\r\n\r\nThe rest of `gpu_connector/` (GDS and `gpu_ops`) is server code and stays put.\r\n\r\nI didn't keep the old paths. The only outside user I found is HYGON-AI/LMCache-das, and it also patches modules that `dev` has already dropped.\r\n\r\n**Special notes for your reviewers**:\r\n\r\nAI-assisted change; the submitter reviews every line before this leaves draft.\r\n\r\n| Check | Result |\r\n|:--|:--|\r\n| `pytest tests/v1/gpu_connector tests/v1/multiprocess tests/v1/client tests/sdk tests/v1/platform tests/v1/distributed tests/v1/mp_coordinator tests/v1/lazy_offload tests/cli tests/tools tests/security tests/v1/test_*.py` | 7043 passed; `test_token_ids_outside_uint32_leave_the_binding_unfilled` fails on `dev` too |\r\n| `SKIP=rust-fmt,rust-clippy pre-commit run` on the cha"
+  },
+  "newest": 6590,
+  "error": ""
+ },
+ "agents": {
+  "flaky": {
+   "dir": "flaky",
+   "sig": "8f7ee5946a38",
+   "run_at": "2026-11-09T20:51:16+07:00",
+   "model": "default",
+   "secs": 183,
+   "cost_usd": 1.1548479,
+   "turns": 32,
+   "report": "2026-11-09/dir_flaky.md",
+   "report_text": "I looked at the top 3 workloads. All three fail the same way: the test checks a speed ratio and the margin is too thin. Each run takes one measurement and compares it to a fixed pass line. A normal slow run lands just under that line, and the retry lands just over it. Separately, exit 128 is a git checkout error (an infrastructure problem), not a test failure.\n\nI did not look at dsv4_flash_tp or kimi_linear_tp.\n\n## 1. long_doc_qa (74 flaky runs, 46 GPU-h)\n\nThe check is that LMCache's time to first token (TTFT) must be at least 60% faster than plain vLLM.\n\n| Build / job | Attempt | LMCache TTFT | Baseline TTFT | Gain | Result |\n|---|---|---|---|---|---|\n| 6374 `01a1a659-9b88…` | 1 | 0.5959s | 1.3916s | 57.2% | FAIL |\n| 6374 `01a1a666-c169…` | 2 | 0.6007s | 1.3937s | 56.9% | FAIL |\n| 6374 `01a1a684-6dec…` | 3 | 0.3509s | 1.2886s | 72.8% | PASS |\n| 6364 `01a1a5b3-3b65…` | 1 | 0.5946s | 1.3178s | 54.9% | FAIL |\n\n- **The baseline is steady, but LMCache's TTFT jumps between two values.** It is either about 0.35s or about 0.60s, with nothing in between. Plain noise would spread the times out, so something on the LMCache side has a slow mode.\n- **The margin has shrunk.** The comment in `.buildkite/k3_tests/multiprocess/scripts/workloads/common/long-doc-qa.sh:29` says recent runs showed a 77–84% gain. Now even the passing run only gets 72.8%.\n- The round-time check always passes (30–32%, it only needs 15%).\n- **Class: timing.** I could not find what causes the 0.60s mode. A search for cache-hit lines found nothing in either the failed or the passing log.\n\n## 2. long_doc_qa_l2 (95 flaky runs, 67 GPU-h, the biggest cost)\n\nThe pass lines are set in `.buildkite/k3_tests/multiprocess/scripts/workloads/common/long-doc-qa-l2.sh:43-45`, and the check is in `long-doc-qa-l2-verify.sh:122-126`.\n\n- 6374 job `01a1a659-9b89…`: `[FAIL] L2 TTFT speedup: 1.27x (need >= 1.5x)`. The other three checks (metrics_snapshot, data_flow, observability) passed.\n- 6347 job `01a1a410-cdcc…`: `[FAIL] L2 TTFT speedup: 1.49x (need >= 1.5x)`. Query speedup was 1.43x (pass) and warmup overhead 1.01x (pass).\n- The comment at `long-doc-qa-l2.sh:40` says recent runs showed 1.77–2.02x TTFT speedup. The margin has drifted the same way as in long_doc_qa.\n- **Class: timing.** Only the TTFT check fails, and the data-flow checks pass, so data is not being lost. It is probably the same slow mode as long_doc_qa, but I have not confirmed that.\n\n## 3. vllm_bench (65 flaky runs, 22.5 GPU-h)\n\nThe check is that LMCache throughput may be at most 5% lower than plain vLLM (`.buildkite/k3_tests/multiprocess/scripts/workloads/vllm/vllm-bench.sh:27`, printed at `:186-188`).\n\n- 6366 job `01a1a5c4-8194…`: `Throughput: LMCache is 6.42% slower (max allowed: 5%) FAIL`\n- 6378 job `01a1a702-dd0e…`: `Request throughput (req/s): 1.03` for plain vLLM and `0.94` for LMCache, giving `LMCache is 8.90% slower (max allowed: 5%) FAIL`\n- **Why it flakes:**\n  - It is one run of 50 prompts at about 1 req/s.\n  - The log shows `num_warmups=0`, so the first requests run cold.\n  - The prompts are random with no reuse, so LMCache only adds cost here and never gets a cache benefit.\n  - The seed is `$(date +%s)` (`vllm-bench.sh:30`), so the data changes every run.\n  - A 5% limit is inside the normal run-to-run spread.\n- **Class: test-bug.**\n\n## Exit 128 (an infrastructure issue in several workloads)\n\nIn 6366, both retries of vllm_bench (`01a1a5dc-4eae…` and `01a1a5ee-3e2e…`) failed with `git@github.com: Permission denied (publickey)` and then `Checkout failed! … exit status 128 (Attempt 3/3)`. The automatic retries spent GPU time without the test ever running. The SSH key or deploy key on some agents needs checking. Retrying will not fix this.\n\n## Proposed fixes\n\n1. **vllm_bench:**\n   - Add `--num-warmups 5`.\n   - Run each side 3 times, alternating plain and LMCache, and compare the medians.\n   - Raise `MAX_SLOWDOWN_PERCENT` to 10, or make the check use the measured spread (for example, plain-vLLM median minus 2σ).\n   - Proof: 30 runs in a row on dev with no first-try failure.\n2. **long_doc_qa and long_doc_qa_l2:** Don't just lower the pass line, because that could hide a real slowdown.\n   - First, download the uploaded `diagnostics.txt` and `lmcache.log` from a failed and a passing attempt and compare them. Look for cache hits, load time, and the node.\n   - Then gate on the median of several query rounds, not one number.\n   - Update the threshold comments to match what CI shows today.\n3. **Exit 128:** Fix the checkout credentials on the agents. Exit codes 128 and 255 should also be excluded from automatic GPU retries, since the test never ran.\n\nCommands you can run (read-only):\n```bash\nbk artifacts download --build 6374 --pipeline lmcache/k3-multiprocess-test \"ci_results_*/long_doc_qa/lmcache/diagnostics.txt\"\nbk job view 01a1a659-9b88-4de8-a0f5-91a3dbd4f6cb   # check the node for the failed attempt\nbk job view 01a1a684-6dec-460b-b48b-a912fbdb80f9   # check the node for the passing attempt\n```\n\n```json\n{\"items\": [\n  {\"workload\": \"long_doc_qa_l2\",\n   \"class\": \"timing\",\n   \"root_cause\": {\"en\": \"The L2 TTFT speedup check (>= 1.5x) fails on a single noisy measurement; observed 1.27x and 1.49x while all data-flow checks pass, and the margin has drifted from the documented 1.77-2.02x.\", \"vi\": \"Kiểm tra tăng tốc TTFT của L2 (>= 1.5x) thất bại do chỉ đo một lần và bị nhiễu; đo được 1.27x và 1.49x trong khi mọi kiểm tra luồng dữ liệu đều đạt, và biên độ đã giảm so với mức 1.77-2.02x ghi trong comment.\"},\n   \"fix\": {\"en\": \"Gate on the median of several query rounds, and compare the diagnostics of failed and passing runs to find why TTFT regressed before re-tuning the 1.5x threshold.\", \"vi\": \"Dùng trung vị của nhiều vòng truy vấn, và so sánh diagnostics của lần lỗi và lần đạt để tìm lý do TTFT chậm đi trước khi chỉnh lại ngưỡng 1.5x.\"},\n   \"evidence\": [\"build 6374 job 01a1a659-9b89: '[FAIL] L2 TTFT speedup: 1.27x (need >= 1.5x)'\", \"build 6347 job 01a1a410-cdcc: '[FAIL] L2 TTFT speedup: 1.49x (need >= 1.5x)'\", \"build 6347: '[PASS] L2 query speedup: 1.43x', '[PASS] Warmup overhead: 1.01x'\", \"long-doc-qa-l2.sh:40 comment: '~1.77-2.02x TTFT speedup'\"],\n   \"failing_tests\": [\".buildkite/k3_tests/multiprocess/scripts/workloads/common/long-doc-qa-l2-verify.sh:122-126\"],\n   \"confidence\": \"medium\"},\n  {\"workload\": \"long_doc_qa\",\n   \"class\": \"timing\",\n   \"root_cause\": {\"en\": \"LMCache query TTFT switches between ~0.35s and ~0.60s while the baseline stays at ~1.3s, so the single-shot >= 60% TTFT gate fails whenever the slow mode appears.\", \"vi\": \"TTFT truy vấn của LMCache lúc thì ~0.35s lúc thì ~0.60s trong khi baseline ổn định ~1.3s, nên kiểm tra TTFT >= 60% chỉ đo một lần sẽ thất bại mỗi khi rơi vào chế độ chậm.\"},\n   \"fix\": {\"en\": \"Find the cause of the 0.60s mode by comparing diagnostics.txt and lmcache.log from failed and passing runs, then gate on the median over several rounds instead of one number.\", \"vi\": \"Tìm nguyên nhân của chế độ 0.60s bằng cách so sánh diagnostics.txt và lmcache.log giữa lần lỗi và lần đạt, sau đó dùng trung vị của nhiều vòng thay vì một số đo.\"},\n   \"evidence\": [\"build 6374 job 01a1a659-9b88: 'query_ttft_per_prompt: 0.5959s vs baseline 1.3916s (57.2% faster, need >= 60% faster) -- FAIL'\", \"build 6374 job 01a1a666-c169: '0.6007s vs baseline 1.3937s (56.9% faster) -- FAIL'\", \"build 6374 job 01a1a684-6dec: '0.3509s vs baseline 1.2886s (72.8% faster) -- PASS'\", \"build 6364 job 01a1a5b3-3b65: '0.5946s vs baseline 1.3178s (54.9% faster) -- FAIL'\"],\n   \"failing_tests\": [\".buildkite/k3_tests/multiprocess/scripts/workloads/common/long-doc-qa.sh:31\"],\n   \"confidence\": \"medium\"},\n  {\"workload\": \"vllm_bench\",\n   \"class\": \"test-bug\",\n   \"root_cause\": {\"en\": \"One 50-prompt run with no warmup, random no-reuse prompts and a time-based seed is compared against a 5% throughput limit that is inside normal run-to-run noise.\", \"vi\": \"Chỉ một lần chạy 50 prompt, không warmup, prompt ngẫu nhiên không tái sử dụng, seed theo thời gian, rồi so với giới hạn throughput 5% nằm trong mức nhiễu bình thường.\"},\n   \"fix\": {\"en\": \"Add warmups, run each side 3 times alternating and compare medians, and raise the limit to about 10% or derive it from the measured spread; prove it with 30 green first tries.\", \"vi\": \"Thêm warmup, chạy mỗi bên 3 lần xen kẽ và so trung vị, nâng giới hạn lên khoảng 10% hoặc tính từ độ dao động đo được; chứng minh bằng 30 lần đạt ngay lần đầu.\"},\n   \"evidence\": [\"build 6366 job 01a1a5c4-8194: 'Throughput: LMCache is 6.42% slower (max allowed: 5%) FAIL'\", \"build 6378 job 01a1a702-dd0e: 'Request throughput (req/s): 1.03' (baseline) vs '0.94' (LMCache), 'LMCache is 8.90% slower (max allowed: 5%) FAIL'\", \"build 6366 log Namespace: 'num_warmups=0', 'dataset_name=random'\", \"vllm-bench.sh:27 MAX_SLOWDOWN_PERCENT=5, vllm-bench.sh:30 RANDOM_SEED=$(date +%s)\"],\n   \"failing_tests\": [\".buildkite/k3_tests/multiprocess/scripts/workloads/vllm/vllm-bench.sh:186-188\"],\n   \"confidence\": \"high\"}],\n \"summary\": {\"en\": \"The top three flaky workloads are single-sample performance gates whose thresholds sit inside normal variance, plus a long_doc_qa TTFT slow mode that should be explained before re-tuning. Separately, exit 128 is a git publickey checkout failure that wastes automatic GPU retries and needs an infrastructure fix.\", \"vi\": \"Ba workload flaky hàng đầu đều là kiểm tra hiệu năng chỉ đo một lần với ngưỡng nằm trong mức dao động bình thường, cộng thêm chế độ TTFT chậm của long_doc_qa cần được giải thích trước khi chỉnh ngưỡng. Riêng exit 128 là lỗi checkout git (publickey) làm tốn GPU cho các lần retry tự động và cần sửa ở hạ tầng.\"},\n \"unverified\": [\"(chưa xác minh) Cause of the 0.60s LMCache TTFT mode in long_doc_qa; no cache-hit lines were found in the job logs.\", \"(chưa xác minh) Whether the failed and passing attempts ran on different nodes; agent IDs differ but hostnames were not checked.\", \"(chưa xác minh) That long_doc_qa_l2 TTFT drift has the same cause as the long_doc_qa slow mode.\", \"(chưa xác minh) That the exit-128 failures in builds 6370 and 6371 are the same git publickey error seen in build 6366.\", \"(chưa xác minh) dsv4_flash_tp and kimi_linear_tp were not investigated.\"]}\n```",
+   "status": "ok",
+   "items": [
+    {
+     "workload": "long_doc_qa_l2",
+     "class": "timing",
+     "root_cause": [
+      "The L2 TTFT speedup check (>= 1.5x) fails on a single noisy measurement; observed 1.27x and 1.49x while all data-flow checks pass, and the margin has drifted from the documented 1.77-2.02x.",
+      "Kiểm tra tăng tốc TTFT của L2 (>= 1.5x) thất bại do chỉ đo một lần và bị nhiễu; đo được 1.27x và 1.49x trong khi mọi kiểm tra luồng dữ liệu đều đạt, và biên độ đã giảm so với mức 1.77-2.02x ghi trong comment."
+     ],
+     "fix": [
+      "Gate on the median of several query rounds, and compare the diagnostics of failed and passing runs to find why TTFT regressed before re-tuning the 1.5x threshold.",
+      "Dùng trung vị của nhiều vòng truy vấn, và so sánh diagnostics của lần lỗi và lần đạt để tìm lý do TTFT chậm đi trước khi chỉnh lại ngưỡng 1.5x."
+     ],
+     "evidence": [
+      "build 6374 job 01a1a659-9b89: '[FAIL] L2 TTFT speedup: 1.27x (need >= 1.5x)'",
+      "build 6347 job 01a1a410-cdcc: '[FAIL] L2 TTFT speedup: 1.49x (need >= 1.5x)'",
+      "build 6347: '[PASS] L2 query speedup: 1.43x', '[PASS] Warmup overhead: 1.01x'",
+      "long-doc-qa-l2.sh:40 comment: '~1.77-2.02x TTFT speedup'"
+     ],
+     "failing_tests": [
+      ".buildkite/k3_tests/multiprocess/scripts/workloads/common/long-doc-qa-l2-verify.sh:122-126"
+     ],
+     "confidence": "medium"
+    },
+    {
+     "workload": "long_doc_qa",
+     "class": "timing",
+     "root_cause": [
+      "LMCache query TTFT switches between ~0.35s and ~0.60s while the baseline stays at ~1.3s, so the single-shot >= 60% TTFT gate fails whenever the slow mode appears.",
+      "TTFT truy vấn của LMCache lúc thì ~0.35s lúc thì ~0.60s trong khi baseline ổn định ~1.3s, nên kiểm tra TTFT >= 60% chỉ đo một lần sẽ thất bại mỗi khi rơi vào chế độ chậm."
+     ],
+     "fix": [
+      "Find the cause of the 0.60s mode by comparing diagnostics.txt and lmcache.log from failed and passing runs, then gate on the median over several rounds instead of one number.",
+      "Tìm nguyên nhân của chế độ 0.60s bằng cách so sánh diagnostics.txt và lmcache.log giữa lần lỗi và lần đạt, sau đó dùng trung vị của nhiều vòng thay vì một số đo."
+     ],
+     "evidence": [
+      "build 6374 job 01a1a659-9b88: 'query_ttft_per_prompt: 0.5959s vs baseline 1.3916s (57.2% faster, need >= 60% faster) -- FAIL'",
+      "build 6374 job 01a1a666-c169: '0.6007s vs baseline 1.3937s (56.9% faster) -- FAIL'",
+      "build 6374 job 01a1a684-6dec: '0.3509s vs baseline 1.2886s (72.8% faster) -- PASS'",
+      "build 6364 job 01a1a5b3-3b65: '0.5946s vs baseline 1.3178s (54.9% faster) -- FAIL'"
+     ],
+     "failing_tests": [
+      ".buildkite/k3_tests/multiprocess/scripts/workloads/common/long-doc-qa.sh:31"
+     ],
+     "confidence": "medium"
+    },
+    {
+     "workload": "vllm_bench",
+     "class": "test-bug",
+     "root_cause": [
+      "One 50-prompt run with no warmup, random no-reuse prompts and a time-based seed is compared against a 5% throughput limit that is inside normal run-to-run noise.",
+      "Chỉ một lần chạy 50 prompt, không warmup, prompt ngẫu nhiên không tái sử dụng, seed theo thời gian, rồi so với giới hạn throughput 5% nằm trong mức nhiễu bình thường."
+     ],
+     "fix": [
+      "Add warmups, run each side 3 times alternating and compare medians, and raise the limit to about 10% or derive it from the measured spread; prove it with 30 green first tries.",
+      "Thêm warmup, chạy mỗi bên 3 lần xen kẽ và so trung vị, nâng giới hạn lên khoảng 10% hoặc tính từ độ dao động đo được; chứng minh bằng 30 lần đạt ngay lần đầu."
+     ],
+     "evidence": [
+      "build 6366 job 01a1a5c4-8194: 'Throughput: LMCache is 6.42% slower (max allowed: 5%) FAIL'",
+      "build 6378 job 01a1a702-dd0e: 'Request throughput (req/s): 1.03' (baseline) vs '0.94' (LMCache), 'LMCache is 8.90% slower (max allowed: 5%) FAIL'",
+      "build 6366 log Namespace: 'num_warmups=0', 'dataset_name=random'",
+      "vllm-bench.sh:27 MAX_SLOWDOWN_PERCENT=5, vllm-bench.sh:30 RANDOM_SEED=$(date +%s)"
+     ],
+     "failing_tests": [
+      ".buildkite/k3_tests/multiprocess/scripts/workloads/vllm/vllm-bench.sh:186-188"
+     ],
+     "confidence": "high"
+    }
+   ],
+   "summary": [
+    "The top three flaky workloads are single-sample performance gates whose thresholds sit inside normal variance, plus a long_doc_qa TTFT slow mode that should be explained before re-tuning. Separately, exit 128 is a git publickey checkout failure that wastes automatic GPU retries and needs an infrastructure fix.",
+    "Ba workload flaky hàng đầu đều là kiểm tra hiệu năng chỉ đo một lần với ngưỡng nằm trong mức dao động bình thường, cộng thêm chế độ TTFT chậm của long_doc_qa cần được giải thích trước khi chỉnh ngưỡng. Riêng exit 128 là lỗi checkout git (publickey) làm tốn GPU cho các lần retry tự động và cần sửa ở hạ tầng."
+   ],
+   "unverified": [
+    "(chưa xác minh) Cause of the 0.60s LMCache TTFT mode in long_doc_qa; no cache-hit lines were found in the job logs.",
+    "(chưa xác minh) Whether the failed and passing attempts ran on different nodes; agent IDs differ but hostnames were not checked.",
+    "(chưa xác minh) That long_doc_qa_l2 TTFT drift has the same cause as the long_doc_qa slow mode.",
+    "(chưa xác minh) That the exit-128 failures in builds 6370 and 6371 are the same git publickey error seen in build 6366.",
+    "(chưa xác minh) dsv4_flash_tp and kimi_linear_tp were not investigated."
+   ]
+  },
+  "gpuload": {
+   "dir": "gpuload",
+   "sig": "e14a07679c05",
+   "run_at": "2026-11-09T21:10:32+07:00",
+   "model": "default",
+   "secs": 234,
+   "cost_usd": 1.3876602999999998,
+   "turns": 23,
+   "report": "2026-11-09/dir_gpuload.md",
+   "report_text": "# GPU cost review: `k3-multiprocess-test`, top 3 changes\n\n**Bottom line:** The biggest saving is not on the list you gave me. In the most expensive workload, `preemption_correctness`, about 62% of each job's time goes to a plain-vLLM \"reference\" run that doesn't use LMCache at all. It also runs one after the other with the LMCache run, even though the two use separate GPUs. Fixing flaky tests and fast-fail are the next two, at about 188 GPU-h each. Fast-fail is only half done: it exists only as uncommitted changes in your local clone, and it has a likely bug.\n\n## Step 1: How workloads are chosen\n\n- **Whole pipeline on or off, nothing per workload.** The only path rule for multiprocess is `.buildkite/k3_tests/common_scripts/path-filter.sh:139-151`, called from `upload-pipeline.sh:54`. Any change under `lmcache/**` uploads all of `pipeline.yml`.\n- **Labels:** `skip expensive ci` and `force-ci` (`helpers.sh:53-75`, `upload-pipeline.sh:39-50`). Builds 6458 and 6459 were skipped by the label.\n- **Inside `pipeline.yml`:** the only `if:` conditions are the VERIFY_AND_PIN switches (`pipeline.yml:95,132,249,459`). No workload is chosen by path.\n- **No draft-PR check:** `helpers.sh` has no `draft` check.\n\n## Steps 3–4: The levers and where the minutes go\n\n**Where time goes in `preemption_correctness / async=1` (build 6457).** Times come from log timestamps:\n\n| Phase | Time | Source |\n|---|---|---|\n| Checkout + install vLLM (44 s) + install LMCache from source (75 s) + probes | 2.4 min | \"Environment ready\" at +145.5 s |\n| Start both servers (\"vLLM with LMCache is ready! (took 120s)\") | 2.35 min | log row 19753 |\n| **`ref` rung (plain vLLM, concurrency 3, 99 requests)** | **17.7 min** | rows 19770→19771 |\n| `D` rung (LMCache, concurrency 40, 53 preemptions) | 6.0 min | rows 19771→19773 |\n| Whole job | 28.6 min on 2 GPUs | |\n\n- **Setup is not the problem.** Only about 17% of the job is setup.\n- **The `ref` rung uses no LMCache.** The script says \"ref   plain vLLM … no preemption, no LMCache\" (`preemption-correctness.sh:6`).\n- **The two rungs run in sequence on separate GPUs.** `ref` runs first on port 9000 (`:180`), then `D` on port 8000 (`:191`).\n- **This job finished last in 6457.** It ended at 08:27:09 after waiting 17.7 min for a 2-GPU pod.\n- **Your table agrees.** It shows 108.58 GPU-min per build, about 54 per job; I measured 57.\n\n**Status of each lever:**\n\n| Lever | Status | Evidence |\n|---|---|---|\n| **Fast-fail** (LM-1062) | **Partly done, not committed** | See the four points below. |\n| **Fix flaky workloads** (LM-762) | Open | 67.1 + 46.0 + 37.9 + 22.5 + 14.4 = 187.9 GPU-h, which matches the table. In 6457, `vllm_bench/grpc` failed with \"Verification failed\" but \"Failed requests: 0\". That is the throughput-noise case the comment at `pipeline.yml:17-18` describes. The retry cost 9.0 min of the failed run, 3.4 min waiting again, then a 12.2 min rerun. |\n| **Cancel the build when a newer commit arrives** (LM-1115) | Done | 0.9 GPU-h left (from your cache). |\n| **Path gating for `preemption_correctness`** | Open, small gain | It tests the MP connector's preemption and resume path. Most PRs in the list are `[MP]` changes that would trigger it anyway. No path→workload map exists. |\n\nFast-fail details:\n- **Uncommitted:** all the changes are in `git diff` and `.buildkite/scripts/fast_fail_cancel.py` is untracked.\n- **Wrong trigger, probably:** the MP \"Fast Fail\" step uses `if: build.state == \"failing\"` (`pipeline.yml:626`). Buildkite checks step `if:` conditions when the pipeline is uploaded, when the build isn't failing yet. So the step would probably never run **(chưa xác minh)**.\n- **Missing workflow:** GHA \"Test\" has no hook; only lint (`code_quality_checks.yml`) and k3-unit do.\n- **Token risk:** `fast_fail_cancel.py:29-38` falls back to reading a Buildkite token from `~\\.claude.json.bak-buildkite`. Remove this before committing. I did not open that file.\n\n**Other things I noticed:**\n- **Skipped jobs still wait for GPU pods.** In 6457, six sglang jobs were skipped as unsupported and ended in about 5 s. One, `sglang/long_doc_qa_l2`, waited 35 min for a 2-GPU pod first (created 07:40:47, started 08:16:07). Excluding those matrix combinations in the YAML would save almost no GPU-h but would free queue slots.\n- **The live pipeline doesn't match your clone.** Build 6457 ran `hma_dsv4_correctness` and no `dsv4_flash_tp` job, but the local `pipeline.yml:103` still has `dsv4_flash_tp`. Some of the 37.9 retry GPU-h for `dsv4_flash_tp` may already be gone **(chưa xác minh)**.\n\n## Step 5: Ranking\n\n**1. Stop re-running the `preemption_correctness` reference on every PR: about 450 GPU-h per 30 days (estimated)**\n- **Change:** Store `ref.txt`, keyed by vLLM version + model + dataset hash + env flags + GPU model. Refresh it on the scheduled `dev` build. Run only rung `D` on a 1-GPU pod.\n- **Formula:** new job = 2.4 + 2.35 + 6.0 ≈ 10.9 GPU-min, versus 2 × 28.6 = 57.2 today. That saves 81%, and 0.81 × 617.1 = 500 GPU-h. Minus about 57 GPU-h for daily refreshes, roughly 450 net.\n- **Easier first step, no coverage change:** run `ref` and `D` at the same time on their two GPUs. That saves 6.0 of 28.6 min per job: 21% × 617.1 = **about 129 GPU-h**.\n- **Merge speed:** the job goes from 28.6 to about 11 min. It was the last job to finish in 6457, so a build's duration could drop by up to about 17 min. Fewer 2-GPU slots taken should also shorten queues.\n- **Risk:** a stored reference can go stale or be non-deterministic across nodes, which would cause false failures. The reference only covers vLLM, not LMCache, so a vLLM regression would be caught by the nightly build instead of on the PR.\n\n**2. Fix the top flaky workloads: 187.9 GPU-h (measured, from your cache)**\n- Retries sit on the critical path of builds that would otherwise pass, so this helps every PR, not just failing ones.\n\n**3. Finish fast-fail: 188.4 GPU-h, or 136.9 if limited to the two required checks (measured, from your cache)**\n- **Fixes needed:** the `if:` trigger, the token fallback, and the missing GHA \"Test\" hook.\n- **Merge speed:** it only helps PRs that are already red, by freeing GPUs for others.\n- **Risk to test:** the local changes add `cancel_on_build_failing: true` to all steps. If one flaky first attempt marks the build \"failing\" before its automatic retry, this could cancel sibling jobs **(chưa xác minh)**.\n\n## Commands to verify (read-only)\n\nTo check whether the reference answers are deterministic, compare the `ref.txt` files that past builds already uploaded. They are saved by `pipeline.yml:362`, so no rerun is needed:\n\n```bash\nfor b in 6457 6454 6456; do\n  curl -s -H \"Authorization: Bearer $BUILDKITE_API_TOKEN\" \\\n    \"https://api.buildkite.com/v2/organizations/lmcache/pipelines/k3-multiprocess-test/builds/$b/artifacts?per_page=100\" \\\n  | jq -r '.[] | select(.path|endswith(\"preemption_correctness/ref.txt\")) | \"\\(.job_id) \\(.sha1sum)\"'\ndone\n```\n\nIf the sha1 values match for the same vLLM version and `async` value, change 1 is safe. To check the fast-fail `if:` after it lands, look at the `:skull:` step in a red build. If it shows `broken / conditional_failed`, it never ran.\n\n```json\n{\"items\": [\n  {\"lever\": \"preemption_correctness: cache plain-vLLM ref rung, run D on 1 GPU (fallback: run ref and D in parallel)\",\n   \"gpu_h_30d\": 450,\n   \"basis\": \"estimated\",\n   \"merge_effect\": {\"en\": \"Job 28.6 -> ~11 min; it was the last job in build 6457, so build duration up to -17 min; frees 2-GPU slots\", \"vi\": \"Job 28.6 -> ~11 phút; là job xong cuối trong build 6457, nên thời gian build giảm tới ~17 phút; giải phóng slot 2-GPU\"},\n   \"change\": {\"en\": \"Store ref.txt keyed by vLLM version+model+dataset+flags+GPU model, refresh it on the nightly dev build, and run only rung D on a 1-GPU pod. Quick first step: run ref and D at the same time (~129 GPU-h, no coverage change).\", \"vi\": \"Lưu ref.txt theo khóa phiên bản vLLM+model+dataset+flags+loại GPU, làm mới ở build dev hằng đêm, PR chỉ chạy rung D trên pod 1 GPU. Bước nhanh trước: chạy ref và D song song (~129 GPU-h, không mất coverage).\"},\n   \"where\": \".buildkite/k3_tests/multiprocess/scripts/workloads/vllm/preemption-correctness.sh:180-191; pipeline.yml:338-362\",\n   \"risk\": {\"en\": \"A stale or non-deterministic ref causes false failures; vLLM-only regressions are caught by the nightly build, not the PR. LMCache paths still fully tested by rung D.\", \"vi\": \"ref cũ hoặc không tất định gây fail giả; lỗi chỉ thuộc vLLM sẽ được build nightly bắt thay vì PR. Đường LMCache vẫn được rung D kiểm tra đầy đủ.\"},\n   \"ticket\": \"\",\n   \"confidence\": \"medium\"},\n  {\"lever\": \"Fix top flaky workloads (long_doc_qa_l2, long_doc_qa, dsv4, vllm_bench, kimi)\",\n   \"gpu_h_30d\": 187.9,\n   \"basis\": \"measured\",\n   \"merge_effect\": {\"en\": \"Each retry adds one queue wait + one more run; build 6457: vllm_bench retry = 9.0 min failed run + 3.4 min queue + 12.2 min rerun\", \"vi\": \"Mỗi retry thêm một lần chờ queue + một lần chạy; build 6457: retry vllm_bench = 9.0 phút chạy lỗi + 3.4 phút chờ + 12.2 phút chạy lại\"},\n   \"change\": {\"en\": \"Fix the root causes of first-try failures (e.g. vllm_bench fails 'Verification failed' with 0 failed requests, a throughput-noise check), then lower the retry limits.\", \"vi\": \"Sửa nguyên nhân lỗi lần đầu (vd vllm_bench báo 'Verification failed' dù 0 request lỗi, do nhiễu throughput), sau đó giảm số lần retry.\"},\n   \"where\": \".buildkite/k3_tests/multiprocess/pipeline.yml:10-24 (retry anchors), :134-187\",\n   \"risk\": {\"en\": \"Making a threshold looser may hide real performance or cache-hit regressions; keep the metric and log it.\", \"vi\": \"Nới ngưỡng có thể che lỗi hiệu năng/cache-hit thật; vẫn giữ và ghi log chỉ số.\"},\n   \"ticket\": \"LM-762\",\n   \"confidence\": \"medium\"},\n  {\"lever\": \"Fast-fail: cancel MP build when lint/unit/GHA Test fails on the same commit\",\n   \"gpu_h_30d\": 188.4,\n   \"basis\": \"measured\",\n   \"merge_effect\": {\"en\": \"No gain for the red PR; frees GPU pods for other PRs (queue effect not measured)\", \"vi\": \"Không nhanh hơn cho PR đỏ; giải phóng pod GPU cho PR khác (chưa đo ảnh hưởng queue)\"},\n   \"change\": {\"en\": \"Commit the local work after fixing it: the step 'if: build.state' is likely checked at upload time, the script reads a token from a local Claude config backup, and the GHA Test workflow has no hook.\", \"vi\": \"Commit phần làm local sau khi sửa: 'if: build.state' có thể bị đánh giá lúc upload, script đọc token từ file backup cấu hình Claude, và workflow GHA Test chưa có hook.\"},\n   \"where\": \".buildkite/k3_tests/multiprocess/pipeline.yml:624-652 (local diff); .buildkite/scripts/fast_fail_cancel.py:29-38\",\n   \"risk\": {\"en\": \"No coverage is lost (the build would fail anyway); cancel_on_build_failing with automatic retry may cancel siblings on a flaky first attempt.\", \"vi\": \"Không mất coverage (build vốn sẽ fail); cancel_on_build_failing cùng auto-retry có thể hủy job khác khi lần đầu lỗi do flaky.\"},\n   \"ticket\": \"LM-1062\",\n   \"confidence\": \"medium\"}],\n \"summary\": {\"en\": \"The biggest saving is inside preemption_correctness: about 62% of each job is a plain-vLLM reference run that does not test LMCache and runs one after the other with the LMCache run. Fixing flaky workloads and finishing fast-fail (now only uncommitted local work with a likely trigger bug) add about 190 GPU-h each.\", \"vi\": \"Khoản tiết kiệm lớn nhất nằm trong preemption_correctness: ~62% mỗi job là lần chạy tham chiếu vLLM thuần không kiểm tra LMCache và chạy nối tiếp với lần chạy LMCache. Sửa test flaky và hoàn thiện fast-fail (hiện chỉ là thay đổi local chưa commit, có thể lỗi điều kiện kích hoạt) mỗi việc thêm ~190 GPU-h.\"},\n \"unverified\": [\n  \"Lever totals 188.4 / 136.9 / 187.9 / 801.4 GPU-h and '229 of 235 canceled by build_skipping' come from the cache and were not recomputed\",\n  \"Job timing measured in only one full PR build (6457); builds 6458 and 6459 were skipped by the 'skip expensive ci' label\",\n  \"ref rung output is deterministic across nodes and runs for the same vLLM version\",\n  \"Whether ASYNC_SCHEDULING also changes the baseline server (decides if one ref can serve both matrix jobs)\",\n  \"Buildkite step 'if: build.state == failing' is checked at upload time, so the fast-fail step never runs\",\n  \"Whether cancel_on_build_failing cancels sibling jobs before an automatic retry\",\n  \"dsv4_flash_tp was missing from build 6457 (hma_dsv4_correctness ran instead); it may be removed upstream and the local clone may be behind\",\n  \"Effect on queue wait p90 for all changes (not measured)\"]}\n```",
+   "status": "ok",
+   "items": [
+    {
+     "lever": "preemption_correctness: cache plain-vLLM ref rung, run D on 1 GPU (fallback: run ref and D in parallel)",
+     "gpu_h_30d": 450,
+     "basis": "estimated",
+     "merge_effect": [
+      "Job 28.6 -> ~11 min; it was the last job in build 6457, so build duration up to -17 min; frees 2-GPU slots",
+      "Job 28.6 -> ~11 phút; là job xong cuối trong build 6457, nên thời gian build giảm tới ~17 phút; giải phóng slot 2-GPU"
+     ],
+     "change": [
+      "Store ref.txt keyed by vLLM version+model+dataset+flags+GPU model, refresh it on the nightly dev build, and run only rung D on a 1-GPU pod. Quick first step: run ref and D at the same time (~129 GPU-h, no coverage change).",
+      "Lưu ref.txt theo khóa phiên bản vLLM+model+dataset+flags+loại GPU, làm mới ở build dev hằng đêm, PR chỉ chạy rung D trên pod 1 GPU. Bước nhanh trước: chạy ref và D song song (~129 GPU-h, không mất coverage)."
+     ],
+     "where": ".buildkite/k3_tests/multiprocess/scripts/workloads/vllm/preemption-correctness.sh:180-191; pipeline.yml:338-362",
+     "risk": [
+      "A stale or non-deterministic ref causes false failures; vLLM-only regressions are caught by the nightly build, not the PR. LMCache paths still fully tested by rung D.",
+      "ref cũ hoặc không tất định gây fail giả; lỗi chỉ thuộc vLLM sẽ được build nightly bắt thay vì PR. Đường LMCache vẫn được rung D kiểm tra đầy đủ."
+     ],
+     "ticket": "",
+     "confidence": "medium"
+    },
+    {
+     "lever": "Fix top flaky workloads (long_doc_qa_l2, long_doc_qa, dsv4, vllm_bench, kimi)",
+     "gpu_h_30d": 187.9,
+     "basis": "measured",
+     "merge_effect": [
+      "Each retry adds one queue wait + one more run; build 6457: vllm_bench retry = 9.0 min failed run + 3.4 min queue + 12.2 min rerun",
+      "Mỗi retry thêm một lần chờ queue + một lần chạy; build 6457: retry vllm_bench = 9.0 phút chạy lỗi + 3.4 phút chờ + 12.2 phút chạy lại"
+     ],
+     "change": [
+      "Fix the root causes of first-try failures (e.g. vllm_bench fails 'Verification failed' with 0 failed requests, a throughput-noise check), then lower the retry limits.",
+      "Sửa nguyên nhân lỗi lần đầu (vd vllm_bench báo 'Verification failed' dù 0 request lỗi, do nhiễu throughput), sau đó giảm số lần retry."
+     ],
+     "where": ".buildkite/k3_tests/multiprocess/pipeline.yml:10-24 (retry anchors), :134-187",
+     "risk": [
+      "Making a threshold looser may hide real performance or cache-hit regressions; keep the metric and log it.",
+      "Nới ngưỡng có thể che lỗi hiệu năng/cache-hit thật; vẫn giữ và ghi log chỉ số."
+     ],
+     "ticket": "LM-762",
+     "confidence": "medium"
+    },
+    {
+     "lever": "Fast-fail: cancel MP build when lint/unit/GHA Test fails on the same commit",
+     "gpu_h_30d": 188.4,
+     "basis": "measured",
+     "merge_effect": [
+      "No gain for the red PR; frees GPU pods for other PRs (queue effect not measured)",
+      "Không nhanh hơn cho PR đỏ; giải phóng pod GPU cho PR khác (chưa đo ảnh hưởng queue)"
+     ],
+     "change": [
+      "Commit the local work after fixing it: the step 'if: build.state' is likely checked at upload time, the script reads a token from a local Claude config backup, and the GHA Test workflow has no hook.",
+      "Commit phần làm local sau khi sửa: 'if: build.state' có thể bị đánh giá lúc upload, script đọc token từ file backup cấu hình Claude, và workflow GHA Test chưa có hook."
+     ],
+     "where": ".buildkite/k3_tests/multiprocess/pipeline.yml:624-652 (local diff); .buildkite/scripts/fast_fail_cancel.py:29-38",
+     "risk": [
+      "No coverage is lost (the build would fail anyway); cancel_on_build_failing with automatic retry may cancel siblings on a flaky first attempt.",
+      "Không mất coverage (build vốn sẽ fail); cancel_on_build_failing cùng auto-retry có thể hủy job khác khi lần đầu lỗi do flaky."
+     ],
+     "ticket": "LM-1062",
+     "confidence": "medium"
+    }
+   ],
+   "summary": [
+    "The biggest saving is inside preemption_correctness: about 62% of each job is a plain-vLLM reference run that does not test LMCache and runs one after the other with the LMCache run. Fixing flaky workloads and finishing fast-fail (now only uncommitted local work with a likely trigger bug) add about 190 GPU-h each.",
+    "Khoản tiết kiệm lớn nhất nằm trong preemption_correctness: ~62% mỗi job là lần chạy tham chiếu vLLM thuần không kiểm tra LMCache và chạy nối tiếp với lần chạy LMCache. Sửa test flaky và hoàn thiện fast-fail (hiện chỉ là thay đổi local chưa commit, có thể lỗi điều kiện kích hoạt) mỗi việc thêm ~190 GPU-h."
+   ],
+   "unverified": [
+    "Lever totals 188.4 / 136.9 / 187.9 / 801.4 GPU-h and '229 of 235 canceled by build_skipping' come from the cache and were not recomputed",
+    "Job timing measured in only one full PR build (6457); builds 6458 and 6459 were skipped by the 'skip expensive ci' label",
+    "ref rung output is deterministic across nodes and runs for the same vLLM version",
+    "Whether ASYNC_SCHEDULING also changes the baseline server (decides if one ref can serve both matrix jobs)",
+    "Buildkite step 'if: build.state == failing' is checked at upload time, so the fast-fail step never runs",
+    "Whether cancel_on_build_failing cancels sibling jobs before an automatic retry",
+    "dsv4_flash_tp was missing from build 6457 (hma_dsv4_correctness ran instead); it may be removed upstream and the local clone may be behind",
+    "Effect on queue wait p90 for all changes (not measured)"
+   ]
+  },
+  "bug": null,
+  "rebase": null
+ }
+}

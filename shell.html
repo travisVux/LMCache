@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="vi">
+<head><script>window.OPS_STATIC=true</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LMCache Release Desk</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>LMCache Release Desk</h1>
+    <p class="sub" data-t="Decisions first. Every line links to its evidence. Local data only.|Quyết định trước. Mỗi dòng có link bằng chứng. Chỉ dữ liệu chạy local."></p>
+  </div>
+  <div class="tools">
+    <div class="seg" role="group" aria-label="language"><button data-lang="vi">VI</button><button data-lang="en">EN</button></div>
+    <button id="theme" class="ghost" data-t="Light / dark|Sáng / tối"></button>
+    <label class="tog" title=""><input type="checkbox" id="optDesc" checked> <span data-t="Descriptions|Mô tả"></span></label>
+    <label class="tog"><input type="checkbox" id="optAll"> <span data-t="Show all sections|Hiện tất cả"></span></label>
+  </div>
+</header>
+<div class="ages" id="ages" aria-label="data age"></div>
+<nav class="tabs" id="tabs" role="tablist" aria-label="views"></nav>
+<nav class="subtabs" id="subtabs" role="tablist" aria-label="sub views" hidden></nav>
+<main id="app"><p class="muted" data-t="Loading…|Đang tải…"></p></main>
+<div id="legacyWrap" hidden><iframe id="legacy" title="LMCache CI/CD & release page" loading="eager"></iframe></div>
+<aside id="drawer" hidden>
+  <div class="drawer-head"><h2 id="drawer-title"></h2><button class="ghost" id="drawer-close" aria-label="close">✕</button></div>
+  <div id="drawer-body"></div>
+</aside>
+<footer class="foot" id="foot"></footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2262 @@
+{
+"01a1a8e5-76d1-4a33-b08b-dbfdb4d1b5e8": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a982-7d68-4c97-8433-c7779ef6b50d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a8e5-76d5-4c6c-a831-7cae3329d2a5": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a98a-0728-41f3-9278-b8914e00ce3d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a8e5-76db-42f1-8ab6-ff675185d48a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a8d1-9180-4b3f-926a-8fcfce96041d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a8d1-9190-40b4-96fa-9c6277d4016b": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1a702-dd0e-40f1-b1d3-872fd6656ee9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a659-9b88-4de8-a0f5-91a3dbd4f6cb": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a666-c169-4f0f-84b7-a6fc7d5baa27": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a659-9b89-4f0e-9367-61eac0cc193d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a668-f8e2-421e-bc15-0a8a9ce809d6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a5e0-b123-422b-91d4-ad0586605991": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a61c-6bc9-4f7b-94e4-dc76f03ea8e5": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b12a-4bdc-9547-d27543b7cfc1": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b12e-4e44-90a5-c26eb0408252": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5fb-dabd-4b47-a9e1-a91eebced17c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b12f-49cf-83e1-0f9d56cf628a": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a601-8540-43d1-9215-361fc737c6ee": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6234/head\" \"7a12dc4f379e26ced403a2731ad7c0478997e349\"]: fetching refspecs [refs/pull/6234/head 7a12dc4f379e26ced403a2731ad7c0478997e349]: e"
+},
+"01a1a5e0-b12f-4458-9a3a-4083188698c3": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a602-5868-476c-bf9f-18a45d47b65b": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b130-49ab-92fc-92de9860d38f": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a609-9174-46c8-b0ed-735b91d4b144": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6234/head\" \"7a12dc4f379e26ced403a2731ad7c0478997e349\"]: fetching refspecs [refs/pull/6234/head 7a12dc4f379e26ced403a2731ad7c0478997e349]: e"
+},
+"01a1a5e0-b134-485f-a7fe-49583bbd78ba": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a616-6cfa-44d7-8654-e3a8cefcaf58": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b134-41e0-a778-d1844a2bbb31": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b138-4784-ba04-b3fa1688792e": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5fd-10ce-456d-9294-b4bcabe8b2b7": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b139-4d09-a5a4-e562d0fd7153": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6225-4d6f-b81c-a15b045fc009": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6229-42a4-a580-8fdd5eced90c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a625-317e-4671-a820-c6f02e297a7a": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622c-4009-b065-56dafa290628": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5fa-f2b1-458d-a979-4f0b860718fb": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a617-21c7-44e7-a16a-24d8c71ccc32": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622c-4e87-b37a-dfc99bfc2405": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/3992/head\" \"9d6156ecc5f29aa97e99fe3f81e34c6ef7fe2ad4\"]: fetching refspecs [refs/pull/3992/head 9d6156ecc5f29aa97e99fe3f81e34c6ef7fe2ad4]: e"
+},
+"01a1a5e0-622d-48da-a10c-177d336f698c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622d-42cf-a7bf-bcc644e4fb5b": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5f1-c142-44ea-8afa-34c66f0929e0": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622e-4911-9fda-ba262ec67967": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622e-4c18-8ae4-9fa4f89cce1c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5ef-074a-43e3-a35d-5dd76d312447": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6232-4e22-a8b4-9e0db513b2cc": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6232-432c-93d0-68b73d170d32": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6235-4f1c-b43b-bf1d0d87b27f": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5f2-050b-408a-8adf-f8450bbeb077": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6235-4384-a4df-cf8eb43bdcee": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5f2-bb4d-403e-a9e0-9bf1b5b572c6": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6235-414c-bf18-736b273d3cfa": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5c4-818d-4f63-b2f3-35d5d80bf2fa": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a61e-833b-4438-a5d2-9af377a38c69": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6269/head\" \"c2bbedb05135167208e8fdc342e7f1fdbd89ed61\"]: fetching refspecs [refs/pull/6269/head c2bbedb05135167208e8fdc342e7f1fdbd89ed61]: e"
+},
+"01a1a5c4-8194-4588-817d-c27993f6cec6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a5dc-4eae-4316-b62d-97723e709080": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5ee-3e2e-4ee7-803f-5d30882f695b": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6269/head\" \"c2bbedb05135167208e8fdc342e7f1fdbd89ed61\"]: fetching refspecs [refs/pull/6269/head c2bbedb05135167208e8fdc342e7f1fdbd89ed61]: e"
+},
+"01a1a5b3-3b65-4fb3-bd19-0edac57bbef2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a50e-96dc-4a49-9741-ac45706fa695": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1a410-cdcc-42e1-b502-62bd104d890e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a1ba-a626-4b37-81af-874c6a57e2df": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a1ba-a628-40c7-8699-fd1e6557aa8e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a19f44-6367-4746-842a-3758578008ac": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a19f1d-5c58-4648-9708-b92a8799b5d7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a19f39-d54d-4f86-ac74-c3dd6f8b6e46": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a19f1d-5c59-4709-a8d1-8100c1ba346f": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a19e7d-6cb9-45a1-88ca-261619e4c13a": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19e0d-57f3-4c69-be48-10f25bee842d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a19bd2-2f7d-438f-a47b-79a1b63ea8a5": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19ae0-c152-4070-baa1-8795fdb5d993": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19a31-03d2-4fd8-bef0-397fb0046cf0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a190b7-853b-494f-b108-2555e6826073": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a19075-ff6c-4819-885e-d5810badf383": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a19090-4208-4922-87b4-e405fc2f5a69": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a19075-ff73-45e8-b1de-24ad273b7668": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19096-be6f-4d9c-9119-c968ee28cfde": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a18fb2-9df8-4224-9c17-b8f374d9cd8b": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a18f2e-0a52-408c-8ad4-403bce54a3c3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18e38-c9bd-4621-b949-460a3994d71a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a18bc5-de65-4371-83ca-cf004ad4d5b7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18bd5-76bc-4ea8-a2cd-27fddd195d48": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18940-afd3-4951-b248-c6027b5de02f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18940-afd4-42d5-a464-378e3d444006": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a188ed-a23f-4e91-ab99-a13314f03a67": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a188ed-a243-445c-b496-959d4a15c33c": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a188d3-1033-4d1c-85db-96cb42cff272": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a187ea-8ea9-49af-86dd-618df6a299f4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a187c6-1092-4b4d-9df8-c77ff7d05f30": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a187c6-1093-423a-9f19-f0af6d765075": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a187f3-93d1-4038-b4dc-d70e44605b0e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a187ad-b598-4623-aec1-317dd8acbb37": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18753-bce6-401c-8c13-a3abbf629f56": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2909) ERROR 10-29 04:07:48 [core.py:1632] EngineCore failed to start."
+},
+"01a18758-6d21-4621-a506-b9d234dd3664": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2910) ERROR 10-29 04:12:53 [core.py:1632] EngineCore failed to start."
+},
+"01a1874e-dd72-4e45-b677-7856ab474a93": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2900) ERROR 10-29 04:02:23 [core.py:1632] EngineCore failed to start."
+},
+"01a186a4-d4f6-4b85-b911-006b420c934b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a186b0-36d8-4259-a698-e27105fef110": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a18694-fb76-4fee-a89b-278dcb91289c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18552-29e3-4f4f-99a0-f15f13d2cf1f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a184bf-09f0-44bd-b9cd-5b5df974ed3d": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a184bf-09f0-458e-9f6d-0101243b53e3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a184bf-09f6-4e0a-8690-76a75e888106": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1849f-24f9-444f-8463-7258e9161559": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a184b2-a518-4544-b057-73032c35f53a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1842b-0273-4e66-b12b-039aa1b08328": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18429-f6dd-4f8a-8179-9594209bf0f9": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a18429-f6e4-46fa-9857-c0c6871d56a8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18429-f6e5-4787-a4a9-a9c848cdfb21": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18429-f6e5-4b5a-b8f4-5d264c99d2d6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18446-537b-4d4c-a87f-a454ba6a9d58": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18429-f6ea-41ac-8e4e-1d71956b29bd": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a18441-8eca-4c4e-bd81-f66cda0a6d2e": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a183ed-92ef-40ea-a32b-6ed28c70ea21": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a183ed-92f1-4ca3-b9ad-6b6761eebbf4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a183b0-16fc-46a1-8797-57aac979d144": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a18381-8f7c-4e58-a5b6-59d84edf150e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1833d-8674-43f3-884b-6efbde3500e7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1833d-2b89-43b6-a23e-71370108123f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18306-8439-4dfd-9406-4d13555bcdd3": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a18306-843c-442b-bc74-0c135424dc70": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18306-8454-4871-bc4f-9755ea3b0888": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a182ec-220b-416d-9ba2-d5cb2656be61": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1829e-0ad8-4d09-b539-75eaa018fd18": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18277-a16e-4c38-ab8a-532e4e1a69a1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18277-a16f-4fbd-b04e-4a85cbc9a515": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a181d2-7404-459a-958c-07045b6eb596": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a181d2-7408-4ff1-8d88-b13962e69104": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a180fe-b832-4f44-93de-438ed93f432c": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a180fc-a5fa-4c09-8e51-7e7ba027e93c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1811b-952c-4891-a3e4-7ba85a814ec1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1808a-654a-4a83-b224-3afed215548c": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1823a-52c8-4c09-bed8-73a9a3d43177": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1808a-323f-47f3-b6f3-659a3eb824a7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1808a-3241-4d1a-9cf4-35a87263ebc4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1804c-18da-45dc-946f-62d6c01c2ab5": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a18024-119c-45ae-9bf5-a283e5370da4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17fb4-c6ab-4172-b970-8cfadc8ed6bc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17f94-edce-4518-8ccd-7f71e9b090a1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17fb4-71d9-4be7-9e7d-1b337783dda1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17f6c-ff68-4718-9f65-f4721e8ee383": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17f4f-d605-4da8-9c7a-c3aaa7bfd9df": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17f26-4383-4cdd-bcc2-6e33d9caa7f7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17f26-4389-4620-94eb-507d797417b7": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17f60-33f8-48f2-a100-de644399dd08": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17e26-5230-4ed6-85a5-34e3e85ba317": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17e26-523c-429a-9581-ca41f326b01a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17e26-523d-43ab-94dd-cce6fbeaa892": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17c53-bff3-4397-8822-7efce42bfb4b": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17c0b-3f72-4681-b7f5-5af83623d739": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17bf7-11e0-4fa7-8462-662428789329": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17bf7-11e2-404a-bb74-ffba89b5d473": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17c06-3d8b-4ac5-b7ad-791be5b3f591": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17bf7-11e6-4644-8074-2faca998436e": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17bfe-f344-4980-a24d-b1eea3c2535f": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17aee-e780-41b7-9476-bdee6592b944": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17a8d-c2c7-468c-bb46-19ed230e688c": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17a32-4916-4f38-bae9-64072b31bd39": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17a31-f1fc-4f7b-86d4-83c7cad67f51": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17a31-617c-4567-ba08-9b487cc99e31": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17a18-4257-4426-9808-091153696352": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17a1e-1329-4fff-841c-30894f6fe92b": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17980-a441-4669-a8ea-82e7cb91a95f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a17831-4089-4387-ba9a-521d216b3a65": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17831-408a-4bc7-98c7-60df8289415a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17840-4546-4b55-98fd-8a59869887ba": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a177b1-30f7-496c-93d2-977024737d84": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a175fd-4f37-47fb-9b5d-aa916c7d8d43": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a17656-d498-49d9-a0c0-71036325e3b6": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a175ad-4451-4bbf-afef-6d34b1b66806": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1736b-ad1c-4ce5-a0d2-a08d0999823f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1736b-ad27-41f0-8726-43856a7bd561": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17385-0b2b-4bf0-8f66-53e86d2dc43c": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a171b2-fe31-46b9-8e6f-7877af0726ed": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17112-7973-4c46-b0c4-4c6b9864ba74": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a170f1-9948-4aab-ac96-acdd1d8d57be": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17109-c645-4a34-ac02-5caba27791ff": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a170f1-994e-49f4-b48d-937a861ba910": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a1710a-9dc8-475e-9196-51edf84c58b1": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a170c1-f04f-4c3e-8b4d-fb7349391a8e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a170d5-ff6e-4cee-b208-7c8ae2857eee": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16e25-d518-4053-83a9-c5806baab340": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16de3-acba-479b-9bec-a24463ab9b63": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16c10-e87c-4123-a132-0ca54c2d5662": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16c28-6b87-45cf-b355-8aac458282c6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16c38-2c76-4c19-8fb9-29cebc89260c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16bae-59a7-4ef9-871a-89bc3f7bff72": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16bc9-d4e1-41c4-ae6d-3c3fb9ff14a3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16b5e-eaac-470b-a15d-e8ae00f2db59": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16b5d-88b0-4165-9e05-73ed38f97084": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16b96-198b-44d0-8914-9475830b241c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16a5d-e4bc-43d8-ae56-631e9ea7a486": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a167c1-3f4d-4a37-91c7-13eb3f6d1435": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16699-b649-4233-a05f-7f7a8ea48d14": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16675-60af-4d1a-a037-f527fe8e9529": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16640-28d6-4e90-8101-1d130e96b47f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16600-05aa-499f-adba-b5c3136b7804": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a16616-ba08-48cf-b603-b47c3c32f692": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a16618-396e-4976-ac22-71beeedb01ed": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a165d5-2439-473c-8a05-9ba05f57cbb0": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a165f3-3a6d-4e84-9c32-808b1ff24a93": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a163c8-71cd-4da9-84a0-9f6cc72143df": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a163e2-94dc-47a1-ae0c-1a0c7a6bee48": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16388-a148-47e5-b350-eb0b2fe0f163": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1629b-db33-4810-b0b8-abb7248d1a79": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1629c-07bd-4a77-baaf-db1fcf403647": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1629b-db3b-4fcb-8c05-2669a3b73ecf": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16261-4cd3-46aa-af29-9c409287b2a1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a160c6-f2c9-402d-9ab3-d9a2235c0e7b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16071-ee0b-4c50-91a9-4afd1c557f5c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16041-066f-4a3a-a6c7-4aeea39d69e5": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15fbe-57db-4409-9ce3-871064011f15": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15fbe-580a-4821-9ba7-096cafed862e": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15fbe-580a-4594-a7db-f5576741a1b5": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15fbd-c783-4b24-b195-f8a0ddca7cc6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a15f62-18e2-45a1-9ea6-1f8d133b78de": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15edf-cb79-43d6-a4a8-f2023a53cf72": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a15eb9-3339-4d7d-944b-92494760f35a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a15e94-b749-4454-95cf-e7b1027fd96e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15e67-8c67-4ed6-8f05-0f2d969c1794": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15d9d-e54f-4dbe-9fe1-8f5647eed225": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15d61-ebd7-4675-a704-e762a24c0383": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15dd9-8e4d-4eb8-8aec-d246541a4f29": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebde-481b-abf2-5064670ca99f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d73-c4b0-4b7f-8fd9-07cb195ae14f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebe0-4838-98c0-71d81b2a22e3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15d61-ebe0-400a-a087-5e97c575fe97": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d78-41a2-4aca-82a5-1b2e6f8161a0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebed-4813-883e-03fe1e153331": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d78-ea8f-4f9d-a31c-b2c930f3fdad": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebee-461d-9c93-5394f69d63d3": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d78-514e-4b68-8a50-83a4b8afd17b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d3e-23ac-4373-af50-ab9a0465550f": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15de3-b6ac-47e8-a177-184e648ec056": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15d3e-23b4-45d6-95e9-47ca32175525": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15d26-2687-41ba-8c13-9674205677c5": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a15bbc-594c-4ef3-a08f-eceb15d20723": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15bea-eb31-43b1-a5f6-6e18772e3a73": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15b5d-7bb2-41c8-98c5-80fc34bb7e6d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15b90-4962-40a3-a4f1-7a9b31ca4d9f": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15bab-9406-4003-a91e-de5f588a23ad": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15b5d-7bbd-4fd3-9a30-3015a1e10504": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15b31-663f-4a5f-9aad-e1406d7f7748": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15b62-9db9-47a3-8d63-f5dc52de232c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15963-79d2-4864-9807-99d66ac32627": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15963-79dd-4d54-84bb-4d39c42b314b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a158f5-6d7d-4804-8b29-53ac334e7df1": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15868-f412-4937-a4f3-3a6ae1d8dd54": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1583e-ac96-49ba-ae63-db21012e12cf": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1583e-aca7-4aa0-b83d-926ccf3eaf80": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1583e-acb2-4d25-9876-04754352e7b4": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a157a7-50f0-4357-aac0-6329cfc00b68": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a157a7-50f1-46cc-a962-39a10730155b": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a157a7-50f5-45d2-892a-de627e61a14d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15770-2e6d-495d-b6bf-8471375938d0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a156cb-6ef5-47e1-bc15-07f4bd982009": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a157ee-cad6-4c99-b0ca-be966dcc45ac": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a156a7-6c93-4bed-99fd-2cd2ee766461": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a156d7-f901-4bfc-8a8d-bb7e9ddd5c5d": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15646-64fe-4741-be45-9cf5b3be75c9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a155b6-f933-4a67-bb23-bf1fda278809": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15411-9b88-4691-8bc3-643dde002af4": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1544e-a40c-4842-bd75-f9aacdeaded2": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a152fc-48b6-48c8-bd8e-000a495ebc54": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a152fc-48c7-4f27-9538-9bb2130c20f7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a152ed-ed2d-4a68-b7e8-a15241a3c61f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a152fb-2e3d-43d8-91e9-d2916e0a41b2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15284-2155-440e-bea2-1e6a76899847": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1526c-75a3-4c6e-8ffa-197579c7af3f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a151e8-694d-4b63-8d84-4f6bc02bdb9f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14f4c-b286-4f47-81dd-a3f9ca939035": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14d07-d8f6-4d51-9984-771b293a0173": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14d07-d8fb-44a6-8801-b098a71528c1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a14d07-d906-45ea-be38-b66e96f76a3b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a14d19-9878-4fa0-b3d4-b1a8ef808d9b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a14cd3-9416-4abe-8fce-7d4f1ac35989": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14c13-afc9-42d5-a0cb-4931a2b1183c": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14c37-1b0b-4ab4-8613-aeebc2c6a8b3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14c13-afd0-426c-80ef-550a36a70786": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14c13-afd2-4984-b82e-fa234da30ffa": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a14aa0-0c6d-4418-b3d0-323d6737b715": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14ad8-55a1-4d19-ad5b-66ba6bb3e21e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14aa0-0c74-4dc8-9843-d252f8d8d0d2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14a94-3651-4e1a-92d7-b353fa38c63b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14ada-b84a-40dd-acd4-3906cf255dd8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14a8a-b46f-4982-ae37-8f568655596e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14a3d-95d7-4de4-8f2a-40aad46dea60": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14a5e-184b-412a-b891-3a46834b9ce5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a149af-1e4e-447b-bc05-a4a14844c727": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a148d5-8399-428d-8a0b-b6dac703800a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1490e-86a6-428b-8795-ad872f82d457": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14916-eed3-40eb-8b53-3e9e28a056a9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a148c3-a8b9-4ca3-8e09-6782af28d838": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1490f-581c-4ebc-a08e-6e2ef382039f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1489f-623d-4b4d-afb8-945eee613fd9": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a148a5-e7f0-4424-a2dd-0a610c60fdab": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1489f-624b-484a-8b14-7d1a1e0277b9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a148c1-bec1-450c-8dd5-fbbe9a04e84a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a147c5-cfc6-45da-b8c2-e9562b3a5007": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14780-0d23-4454-bd7c-a8cd9e1e94af": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14735-a711-49b1-aced-c9f3e0bd1ce8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14710-1770-4d4c-a57c-5de73287868e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1467f-4a29-415c-bba3-d496ef4fe508": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1467f-4a3f-4760-8cca-e2dec7c2c64c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a14660-8848-45ac-9498-9e72c2b674c1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a145ee-54cc-404e-9b48-e060bcf4a7c2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a144b2-8b5a-4968-8892-8126558456e5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a141f0-f324-4264-ae2a-54cebbbd2d8f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a141f0-f327-43f4-8283-604fec7544bc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a141f0-f32d-41d8-9ab0-3774cdd264de": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a141ca-85df-477d-be91-efa99ea7c084": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a140d5-9d3c-451c-bb0c-ced41d4c34c3": {
+"sig": "network",
+"cls": "infra",
+"line": "Caused by: HTTP status server error (503 Service Unavailable) for url (https://download.pytorch.org/whl/cu130/referencing/)"
+},
+"01a140d5-9d3f-482e-97ce-365cdf4becd9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13f78-5e21-4280-833a-769d583038a3": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'gds_smoke_test' is not implemented for vLLM."
+},
+"01a13eef-5225-48c2-aafb-ff8766362909": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13e9b-c955-4826-8ef8-12ee7d6cdda7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13e86-fcf8-4a57-8d14-161370efbcbd": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13df5-c557-4922-954e-59811a9f8e1f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13df5-c558-40e2-8c01-6ff6a3308ae7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13de4-bf63-4632-b06d-630bb27e14f2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13de4-bf6b-45fa-bddb-fdbe7e2be43d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13cee-6909-4cf0-b442-27579f05b76f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13ced-3970-4764-a8fd-07de15e577fe": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13caa-c5d2-4dcd-8780-bb324f6920be": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13caa-c5c7-42f3-8ec4-fb37ca025418": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13cd8-8b07-42be-9627-658c3bacd67d": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13c81-2b18-4fc4-a7b9-270576d549b0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13bd3-fbd1-4a7d-8eac-84c51f4fcc10": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a13bd3-fbd8-4dbb-8f0f-e8fbf1784670": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13bd3-fbdc-4ba7-8529-cb2507b50bec": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13ad8-d7d4-4c18-9459-63fba76e6ca1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13ad8-d7dd-4613-b3aa-2daa752282bb": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13b12-857c-4d8e-bc37-d62c51436129": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13ad8-d7e0-4b5b-8d2e-ec4c90683f39": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a13ac2-1b44-4451-aa78-629ff9dbc797": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a13a4c-c5e3-4de8-b530-67ccfb6e5b44": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13a61-5541-4205-9949-6f44e1f0c96a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13a27-b8f3-4f88-b395-a862775d20f6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1391d-256b-4ec9-b58e-360e54505c82": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a138d4-7b0f-4fd1-a8d9-d9ee92dc1ffc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13897-c878-41d5-b49d-cdafa0978072": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a13897-c87c-4770-b8b5-1b978fde9aca": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13897-c87e-40bc-9b06-c90443865663": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13897-8616-44e3-89f5-5cf5905b27d5": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13897-8617-4594-9f9b-6d0f1146730e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a138b7-7e1f-421b-9e48-511d8b0ad8fe": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13839-03e6-445d-b511-923a862e99e5": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13839-03eb-4a1a-8c53-02e8ee415911": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13839-03ed-47ab-af5b-b58d4b5d979d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a137fb-40d3-401e-b209-8ad6ed34d764": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a137fb-40da-495d-b537-6f63ad5cdeeb": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13828-a799-4269-9282-b2faf9327823": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a137fb-40db-4b7e-9af3-b199d97651d0": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13839-93ea-4236-93b8-5ad09ad36af8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1389a-3f15-4785-968d-fde1c1e54f7e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13788-0d30-4880-a400-b4d786b2b922": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13788-0d36-4f6c-8fcb-40b8ebe2aeba": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13750-a603-46df-863d-3c30f7aa13f2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1376f-08cb-43a0-a366-b07179f6711a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13750-a605-40c1-8da9-8eba3e9ac730": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1372c-dbbd-4776-9763-42b559d68adf": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1372c-dbc6-47fe-b20e-48ea8cee700b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1372c-dbc6-49c8-a3b8-534d3515f9a5": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a136f2-d711-47d0-a3ba-f4c3311ca5e4": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a136bd-8d34-4c4d-803c-4dcb5be9d51f": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a135b8-cd79-4f40-b741-490ecc975f32": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a134d2-e799-4fd4-97bf-58fad358e739": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a134f0-344b-4d4f-aaca-98f7eeb6ff30": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a134d2-e79b-4ae8-8ebd-745ff8f2b5d0": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1341d-a781-4a04-a24c-b6694a5721cc": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a133c5-fd40-4a0e-95d2-09a15083caa9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a133d8-bf44-4958-8a75-8787900d580e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13400-fcdb-49ee-948c-50d783a28536": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a133b0-4a33-4ae0-8119-2c1efe5c4da9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13373-b207-461f-9cc7-de0037587456": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start"
+},
+"01a133df-9159-4062-b5a0-af15b5bdd11a": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start"
+},
+"01a13326-92c8-4dde-95e4-73f8c013df27": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13313-e4db-4c04-91e0-e21e03830be9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13345-1b2d-4917-8eed-1b921623c907": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1335a-1367-40b7-878a-9567e00109c7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a13289-eb3b-45f1-84d1-bef7b2f74d6d": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a13261-22d7-4c22-baaf-919f603ecea9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a13248-eaaa-4bd4-9d6a-70c74e7b54e2": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13248-eaae-412c-a7c8-c626b4f0ba37": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1322e-59eb-4045-8c26-bd83f984daf4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a131e6-c9b3-4ee4-8471-3eeb813887c0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a131e6-c9b5-4d8b-b745-0f17e819a75b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a130a4-335c-4824-9111-251b22868a88": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a130a4-335f-4eba-9bf5-529b5a35ffd2": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a13063-e7af-4915-aa8b-ed85d55bcfd1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a12a29-a197-40fc-b7d3-827014990188": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a12937-2f6b-4f5e-9c7c-9085b56d73a5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a12937-2f79-45f3-ad92-2724e9733f5f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start"
+},
+"01a124ec-6d06-4c95-a890-1d672b967f0d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a124d4-729f-42e6-8f91-818d8c0d3dfc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1251b-4dd9-4fb2-817e-d16fa4b7ef97": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a12401-649b-4745-96a6-950560bf3af2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1240f-7fbd-4851-b0b0-3340fe10708a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a12387-5860-457a-a697-7a5871491f36": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a12387-5872-4208-a77b-15737e59b3bf": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a122fc-6eea-4531-8ff1-38e401401043": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1230b-a0d1-493b-bba4-c4cbcaa1bbbd": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a12261-b611-4798-a91d-a289855a8ed2": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11fab-a9eb-4785-9bc7-306ecff21b8c": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11f25-1695-4b98-81e5-8443d78a62a7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a11f25-1696-4478-9dae-3879bce9ca29": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11ed2-44c8-4073-85d4-a5675649699d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11ed2-44cf-4c9d-89cf-ed07b0b3cbc5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a11f43-9059-47fb-b41c-83400fdf004b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a11ecf-ca73-4e2b-83ab-343a54362c68": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11f00-2084-4eb8-811a-89e7f8b7d40f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11ecf-ca78-4f00-99b1-b3d17b2e1c9d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a11e57-e8e3-4829-918f-4698a572f648": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a11e15-6135-4daf-a408-bae7f268fe21": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11e24-7ed1-4ee6-8090-af1b6d6f6fc6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11b94-5ebc-40f1-9a38-7dff32cd9b3c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a11918-a831-46ce-a1c8-10dc13de0906": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a118db-5e37-466a-80e1-84e8a3d8a161": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1187c-6e95-450e-a7d7-8839103b63d8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1187c-6e99-41e6-bfda-9ac966a5c9d5": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1187c-6e99-49db-a8dc-7e3a951067b5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1187c-6e9a-4f29-85fc-802860eb40f5": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start. Last 100 lines of log:"
+},
+"01a1187c-6e9a-49d6-bb29-04b47bc18413": {
+"sig": "test_failed",
+"cls": "test",
+"line": "p2p test failed"
+},
+"01a1187c-6e9c-4354-8e70-17a06fbda831": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1187c-6e9c-4343-a2e0-e97480d373af": {
+"sig": "test_failed",
+"cls": "test",
+"line": "restart_recovery test failed"
+},
+"01a1187c-6e9c-473c-b780-351243d476ec": {
+"sig": "test_failed",
+"cls": "test",
+"line": "cache_stats test failed"
+},
+"01a1187c-6e9d-48fa-b37a-31385a575632": {
+"sig": "test_failed",
+"cls": "test",
+"line": "gds_smoke_test test failed"
+},
+"01a1187c-6e9e-4498-9674-e11dc9742494": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a113bf-bdb6-45c3-902c-ce90cd05087a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a113bf-bdc5-407c-8a3a-628a28a2fe09": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start"
+},
+"01a1114e-7fd0-4760-bcae-a66eb81f90f0": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a11146-53fb-464d-9df0-e319f5d0220d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3108) ERROR 10-06 05:58:17 [core.py:1433] EngineCore failed to start."
+},
+"01a11146-5406-44da-aac5-91c9fc740aa2": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2554) ERROR 10-06 05:58:29 [core.py:1433] EngineCore failed to start."
+},
+"01a11146-5406-4f99-bfab-637da2739bb4": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2607) ERROR 10-06 05:59:26 [core.py:1433] EngineCore failed to start."
+},
+"01a10d80-0b37-4c7a-9e73-a6dfa2fc196e": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start"
+},
+"01a10d7f-ebf9-4647-aea3-abd89e81d7ce": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a10cdc-0afb-403d-ab19-1ca2a644c154": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a10cdc-0aff-4b0d-9124-4972d6b44965": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a10cdc-0b06-4a28-97b4-e973f6422655": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start"
+},
+"01a10b2b-939f-4b00-9814-4e8e24fcc89e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a10b2b-93a3-4df8-ba79-ca75e1c56502": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a66e-c9b3-4680-a865-bc54097903d4": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 7987 passed, 302 skipped, 1 xpassed, 508 warnings in 1369.79s (0:22:49) ======================================="
+},
+"01a18af7-4fb6-4776-b831-700847a463c4": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a188ec-ce4a-4c8b-97b4-fe726b3759ce": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 951 passed, 38 skipped, 340 warnings in 229.48s (0:03:49) =============================================="
+},
+"01a187df-119e-474f-b963-5c7ea2f7b12c": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 7056 passed, 269 skipped, 1 xpassed, 455 warnings in 1001.85s (0:16:41) ======================================="
+},
+"01a164b9-bb6e-424c-9502-731f7b2e5404": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8486 passed, 331 skipped, 1 xpassed, 495 warnings in 1404.84s (0:23:24) ======================================="
+},
+"01a156cb-6b32-47b6-bdf4-854cc6616058": {
+"sig": "no_log",
+"cls": "unknown",
+"line": ""
+},
+"01a15598-4706-4a28-8f56-162569013cca": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 5237 passed, 130 skipped, 1 xpassed, 334 warnings in 670.01s (0:11:10) ======================================="
+},
+"01a15497-2071-4264-90d8-87678d2e2e89": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a14aa1-909d-4c10-bd2a-bb9ae9bc2458": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8180 passed, 306 skipped, 1 xpassed, 498 warnings in 1430.70s (0:23:50) ======================================="
+},
+"01a13f8a-c202-4b02-a6d0-a62b8b56bc66": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8127 passed, 301 skipped, 1 xpassed, 497 warnings in 1191.60s (0:19:51) ======================================="
+},
+"01a13c37-6b6e-48a9-b9f2-94d4f1cc82c9": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8002 passed, 300 skipped, 1 xpassed, 496 warnings in 1390.42s (0:23:10) ======================================="
+},
+"01a1391d-017a-464e-a9a2-81bb703c332c": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 5570 passed, 129 skipped, 1 xpassed, 336 warnings in 763.44s (0:12:43) ======================================="
+},
+"01a137c8-d8a0-4f5a-a881-2ae6706e6e9a": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 5376 passed, 124 skipped, 1 xpassed, 336 warnings in 672.96s (0:11:12) ======================================="
+},
+"01a135ac-7b35-4cfe-9790-cc42de16b176": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 2638 passed, 92 skipped, 1 xpassed, 326 warnings in 527.78s (0:08:47) ========================================"
+},
+"01a1a624-c70a-4925-b6a2-96ae58125084": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6269/head\" \"c2bbedb05135167208e8fdc342e7f1fdbd89ed61\"]: fetching refspecs [refs/pull/6269/head c2bbedb05135167208e8fdc342e7f1fdbd89ed61]: e"
+},
+"01a1114e-7a06-4aac-9e0e-dda35c742843": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 2352 passed, 68 skipped, 1 xpassed, 319 warnings in 468.27s (0:07:48) ========================================"
+}
+}

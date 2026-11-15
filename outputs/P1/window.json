@@ -1,0 +1,7 @@
+{
+ "since": "2026-10-05T00:00:00Z",
+ "until": "2026-11-05T00:00:00Z",
+ "note": "Fixed LM-1130 baseline window: builds / check suites created in [since, until), UTC. Change both dates to make a new baseline; keep the old files for comparison.",
+ "pipelines": ["k3-multiprocess-test", "k3-unit-tests"],
+ "repo": "LMCache/LMCache"
+}

@@ -1,0 +1,2637 @@
+{
+ "version": 2,
+ "updated_at": "2026-11-09T10:23:10+07:00",
+ "releases": {
+  "v0.5.7rc1": {
+   "last_run": "2026-11-09T09:32:39+07:00",
+   "prs": 12,
+   "checked": 12,
+   "failing": 3,
+   "proposed": 3
+  },
+  "v0.5.7rc2": {
+   "last_run": "2026-11-09T10:12:19+07:00",
+   "prs": 12,
+   "checked": 12,
+   "failing": 11,
+   "proposed": 11
+  },
+  "v0.5.7rc3": {
+   "last_run": "2026-11-09T10:21:32+07:00",
+   "prs": 12,
+   "checked": 12,
+   "failing": 4,
+   "proposed": 2
+  },
+  "v0.5.7rc4": {
+   "last_run": "2026-11-09T10:22:50+07:00",
+   "prs": 12,
+   "checked": 12,
+   "failing": 11,
+   "proposed": 1
+  },
+  "v0.5.7": {
+   "last_run": "2026-11-09T10:23:10+07:00",
+   "prs": 12,
+   "checked": 12,
+   "failing": 8,
+   "proposed": 8
+  }
+ },
+ "prs": {
+  "v0.5.7rc1::5821": {
+   "tag": "v0.5.7rc1",
+   "num": 5821,
+   "title": "[Feat] Add `lmcache bench trace-analyze` for offline request-trace cache simulation",
+   "checked_at": "2026-11-09T09:22:32+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 29,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5976": {
+   "tag": "v0.5.7rc1",
+   "num": 5976,
+   "title": "[Fix][MP] Keep a full-prompt hit inside vLLM's allocation under SWA prefix replay",
+   "checked_at": "2026-11-09T09:22:33+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 28,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5960": {
+   "tag": "v0.5.7rc1",
+   "num": 5960,
+   "title": "[Perf][MP] Callback-driven LookupState for scheduler lookups",
+   "checked_at": "2026-11-09T09:22:35+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 30,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5922": {
+   "tag": "v0.5.7rc1",
+   "num": 5922,
+   "title": "[Core] Add the allowed list for L1 and L2 when submit prefetch requests to storage manager",
+   "checked_at": "2026-11-09T09:22:36+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 29,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/897",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "dbf149f51aa0",
+   "proposal": {
+    "sig": "dbf149f51aa0",
+    "run_at": "2026-11-09T09:22:36+07:00",
+    "model": "default",
+    "secs": 178,
+    "cost_usd": 1.0505497,
+    "turns": 36,
+    "session_id": "7aa8cadf-3829-48ef-b6dc-a9b26a5fa2be",
+    "report": "2026-11-09/v0.5.7rc1__pr5922.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "shipped-bug",
+    "root_cause": [
+     "Merging PR #5922 (a81b4e5a) turned coordinator-integration-test red on dev (#901 green → #902 red, still red at #1363); the PR removed the public `skip_l2` kwarg of StorageManager.submit_prefetch_task and bumped TRACE_SCHEMA_VERSION 1→2, which most likely broke the external (tensormesh) coordinator integration code — exact error unverified because the log is not accessible.",
+     "Merge PR #5922 (a81b4e5a) làm coordinator-integration-test đỏ trên dev (#901 xanh → #902 đỏ, vẫn đỏ tới #1363); PR xoá tham số công khai `skip_l2` của submit_prefetch_task và nâng TRACE_SCHEMA_VERSION 1→2, nhiều khả năng làm gãy code tích hợp coordinator bên tensormesh — chưa xác minh lỗi cụ thể vì không đọc được log."
+    ],
+    "fix": [
+     "Have someone with tensormesh access read build #902; if it is a `skip_l2` TypeError, restore `skip_l2` as a deprecated alias mapping to allowed_l2_memory_tags=frozenset(), then update the external test to the new API (and to trace schema v2 if needed).",
+     "Nhờ người có quyền tensormesh đọc build #902; nếu là TypeError do `skip_l2` thì thêm lại `skip_l2` làm alias deprecated map sang allowed_l2_memory_tags=frozenset(), rồi cập nhật test bên ngoài sang API mới (và trace schema v2 nếu cần)."
+    ],
+    "guard": [
+     "Expose coordinator-integration-test logs/annotations to contributors (or give the MCP token tensormesh access), make the check required or alert on dev red, and keep deprecated aliases for one release when changing public StorageManager APIs or trace schema.",
+     "Cho contributor xem log/annotation của coordinator-integration-test (hoặc cấp quyền tensormesh cho token MCP), đặt check là required hoặc cảnh báo khi dev đỏ, và giữ alias deprecated một release khi đổi API công khai của StorageManager hoặc trace schema."
+    ],
+    "option": "C",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Exact error and failing test in builds #897/#902 (no access to tensormesh org logs)",
+     "Whether the break is caused by the removed skip_l2 kwarg or by TRACE_SCHEMA_VERSION 2",
+     "Whether dev turned green at any point between #914 and #1363",
+     "publish.yml disk-quota gate failure (taken from the tracer, not checked)"
+    ]
+   }
+  },
+  "v0.5.7rc1::5995": {
+   "tag": "v0.5.7rc1",
+   "num": 5995,
+   "title": "[CI] Install Python 3.12 for the mypy hook",
+   "checked_at": "2026-11-09T09:25:36+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 29,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5979": {
+   "tag": "v0.5.7rc1",
+   "num": 5979,
+   "title": "Move InProcess-only cache_engine, rpc_utils ZMQ helpers, protocol RemoteMetadata under inprocess",
+   "checked_at": "2026-11-09T09:25:37+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 28,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5436": {
+   "tag": "v0.5.7rc1",
+   "num": 5436,
+   "title": "[Doc] Fix relative links after mp_coordinator reorg",
+   "checked_at": "2026-11-09T09:25:39+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 28,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::4990": {
+   "tag": "v0.5.7rc1",
+   "num": 4990,
+   "title": "[Doc] Reconcile the documented PR title prefixes with actual practice",
+   "checked_at": "2026-11-09T09:25:41+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 37,
+    "passed": 26,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 1,
+    "fail": [
+     {
+      "name": "test: 3.11 on ubuntu-latest",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/38984424824/job/120174990792",
+      "workflow": "Test"
+     }
+    ]
+   },
+   "sig": "407f82e97f9c",
+   "proposal": {
+    "sig": "407f82e97f9c",
+    "run_at": "2026-11-09T09:25:41+07:00",
+    "model": "default",
+    "secs": 250,
+    "cost_usd": 0.8720475999999999,
+    "turns": 29,
+    "session_id": "06bee6ba-5e2a-4930-b134-40bc2289e6f8",
+    "report": "2026-11-09/v0.5.7rc1__pr4990.md",
+    "status": "ok",
+    "cls": "flaky",
+    "impact": "none",
+    "root_cause": [
+     "All 7460 tests passed but the pytest process aborted (exit 134, 'Fatal Python error: _enter_buffered_busy ... possibly due to daemon threads') because a leaked _receive_kv_events daemon thread from test_vllm_mp_adapter.py held the stderr lock at shutdown; the PR's run tested a stale merge ref (base 32cbdcb7) that predates fix #5823, and all reruns reused that SHA.",
+     "Cả 7460 test đều pass nhưng tiến trình pytest bị abort (exit 134, 'Fatal Python error: _enter_buffered_busy ... possibly due to daemon threads') vì daemon thread _receive_kv_events bị rò rỉ từ test_vllm_mp_adapter.py giữ lock stderr lúc tắt; run của PR test merge-ref cũ (base 32cbdcb7) chưa có fix #5823 và mọi lần rerun đều dùng lại SHA đó."
+    ],
+    "fix": [
+     "Already fixed by #5823 (e6f0a372), which is contained in the merge commit 01cdfb10; no action needed for the release. For other PRs hitting this, rebase/push to regenerate the merge ref rather than re-running.",
+     "Đã được fix bởi #5823 (e6f0a372), commit này nằm trong commit merge 01cdfb10; release không cần làm gì. PR khác gặp lỗi này thì rebase/push lại để tạo merge-ref mới, không bấm re-run."
+    ],
+    "guard": [
+     "Add a session-end conftest check that fails on leaked non-main threads, set PYTHONFAULTHANDLER=1 in test.yml, and rebase instead of re-running stale merge refs (or require up-to-date branches / merge queue).",
+     "Thêm kiểm tra cuối session trong conftest để báo lỗi khi còn thread non-main bị rò, bật PYTHONFAULTHANDLER=1 trong test.yml, và rebase thay vì rerun merge-ref cũ (hoặc bật require up-to-date branch / merge queue)."
+    ],
+    "option": "R",
+    "fix_pr": 5823,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "test: 3.11 on ubuntu-latest (CPU only unit tests, exit 134 after all tests passed)"
+    ],
+    "repro": "pytest tests/v1/test_vllm_mp_adapter.py -m \"not (cuda or musa or xpu or npu or neuron or rbln)\"",
+    "unverified": [
+     "The daemon thread holding stderr is specifically _receive_kv_events (inferred from #5823 and test order; no thread stack in log)",
+     "dev has no exit-134 aborts after 2026-10-17 11:24 (no dev run opened)",
+     "Relation to k3-blend-test #4342/#4348 not checked; almost certainly unrelated to this doc-only PR"
+    ]
+   }
+  },
+  "v0.5.7rc1::5986": {
+   "tag": "v0.5.7rc1",
+   "num": 5986,
+   "title": "fix: make foreign tools import independent of safe path",
+   "checked_at": "2026-11-09T09:29:52+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 28,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5471": {
+   "tag": "v0.5.7rc1",
+   "num": 5471,
+   "title": "[Bugfix][MP] Report failure for rejected Bigtable L2 stores",
+   "checked_at": "2026-11-09T09:29:54+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 37,
+    "passed": 27,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc1::5167": {
+   "tag": "v0.5.7rc1",
+   "num": 5167,
+   "title": "[good-first-issue] distributed: convert f-string log calls to %-format",
+   "checked_at": "2026-11-09T09:29:55+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 37,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "CPU device (ubuntu-22.04 / deepseek-v2-lite / zmq)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/39776691801/job/119824789739",
+      "workflow": "CPU Device Tests"
+     }
+    ]
+   },
+   "sig": "0ac816179b9b",
+   "proposal": {
+    "sig": "0ac816179b9b",
+    "run_at": "2026-11-09T09:29:55+07:00",
+    "model": "default",
+    "secs": 162,
+    "cost_usd": 0.6141711,
+    "turns": 22,
+    "session_id": "b87bacb3-b1a6-4e02-a6c3-631b09cb3fa1",
+    "report": "2026-11-09/v0.5.7rc1__pr5167.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "The GitHub-hosted ubuntu-22.04 runner for the CPU device deepseek-v2-lite/zmq leg lost communication after ~64 min (no steps or logs recorded); the same failure hit at least 3 other unrelated PRs, and the PR only changes log formatting and a ruff ignore.",
+     "Runner GitHub ubuntu-22.04 của leg CPU device deepseek-v2-lite/zmq mất kết nối sau khoảng 64 phút (không có step hay log nào); lỗi y hệt xảy ra ở ít nhất 3 PR khác không liên quan, còn PR này chỉ đổi cách viết log và một dòng ignore của ruff."
+    ],
+    "fix": [
+     "Rerun if needed (PR already merged, no code change required); open an infra ticket for recurring runner-lost on the deepseek leg.",
+     "Rerun nếu cần (PR đã merge, không cần sửa code); mở ticket infra vì leg deepseek mất runner lặp lại nhiều lần."
+    ],
+    "guard": [
+     "Add a background memory/CPU monitor artifact and per-step timeouts to the deepseek leg so runner deaths leave evidence; track runner-lost frequency and move the leg to a larger runner if it persists.",
+     "Thêm step ghi RAM/CPU chạy nền lưu thành artifact và timeout cho từng step ở leg deepseek để khi runner chết vẫn còn dấu vết; đếm số lần runner lost và chuyển sang runner lớn hơn nếu còn lặp lại."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     "CPU device (ubuntu-22.04 / deepseek-v2-lite / zmq)"
+    ],
+    "repro": "",
+    "unverified": [
+     "Exact cause of runner loss (OOM vs hang vs GitHub infra)",
+     "Whether the runner-lost pattern still occurs in November 2026",
+     "Unrelatedness of k3-blend-test #4342/#4348 CUDA IPC failure to this PR (not inspected)"
+    ]
+   }
+  },
+  "v0.5.7rc1::5973": {
+   "tag": "v0.5.7rc1",
+   "num": 5973,
+   "title": "[Refactor] Move InProcess-only internal_api_server modules under inprocess",
+   "checked_at": "2026-11-09T09:32:39+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 30,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc2::6056": {
+   "tag": "v0.5.7rc2",
+   "num": 6056,
+   "title": "[CI] Stage the payload under /tmp so extraction works as non-root",
+   "checked_at": "2026-11-09T09:32:41+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 27,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/968",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1497",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "181ce83479b5",
+   "proposal": {
+    "sig": "181ce83479b5",
+    "run_at": "2026-11-09T09:32:41+07:00",
+    "model": "default",
+    "secs": 152,
+    "cost_usd": 0.9405777,
+    "turns": 26,
+    "session_id": "4951b5c4-c8ea-42e3-99c0-39e49bd5f673",
+    "report": "2026-11-09/v0.5.7rc2__pr6056.md",
+    "status": "ok",
+    "cls": "env-dependent",
+    "impact": "none",
+    "root_cause": [
+     "XPU Buildkite upload step pre-merges origin/dev (bringing #6017's hma_swa_correctness step) but test jobs run on the stale PR head, which lacks workloads/vllm/hma-swa-correctness.sh, so both hma_swa jobs exit 2; unrelated to the Dockerfile.payload change.",
+     "Bước upload XPU merge origin/dev (có step hma_swa_correctness từ #6017) nhưng job test chạy trên PR head cũ thiếu script hma-swa-correctness.sh nên exit 2; không liên quan thay đổi Dockerfile.payload."
+    ],
+    "fix": [
+     "Make XPU multiprocess run.sh call merge_pr_base_branch (or reuse the upload step's merged SHA) so test jobs see the same tree as the uploaded YAML; PR itself needs nothing.",
+     "Cho run.sh XPU gọi merge_pr_base_branch (hoặc dùng SHA đã merge của bước upload) để job test cùng tree với YAML; PR không cần sửa."
+    ],
+    "guard": [
+     "Run test jobs on the same pre-merged tree as the pipeline upload; require up-to-date branches or a merge queue for dev.",
+     "Job test chạy trên cùng tree đã pre-merge như bước upload; bắt buộc branch up-to-date hoặc merge queue cho dev."
+    ],
+    "option": "D",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     ":xpu: hma_swa_correctness / engine_driven / inline",
+     ":xpu: hma_swa_correctness / engine_driven / shm",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "gh api \"repos/LMCache/LMCache/contents/.buildkite/k3_tests/multiprocess/scripts/workloads/vllm?ref=7a74df3639a83a87daae64a6b79df639ad33320c\" --jq '.[].name' | grep hma-swa || echo missing",
+    "unverified": [
+     "coordinator-integration-test #968 root cause (no access to tensormesh Buildkite org)",
+     "XPU CI owner"
+    ]
+   }
+  },
+  "v0.5.7rc2::6132": {
+   "tag": "v0.5.7rc2",
+   "num": 6132,
+   "title": "[CI] Drop --chown=0:0 from the payload COPY in Dockerfiles",
+   "checked_at": "2026-11-09T09:35:14+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 40,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc2::6037": {
+   "tag": "v0.5.7rc2",
+   "num": 6037,
+   "title": "[Build] Add lmcache[raw-block] extra for the Rust raw-block wheel",
+   "checked_at": "2026-11-09T09:35:16+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 40,
+    "passed": 29,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/956",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "50757937e72a",
+   "proposal": {
+    "sig": "50757937e72a",
+    "run_at": "2026-11-09T09:35:16+07:00",
+    "model": "default",
+    "secs": 214,
+    "cost_usd": 0.8902855000000001,
+    "turns": 27,
+    "session_id": "a6b65fbc-7170-401e-8a90-212e165291e6",
+    "report": "2026-11-09/v0.5.7rc2__pr6037.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "coordinator-integration-test has been red for almost every PR, docs-only ones included, since about 2026-10-23 22:20Z, and no LMCache commit lines up with that time; the pipeline clones the private coordinator-controllers repo at unpinned main, which is the likely source; PR #6037 (docs plus one extra in setup.py) is not the cause.",
+     "coordinator-integration-test đỏ với gần như mọi PR, kể cả PR chỉ sửa docs, từ khoảng 22:20Z ngày 23/10/2026, và không có commit LMCache nào khớp thời điểm đó; pipeline clone repo private coordinator-controllers ở nhánh main không pin, đây là nghi phạm chính; PR #6037 (docs và một extra trong setup.py) không gây lỗi."
+    ],
+    "fix": [
+     "Someone with tensormesh Buildkite access should read build 911 to confirm the cause, then temporarily pin CC_REF to the last good coordinator-controllers commit while that repo fixes main.",
+     "Người có quyền Buildkite tensormesh đọc log build 911 để xác nhận nguyên nhân, rồi tạm pin CC_REF vào commit tốt cuối cùng của coordinator-controllers trong lúc repo đó sửa main."
+    ],
+    "guard": [
+     "Pin CC_REF to a SHA or tag, or move the unpinned main run to nightly; log the coordinator-controllers SHA in each build; give the CI investigation token read access to the tensormesh org.",
+     "Pin CC_REF vào SHA hoặc tag, hoặc chuyển lần chạy với main sang nightly; in SHA của coordinator-controllers trong mỗi build; cấp quyền đọc org tensormesh cho token điều tra CI."
+    ],
+    "option": "B",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "actual failing test and error in build 956/911 (no tensormesh Buildkite access)",
+     "that a coordinator-controllers main change caused the red onset",
+     "whether the check is required for merge",
+     "why builds 974/978/1000/1001 passed"
+    ]
+   }
+  },
+  "v0.5.7rc2::6062": {
+   "tag": "v0.5.7rc2",
+   "num": 6062,
+   "title": "[SGLang][Optimize] Support direct copy in mem kernel",
+   "checked_at": "2026-11-09T09:38:52+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 36,
+    "failed": 3,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/959",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4120",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1484",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "67caf11167c4",
+   "proposal": {
+    "sig": "67caf11167c4",
+    "run_at": "2026-11-09T09:38:52+07:00",
+    "model": "default",
+    "secs": 279,
+    "cost_usd": 1.9256154,
+    "turns": 46,
+    "session_id": "62390e08-9a50-442e-9e28-5685a0fe51d2",
+    "report": "2026-11-09/v0.5.7rc2__pr6062.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "None of the three red checks came from PR #6062: k3-blend failed because the external cacheblend-plugin@main (440f9eb) sent token_bytes that did not match LMCache #5150's packed uint32 format (EngineCore ValueError, then KeyError 'choices'); xpu-mp failed because step definitions were uploaded from the PR merged with dev (with #6017's hma_swa_correctness) while the job checkout (stale PR head) did not have the workload script; coordinator-integration-test was red on every dev commit that day.",
+     "Cả 3 check đỏ đều không do PR #6062: k3-blend lỗi vì plugin cacheblend@main (440f9eb) gửi token_bytes không khớp định dạng uint32 đóng gói của LMCache #5150 (EngineCore ValueError, rồi KeyError 'choices'); xpu-mp lỗi vì định nghĩa step được upload từ PR đã merge với dev (có step hma_swa_correctness của #6017) còn checkout của job (PR head cũ) không có script; coordinator-integration-test đỏ trên mọi commit dev hôm đó."
+    ],
+    "fix": [
+     "No action needed for the release: merge commit 4de5b9ad passed blend (#4130) and xpu (#1498) after the plugin was fixed in f883e89; coordinator is green on current dev (#1246).",
+     "Không cần làm gì cho release: merge commit 4de5b9ad đã pass blend (#4130) và xpu (#1498) sau khi plugin được sửa ở f883e89; coordinator đã xanh trên dev hiện tại (#1246)."
+    ],
+    "guard": [
+     "Pin cacheblend-plugin to a SHA (or run plugin main nightly) and pair IPC protocol changes with a plugin PR; call merge_pr_base_branch before workload discovery in multiprocess/run.sh; give the Buildkite token read access to the tensormesh org.",
+     "Ghim cacheblend-plugin theo SHA (hoặc chạy plugin main hằng đêm) và đi kèm PR sửa plugin khi đổi giao thức IPC; gọi merge_pr_base_branch trước bước tìm workload trong multiprocess/run.sh; cấp quyền token Buildkite đọc org tensormesh."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test: CacheBlend plugin compat (Llama-8B)",
+     "buildkite/k3-blend-test: CacheBlend coordinator global match (gpt-oss-20b)",
+     "buildkite/xpu-mp-test: hma_swa_correctness / engine_driven / inline|shm",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Root cause of coordinator-integration-test #959/#969 failures (tensormesh org not accessible)",
+     "That the base-branch merge in setup-lmcache-only-env.sh runs after workload discovery (inferred from script structure and log)",
+     "Exact token_bytes encoding used by plugin 440f9eb"
+    ]
+   }
+  },
+  "v0.5.7rc2::6071": {
+   "tag": "v0.5.7rc2",
+   "num": 6071,
+   "title": "[Doc] Fix chunk statistics example links to legacy observability docs",
+   "checked_at": "2026-11-09T09:43:32+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 28,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/966",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "fe387923f721",
+   "proposal": {
+    "sig": "fe387923f721",
+    "run_at": "2026-11-09T09:43:32+07:00",
+    "model": "default",
+    "secs": 286,
+    "cost_usd": 1.3064485000000003,
+    "turns": 34,
+    "session_id": "ab215ef2-ea9e-4692-9e71-795c250098d3",
+    "report": "2026-11-09/v0.5.7rc2__pr6071.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "coordinator-integration-test has been red on dev for every PR whose base includes #5922 (a81b4e5a, removed the skip_l2 kwarg and changed the P2P lookup/prefetch path), which was merged while its own head was already red (build #897). PR #6071 is docs-only and unrelated.",
+     "coordinator-integration-test đỏ trên dev với mọi PR có base chứa #5922 (a81b4e5a, xoá kwarg skip_l2 và đổi đường P2P lookup/prefetch). #5922 được merge khi chính head của nó đã đỏ (build #897). PR #6071 chỉ sửa doc, không liên quan."
+    ],
+    "fix": [
+     "Have someone with tensormesh access read build #897/#966 logs, then fix the harness caller (skip_l2 to allowed_l2_memory_tags) or the p2p_controller logic. Revert #5922 if no quick fix.",
+     "Nhờ người có quyền tensormesh đọc log build #897/#966, rồi sửa caller trong harness (skip_l2 sang allowed_l2_memory_tags) hoặc logic p2p_controller. Nếu không sửa nhanh được thì revert #5922."
+    ],
+    "guard": [
+     "Expose coordinator-integration-test logs to LMCache maintainers, make it required or warn on merge-while-red, and deprecate public kwargs instead of removing them.",
+     "Cho maintainer LMCache xem log coordinator-integration-test, đặt check này là required hoặc cảnh báo khi merge lúc đang đỏ, và deprecate kwarg public thay vì xoá ngay."
+    ],
+    "option": "C",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Buildkite log content (tensormesh org inaccessible)",
+     "whether the failure is a skip_l2 TypeError in the external harness or a behaviour change in p2p_controller",
+     "why PR #6083 passed on retry",
+     "whether the check is non-required",
+     "whether v0.5.7rc2 ships a real P2P regression"
+    ]
+   }
+  },
+  "v0.5.7rc2::6052": {
+   "tag": "v0.5.7rc2",
+   "num": 6052,
+   "title": "[Bugfix][Test] Close HF3FS adapter in test fixture",
+   "checked_at": "2026-11-09T09:48:20+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 27,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/960",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1485",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "882358becc62",
+   "proposal": {
+    "sig": "882358becc62",
+    "run_at": "2026-11-09T09:48:20+07:00",
+    "model": "default",
+    "secs": 175,
+    "cost_usd": 1.0976645,
+    "turns": 33,
+    "session_id": "e427eb41-d0a4-4e6e-b577-349f292126b3",
+    "report": "2026-11-09/v0.5.7rc2__pr6052.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "xpu-mp-test uploads its pipeline YAML after merging the latest dev (which had just gained the hma_swa_correctness step from #6017), but the test job resolves workload scripts on the un-merged stale PR head before merge_pr_base_branch runs, so hma-swa-correctness.sh is missing and the job exits 2; coordinator-integration-test was independently red on dev at that time.",
+     "xpu-mp-test ghép dev mới (vừa có step hma_swa_correctness từ #6017) rồi mới upload YAML, nhưng job test lại tìm script workload trên commit PR cũ chưa ghép dev, nên thiếu hma-swa-correctness.sh và thoát mã 2; còn coordinator-integration-test thì tự đỏ trên dev trong cùng thời gian."
+    ],
+    "fix": [
+     "No action needed for #6052 (dev build #1486 at the merge commit passed); fix CI by calling merge_pr_base_branch at the start of k3_tests/multiprocess/run.sh before resolve_engine_workload.",
+     "PR #6052 không cần làm gì (build dev #1486 tại merge commit đã xanh); sửa CI bằng cách gọi merge_pr_base_branch ở đầu k3_tests/multiprocess/run.sh, trước resolve_engine_workload."
+    ],
+    "guard": [
+     "Merge the PR base before workload discovery in every run.sh driven by a dev-merged YAML, add an upload-time check that every referenced workload script exists, and get read access to the tensormesh Buildkite org.",
+     "Ghép base của PR trước khi tìm workload ở mọi run.sh chạy theo YAML đã ghép dev, thêm bước kiểm tra lúc upload rằng mọi script workload được tham chiếu đều tồn tại, và xin quyền đọc org Buildkite tensormesh."
+    ],
+    "option": "B",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/xpu-mp-test :xpu: hma_swa_correctness / engine_driven / inline",
+     "buildkite/xpu-mp-test :xpu: hma_swa_correctness / engine_driven / shm",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Root cause of coordinator-integration-test #960/#961 (tensormesh org logs not accessible)",
+     "Whether calling merge_pr_base_branch twice is safe"
+    ]
+   }
+  },
+  "v0.5.7rc2::6017": {
+   "tag": "v0.5.7rc2",
+   "num": 6017,
+   "title": "[CI][XPU] Add engine-driven sliding-window coverage with Gemma3",
+   "checked_at": "2026-11-09T09:51:16+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 28,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/955",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "89c18fa84c1c",
+   "proposal": {
+    "sig": "89c18fa84c1c",
+    "run_at": "2026-11-09T09:51:16+07:00",
+    "model": "default",
+    "secs": 227,
+    "cost_usd": 1.077954,
+    "turns": 26,
+    "session_id": "854ef43f-d693-4ad9-a123-7163756551ff",
+    "report": "2026-11-09/v0.5.7rc2__pr6017.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "shipped-bug",
+    "root_cause": [
+     "PR #5922 (a81b4e5a) bumped TRACE_SCHEMA_VERSION 1->2 and the shared trace reader enforced it for every trace level, so the existing v1 coordinator event recordings were rejected and coordinator-integration-test was red on dev from 10-23 to 10-27; PR #6017 (CI-only XPU files) is unrelated.",
+     "PR #5922 (a81b4e5a) nâng TRACE_SCHEMA_VERSION từ 1 lên 2, trong khi reader chung bắt buộc version này cho mọi loại trace, nên bản ghi coordinator event v1 bị từ chối và coordinator-integration-test đỏ trên dev từ 23/10 đến 27/10; PR #6017 (chỉ sửa file CI XPU) không liên quan."
+    ],
+    "fix": [
+     "Fix #6083 (a5c23648) is merged on dev; nothing to do for #6017, but cherry-pick #6083 into the next RC because v0.5.7rc2 (bf85b41f) contains #5922 without the fix.",
+     "Fix #6083 (a5c23648) đã merge vào dev; PR #6017 không cần làm gì, nhưng cần cherry-pick #6083 vào rc kế tiếp vì v0.5.7rc2 (bf85b41f) có #5922 mà chưa có fix."
+    ],
+    "guard": [
+     "Run the coordinator event-replay tests on every trace schema/codec change, run the coordinator pipeline on dev pushes with log access for triage tokens, and require up-to-date branches or a merge queue.",
+     "Chạy test replay coordinator event mỗi khi đổi trace schema/codec, cho pipeline coordinator chạy khi push lên dev và cấp quyền đọc log cho token triage, và bắt buộc branch up-to-date hoặc dùng merge queue."
+    ],
+    "option": "C",
+    "fix_pr": 6083,
+    "fix_status": "merged",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test (tensormesh) build #955"
+    ],
+    "repro": "git checkout v0.5.7rc2 && git checkout a5c236482059 -- tests/v1/mp_coordinator/test_events_replay.py && pytest -q tests/v1/mp_coordinator/test_events_replay.py",
+    "unverified": [
+     "Exact error text in builds #955/#957 (no access to the tensormesh Buildkite org)",
+     "That PRs #6096, #6074, #6056 failed with the same error",
+     "Real user impact of rc2 rejecting v1 event recordings"
+    ]
+   }
+  },
+  "v0.5.7rc2::5573": {
+   "tag": "v0.5.7rc2",
+   "num": 5573,
+   "title": "[MUSA]Feat: musa kvformat convergence",
+   "checked_at": "2026-11-09T09:55:04+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 27,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/951",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4112",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "9432c511bb47",
+   "proposal": {
+    "sig": "9432c511bb47",
+    "run_at": "2026-11-09T09:55:04+07:00",
+    "model": "default",
+    "secs": 194,
+    "cost_usd": 1.8006497999999997,
+    "turns": 36,
+    "session_id": "464a315c-1e0b-4404-9c8c-f418cf99e34d",
+    "report": "2026-11-09/v0.5.7rc2__pr5573.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "PR #5150 changed IPC token ids to a packed uint32 token_bytes buffer with a 4-byte-stride check, and the external cacheblend-plugin@440f9eb still sent the old format, so vLLM EngineCore died with 'token_bytes of 162 byte(s) is not a whole number of 4-byte token ids' and the harness saw KeyError 'choices'; PR #5573 (MUSA-only) is unrelated.",
+     "PR #5150 đổi token ids sang buffer uint32 đóng gói (token_bytes) và kiểm tra bội số 4 byte, còn cacheblend-plugin@440f9eb vẫn gửi kiểu cũ nên EngineCore của vLLM chết và harness báo KeyError 'choices'; PR #5573 (chỉ MUSA) không liên quan."
+    ],
+    "fix": [
+     "Already fixed on the plugin side (cacheblend-plugin 440f9eb -> f883e89, dev green since BK #4130); no LMCache change is needed for #5573.",
+     "Đã fix bên plugin (cacheblend-plugin 440f9eb -> f883e89, dev xanh từ BK #4130); #5573 không cần sửa gì."
+    ],
+    "guard": [
+     "Pin the cacheblend-plugin SHA in the blend CI instead of main, require k3-blend-test for PRs that change the MP wire format (custom_types/token_codec), and surface HTTP 500 bodies in the harness.",
+     "Pin SHA cacheblend-plugin trong CI blend thay vì main, bắt buộc k3-blend-test xanh với PR đổi wire format MP (custom_types/token_codec), và in body HTTP 500 trong harness."
+    ],
+    "option": "B",
+    "fix_pr": null,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test: CacheBlend plugin compat (Llama-8B)",
+     "buildkite/k3-blend-test: CacheBlend coordinator global match (gpt-oss-20b)",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "coordinator-integration-test #951 log (tensormesh org not accessible) assumed same cause",
+     "which plugin function produced the 162-byte token_bytes",
+     "content of cacheblend-plugin commit f883e89",
+     "builds #4086-#4108 failing with the same error (logs not opened)"
+    ]
+   }
+  },
+  "v0.5.7rc2::6044": {
+   "tag": "v0.5.7rc2",
+   "num": 6044,
+   "title": "[CI][XPU] Preinstall PR dependencies after nightly validation",
+   "checked_at": "2026-11-09T09:58:19+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 28,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/952",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "73866f5ea222",
+   "proposal": {
+    "sig": "73866f5ea222",
+    "run_at": "2026-11-09T09:58:19+07:00",
+    "model": "default",
+    "secs": 226,
+    "cost_usd": 1.0548064000000001,
+    "turns": 56,
+    "session_id": "e7b09041-db9b-4eea-b147-2724e6999d84",
+    "report": "2026-11-09/v0.5.7rc2__pr6044.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "The external tensormesh coordinator-integration-test pipeline failed on every PR whose base included #5150 (2026-10-24..10-27), likely because #5150 changed proto field 4 of IpcCacheServerKey from repeated int64 token_ids to bytes token_bytes; PR #6044 only touches XPU CI files and is unrelated.",
+     "Pipeline ngoài tensormesh coordinator-integration-test đỏ trên mọi PR có base chứa #5150 (24–27/10), nhiều khả năng do #5150 đổi field 4 của IpcCacheServerKey từ repeated int64 token_ids sang bytes token_bytes; PR #6044 chỉ sửa file CI XPU nên không liên quan."
+    ],
+    "fix": [
+     "No action needed for #6044; rerun the coordinator check on the RC2 commit (with approval) and read build #952's log with tensormesh access to confirm the cause.",
+     "Không cần sửa #6044; rerun check coordinator trên commit RC2 (khi được đồng ý) và đọc log build #952 bằng quyền tensormesh để chốt nguyên nhân."
+    ],
+    "guard": [
+     "Never reuse a proto field number with a new type (add a new field + reserved, run buf breaking in CI); give CI tracers read access to the tensormesh org or mirror the pipeline status.",
+     "Không tái dùng số field proto với kiểu mới (thêm field mới + reserved, chạy buf breaking trong CI); cấp quyền đọc org tensormesh cho tracer hoặc mirror trạng thái pipeline."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "failing step and error message of build #952 (no tensormesh log access)",
+     "#5150 proto change is the actual cause",
+     "why the pipeline turned green from 2026-10-28",
+     "cause of isolated failure #1153 on PR #6224",
+     "whether RC2 ships a wire incompatibility with external coordinators"
+    ]
+   }
+  },
+  "v0.5.7rc2::6049": {
+   "tag": "v0.5.7rc2",
+   "num": 6049,
+   "title": "[CI][XPU] refactor gdn test to speed up CI execution",
+   "checked_at": "2026-11-09T10:02:07+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 39,
+    "passed": 28,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/949",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "f6c8ee50675c",
+   "proposal": {
+    "sig": "f6c8ee50675c",
+    "run_at": "2026-11-09T10:02:07+07:00",
+    "model": "default",
+    "secs": 228,
+    "cost_usd": 1.0200095000000002,
+    "turns": 54,
+    "session_id": "0ec520de-c612-4828-8ef8-baf1f9f89828",
+    "report": "2026-11-09/v0.5.7rc2__pr6049.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "shipped-bug",
+    "root_cause": [
+     "PR #5922 (a81b4e5) bumped TRACE_SCHEMA_VERSION 1->2 while TraceReader enforced it for every trace level, breaking coordinator event-trace loading so coordinator-integration-test failed on all dev commits from 2026-10-23 05:50 to 2026-10-27 07:10; PR #6049 (XPU pipeline yml only) is unrelated.",
+     "PR #5922 (a81b4e5) nâng TRACE_SCHEMA_VERSION 1->2 trong khi TraceReader kiểm tra version này cho mọi loại trace, làm hỏng việc đọc events trace của coordinator nên coordinator-integration-test đỏ trên mọi commit dev từ 23/10 05:50 tới 27/10 07:10; PR #6049 (chỉ sửa yml XPU) không liên quan."
+    ],
+    "fix": [
+     "Fix already merged in #6083 (a5c2364, enforce schema version only for storage traces); cherry-pick it into the next RC since v0.5.7rc2 (bf85b41) predates it.",
+     "Fix đã merge ở #6083 (a5c2364, chỉ kiểm tra schema version cho storage trace); cần cherry-pick vào rc kế tiếp vì v0.5.7rc2 (bf85b41) được tag trước fix."
+    ],
+    "guard": [
+     "Make coordinator-integration-test a required check (PR #5922 merged while red on build #897) and require all Buildkite pipelines green on the RC tag commit; give the tracer token read access to the tensormesh org.",
+     "Đặt coordinator-integration-test thành required check (#5922 merge khi đang đỏ ở build #897), bắt buộc mọi pipeline Buildkite xanh trên commit tag RC, và cấp cho token của tracer quyền đọc org tensormesh."
+    ],
+    "option": "C",
+    "fix_pr": 6083,
+    "fix_status": "merged",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Exact error line in Buildkite build #949 log (no access to tensormesh org)",
+     "Specific mechanism: coordinator events trace with trace_schema_version=1 rejected by reader (inferred from #5922/#6083 diffs)",
+     "No local reproduction run"
+    ]
+   }
+  },
+  "v0.5.7rc2::6031": {
+   "tag": "v0.5.7rc2",
+   "num": 6031,
+   "title": "[Perf][MP] Add an optional native gRPC server mode backed by pygrpc-native",
+   "checked_at": "2026-11-09T10:05:57+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 40,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/945",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4106",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "7c2f772199d2",
+   "proposal": {
+    "sig": "7c2f772199d2",
+    "run_at": "2026-11-09T10:05:57+07:00",
+    "model": "default",
+    "secs": 173,
+    "cost_usd": 1.3589412,
+    "turns": 29,
+    "session_id": "49482cde-e0cc-41ee-a940-2f7778e5a8a0",
+    "report": "2026-11-09/v0.5.7rc2__pr6031.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "LMCache #5150 switched IPC token ids to a packed uint32 buffer with a 4-byte stride check, while the external cacheblend-plugin@main (440f9eb) still sent the old format, so vLLM EngineCore crashed with 'token_bytes of 162 byte(s) is not a whole number of 4-byte token ids'; coordinator-integration-test was already red on dev before #5150 and is unrelated to PR #6031.",
+     "LMCache #5150 đổi token id IPC sang buffer uint32 đóng gói kèm check bước 4 byte, còn cacheblend-plugin@main (440f9eb) vẫn gửi định dạng cũ nên EngineCore của vLLM crash với lỗi 'token_bytes ... not a whole number of 4-byte token ids'; coordinator-integration-test đã đỏ trên dev từ trước #5150 và không liên quan PR #6031."
+    ],
+    "fix": [
+     "Already fixed by cacheblend-plugin PR #147 (f883e89) on 2026-10-26; dev blend builds are green since build 4130, so no action is needed on LMCache.",
+     "Đã được sửa bởi PR #147 của cacheblend-plugin (f883e89) ngày 2026-10-26; blend trên dev xanh từ build 4130, LMCache không cần làm gì thêm."
+    ],
+    "guard": [
+     "Pin cacheblend-plugin to a compatible SHA/tag (or require a paired plugin PR plus a blend run) whenever the LMCache IPC wire format changes; make path-filtered blend builds show as skipped, not green; give the investigation token read access to the tensormesh org.",
+     "Pin cacheblend-plugin theo SHA/tag tương thích (hoặc bắt buộc có PR plugin đi kèm và chạy blend) mỗi khi đổi wire format IPC của LMCache; hiển thị build blend bị path filter là skipped thay vì xanh; cấp quyền đọc org tensormesh cho token điều tra."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test: CacheBlend plugin compat (Llama-8B)",
+     "buildkite/k3-blend-test: CacheBlend coordinator global match (gpt-oss-20b)",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Root cause of coordinator-integration-test builds #945/#948 (no access to tensormesh Buildkite org)",
+     "coordinator-match job in #4106 failing with the same token_bytes error (its a_vllm.log was not opened)"
+    ]
+   }
+  },
+  "v0.5.7rc2::6023": {
+   "tag": "v0.5.7rc2",
+   "num": 6023,
+   "title": "[Core] Add Cambricon MLU backend support",
+   "checked_at": "2026-11-09T10:08:51+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 38,
+    "passed": 26,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/940",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4101",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "c341fe1e1b84",
+   "proposal": {
+    "sig": "c341fe1e1b84",
+    "run_at": "2026-11-09T10:08:51+07:00",
+    "model": "default",
+    "secs": 208,
+    "cost_usd": 1.4652466999999996,
+    "turns": 36,
+    "session_id": "4024bcfe-ea5a-4ad2-94cf-b403a87cde00",
+    "report": "2026-11-09/v0.5.7rc2__pr6023.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "PR #5150 (merged 2026-10-24) replaced the MP key field token_ids with packed uint32 token_bytes, and the external cacheblend-plugin@main (440f9eb) used by k3-blend-test still sent the old format, so IPCCacheServerKey raised ValueError, the vLLM engine died, and the harness got HTTP 500 (KeyError 'choices'); PR #6023 is unrelated. coordinator-integration-test was already red before #5150 for a reason that could not be verified.",
+     "PR #5150 (merge 2026-10-24) thay trường token_ids bằng token_bytes uint32 đóng gói, còn plugin ngoài cacheblend-plugin@main (440f9eb) mà k3-blend-test dùng vẫn gửi format cũ, nên IPCCacheServerKey báo ValueError, engine vLLM chết và harness nhận HTTP 500 (KeyError 'choices'); PR #6023 không liên quan. coordinator-integration-test đã đỏ từ trước #5150, chưa xác minh được nguyên nhân."
+    ],
+    "fix": [
+     "Already fixed on the plugin side (cacheblend-plugin main 440f9eb -> 4102c02, dev green from build #4226); nothing needed for #6023, rerun on current dev if confirmation is wanted.",
+     "Đã sửa phía plugin (cacheblend-plugin main 440f9eb -> 4102c02, dev xanh từ build #4226); #6023 không cần làm gì, rerun trên dev hiện tại nếu muốn xác nhận."
+    ],
+    "guard": [
+     "Pin cacheblend-plugin to a commit in the blend pipeline instead of @main and bump it in the same PR that changes the MP wire format; require a paired plugin run or a compatibility shim for custom_types/token_codec changes; get read access to the tensormesh Buildkite org.",
+     "Ghim cacheblend-plugin theo commit thay vì @main và bump ngay trong PR đổi wire format MP; bắt buộc chạy kèm plugin hoặc có shim tương thích khi sửa custom_types/token_codec; xin quyền đọc org Buildkite tensormesh."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test: CacheBlend plugin compat (Llama-8B)",
+     "buildkite/k3-blend-test: CacheBlend coordinator global match (gpt-oss-20b)",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "root cause of coordinator-integration-test #940 (no access to tensormesh org)",
+     "content of cacheblend-plugin commit 4102c02 (private repo)",
+     "the plugin is the caller that built the bad token_bytes (traceback middle truncated)",
+     "released CacheBlend plugin is compatible with v0.5.7rc2 token_bytes format"
+    ]
+   }
+  },
+  "v0.5.7rc3::5458": {
+   "tag": "v0.5.7rc3",
+   "num": 5458,
+   "title": "[MP][Coordinator] Read position-less Kafka partitions from the beginning",
+   "checked_at": "2026-11-09T10:12:20+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 29,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 1,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1128",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "62ab78b1d8ce",
+   "proposal": {
+    "sig": "62ab78b1d8ce",
+    "run_at": "2026-11-09T10:12:20+07:00",
+    "model": "default",
+    "secs": 207,
+    "cost_usd": 0.9007856999999999,
+    "turns": 42,
+    "session_id": "e5ecbba4-dfbb-409b-9a2f-2c681f18c187",
+    "report": "2026-11-09/v0.5.7rc3__pr5458.md",
+    "status": "ok",
+    "cls": "pr-bug",
+    "impact": "blocks-release",
+    "root_cause": [
+     "PR #5458 changed the Kafka source to always seek partitions without a checkpoint to OFFSET_BEGINNING (ignoring the group's committed offset); the coordinator-integration-test pipeline went from green (a005bb19, #1127) to red on exactly this one commit and has stayed red on dev since.",
+     "PR #5458 đổi Kafka source sang luôn đọc từ OFFSET_BEGINNING cho partition chưa có checkpoint (bỏ qua offset group đã commit); pipeline coordinator-integration-test chuyển từ xanh (a005bb19, #1127) sang đỏ đúng ở commit này và dev đỏ từ đó."
+    ],
+    "fix": [
+     "Read the tensormesh build #1128 log; if the integration test relies on resume-from-committed-offset, update it, otherwise revert 45a0bb42 from dev/v0.5.7 and re-land with OFFSET_BEGINNING only when a checkpoint was restored.",
+     "Đọc log build #1128 trên tensormesh; nếu test dựa vào hành vi resume cũ thì sửa test, nếu không thì revert 45a0bb42 khỏi dev/v0.5.7 rồi làm lại, chỉ dùng OFFSET_BEGINNING khi có checkpoint khôi phục."
+    ],
+    "guard": [
+     "Make coordinator-integration-test a required check on dev, give investigators read access to the tensormesh org, and add a unit test for restart with committed group offset but no checkpoint.",
+     "Bắt buộc check coordinator-integration-test trên dev, cấp quyền đọc org tensormesh, thêm unit test restart khi group đã commit offset nhưng không có checkpoint."
+    ],
+    "option": "A",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "exact failing test and error message (tensormesh logs inaccessible)",
+     "mechanism: replay of stale events vs confluent-kafka 2.16 starvation (#6149)",
+     "why build #1246 on fcd50cea passed",
+     "whether the check is required on dev",
+     "whether the 6h test: 3.14 hang is related"
+    ]
+   }
+  },
+  "v0.5.7rc3::6179": {
+   "tag": "v0.5.7rc3",
+   "num": 6179,
+   "title": "[Coordinator] Add a coordinator Grafana dashboard; fix instance id and loop jitter",
+   "checked_at": "2026-11-09T10:15:49+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 40,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6184": {
+   "tag": "v0.5.7rc3",
+   "num": 6184,
+   "title": "[MP][gRPC] Keep a client's affinity calls in order in native mode",
+   "checked_at": "2026-11-09T10:15:51+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 51,
+    "passed": 42,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6167": {
+   "tag": "v0.5.7rc3",
+   "num": 6167,
+   "title": "[CI][XPU] Add deterministic DeepSeek V4 HMA correctness coverage",
+   "checked_at": "2026-11-09T10:15:53+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 31,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6194": {
+   "tag": "v0.5.7rc3",
+   "num": 6194,
+   "title": "[Test][XPU] Preserve wheel imports in Mooncake subprocess probes",
+   "checked_at": "2026-11-09T10:15:54+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 31,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6158": {
+   "tag": "v0.5.7rc3",
+   "num": 6158,
+   "title": "[Bugfix] Fall back to buffered I/O when an fs L2 O_DIRECT buffer is unaligned or refused",
+   "checked_at": "2026-11-09T10:15:56+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 50,
+    "passed": 40,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6138": {
+   "tag": "v0.5.7rc3",
+   "num": 6138,
+   "title": "Move InProcess-only memory allocators",
+   "checked_at": "2026-11-09T10:15:58+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 31,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6140": {
+   "tag": "v0.5.7rc3",
+   "num": 6140,
+   "title": "[CI][RBLN] Build and publish an RBLN wheel to GitHub Releases",
+   "checked_at": "2026-11-09T10:15:59+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 32,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1684",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "2aca2be9f321",
+   "proposal": {
+    "sig": "2aca2be9f321",
+    "run_at": "2026-11-09T10:15:59+07:00",
+    "model": "default",
+    "secs": 178,
+    "cost_usd": 1.1283919,
+    "turns": 26,
+    "session_id": "7d5ec03c-354e-41f8-bebf-4e67e99ea5a3",
+    "report": "2026-11-09/v0.5.7rc3__pr6140.md",
+    "status": "ok",
+    "cls": "env-dependent",
+    "impact": "none",
+    "root_cause": [
+     "The xpu-mp-test upload step pre-merges origin/dev (adding the hma_kda_mla_correctness step from #6018), but test jobs run xpu/multiprocess/run.sh on the raw stale PR head, which lacks workloads/vllm/hma-kda-mla-correctness.sh, so run.sh exits 2.",
+     "Bước upload của xpu-mp-test ghép origin/dev (có step hma_kda_mla_correctness từ #6018) nhưng job test chạy run.sh trên PR head cũ chưa ghép dev, thiếu script hma-kda-mla-correctness.sh nên exit 2."
+    ],
+    "fix": [
+     "Make .buildkite/k3_tests/xpu/multiprocess/run.sh source common_scripts/helpers.sh and call merge_pr_base_branch so test jobs use the same code as the uploaded pipeline.",
+     "Cho xpu/multiprocess/run.sh source helpers.sh và gọi merge_pr_base_branch để job test chạy cùng code với pipeline đã upload."
+    ],
+    "guard": [
+     "Require every k3 run.sh to pre-merge the base branch (lint check), or upload the PR head's own pipeline.yml without pre-merge so step definitions and checkout always match.",
+     "Bắt buộc mọi run.sh k3 pre-merge base (lint check), hoặc upload pipeline.yml của chính PR head để step và checkout luôn khớp."
+    ],
+    "option": "C",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     ":xpu: hma_kda_mla_correctness / engine_driven / inline",
+     ":xpu: hma_kda_mla_correctness / engine_driven / shm"
+    ],
+    "repro": "gh api \"repos/LMCache/LMCache/contents/.buildkite/k3_tests/multiprocess/scripts/workloads/vllm?ref=ac09a048d5cfb8b3e6b006581a347db29bde89f1\" --jq '.[].name' | grep hma-kda-mla || echo missing",
+    "unverified": [
+     "Build #1767 full error line not read, only same step and exit 2",
+     "Total count of PRs affected; other failed xpu-mp-test builds not opened",
+     "Not reproduced on an XPU agent"
+    ]
+   }
+  },
+  "v0.5.7rc3::6178": {
+   "tag": "v0.5.7rc3",
+   "num": 6178,
+   "title": "[Refactor][NIXL] Keep storage sharding local to NIXL",
+   "checked_at": "2026-11-09T10:18:59+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 31,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc3::6123": {
+   "tag": "v0.5.7rc3",
+   "num": 6123,
+   "title": "[CI] Build lmcache/sglang on the newest SGLang release with LMCache's torch",
+   "checked_at": "2026-11-09T10:19:00+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 31,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1676",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "321a1a2d126d",
+   "proposal": {
+    "sig": "321a1a2d126d",
+    "run_at": "2026-11-09T10:19:00+07:00",
+    "model": "default",
+    "secs": 143,
+    "cost_usd": 1.0688029,
+    "turns": 28,
+    "session_id": "fda59f60-8447-403e-bdf6-887f5afe1eb9",
+    "report": "2026-11-09/v0.5.7rc3__pr6123.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc3::6117": {
+   "tag": "v0.5.7rc3",
+   "num": 6117,
+   "title": "[Core] Refactor the multi-l1 implementation with a default write policy.",
+   "checked_at": "2026-11-09T10:21:25+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 44,
+    "passed": 41,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 1,
+    "fail": [
+     {
+      "name": "CPU device (ubuntu-22.04 / opt-125m / grpc-native)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/40945158250/job/123699184171",
+      "workflow": "CPU Device Tests"
+     }
+    ]
+   },
+   "sig": "5b49ae87d970",
+   "proposal": {
+    "sig": "5b49ae87d970",
+    "run_at": "2026-11-09T10:21:25+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "40e08d5f-4c95-44bc-8a2d-6dc6e14a3128",
+    "report": "2026-11-09/v0.5.7rc3__pr6117.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc3::5711": {
+   "tag": "v0.5.7rc3",
+   "num": 5711,
+   "title": "[CLI] Add lmcache bench quality: checking answer quality vs full recompute",
+   "checked_at": "2026-11-09T10:21:32+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 51,
+    "passed": 41,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc4::6208": {
+   "tag": "v0.5.7rc4",
+   "num": 6208,
+   "title": "[Refactor][P2P] Extract PeerL2AdapterBase; make adapter teardown retryable",
+   "checked_at": "2026-11-09T10:21:34+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 31,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4343",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "58ef25adec9b",
+   "proposal": {
+    "sig": "58ef25adec9b",
+    "run_at": "2026-11-08T23:31:21+07:00",
+    "model": "default",
+    "secs": 210,
+    "cost_usd": 1.4929201,
+    "turns": 22,
+    "session_id": "1e6819bd-2d7b-4e70-8aa2-4e4ea541fd8a",
+    "report": "2026-11-08/v0.5.7rc4__pr6208.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "blocks-release",
+    "root_cause": [
+     "vLLM nightly 0.33.0rc1.dev478 allocates KV caches in VMM-mapped memory (extensible_kv_cache), and LMCache's CudaIPCWrapper calls storage._share_cuda_() on it, raising 'invalid device pointer: 0x302000000'; unrelated to #6208, dev was already red from 11-02 (#4323).",
+     "vLLM nightly 0.33.0rc1.dev478 cấp phát KV cache bằng vùng nhớ VMM (extensible_kv_cache), CudaIPCWrapper của LMCache gọi storage._share_cuda_() trên vùng nhớ đó nên báo 'invalid device pointer: 0x302000000'; không liên quan #6208, dev đã đỏ từ 11-02 (#4323)."
+    ],
+    "fix": [
+     "Fixed on dev by #6266 (fd-based sharing of VMM regions, blend build #4430 green); the v0.5.7rc4 tag (= 236f3eec) lacks it, so cut the next rc from dev at or after 298140c or cherry-pick #6266.",
+     "Đã fix trên dev bằng #6266 (chia sẻ vùng VMM qua fd, build blend #4430 xanh); tag v0.5.7rc4 (= 236f3eec) chưa có fix, cần cắt rc kế tiếp từ dev có 298140c hoặc cherry-pick #6266."
+    ],
+    "guard": [
+     "Pin the vLLM nightly commit in k3-blend-test and add a non-blocking nightly canary on latest vLLM; make the release gate check the tag contains the fix commits that turned dev green again.",
+     "Ghim commit vLLM nightly cho k3-blend-test và thêm canary hằng đêm (không chặn merge) chạy vLLM mới nhất; release gate kiểm tra tag có chứa các commit fix đã làm dev xanh lại."
+    ],
+    "option": "C",
+    "fix_pr": 6266,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test :jigsaw: CacheBlend plugin compat (Llama-8B)",
+     "buildkite/k3-blend-test :satellite: CacheBlend coordinator global match (gpt-oss-20b)"
+    ],
+    "repro": "git checkout 236f3eec && pip install -U --pre vllm==0.33.0rc1.dev478 && .buildkite/k3_tests/blend/run.sh",
+    "unverified": [
+     "coordinator-match job failure has the same cause (only gate=fail seen)",
+     "the exact vLLM nightly change (vllm#65507) and the vLLM version of the last green build before 11-02",
+     "whether stable vLLM users of rc4 are affected",
+     "same error in builds other than #4323 and #4343"
+    ]
+   }
+  },
+  "v0.5.7rc4::6228": {
+   "tag": "v0.5.7rc4",
+   "num": 6228,
+   "title": "[Bugfix][CB] Fingerprint a prompt's first chunk too",
+   "checked_at": "2026-11-09T10:21:36+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 32,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1180",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4339",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "940fd5f2ace3",
+   "proposal": {
+    "sig": "940fd5f2ace3",
+    "run_at": "2026-11-09T10:21:36+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "266f5cf3-0fcb-440d-b67b-dbb750a177c2",
+    "report": "2026-11-09/v0.5.7rc4__pr6228.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6185": {
+   "tag": "v0.5.7rc4",
+   "num": 6185,
+   "title": "[Bugfix][RawBlock] Write the periodic checkpoint under steady traffic",
+   "checked_at": "2026-11-09T10:21:43+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 31,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4336",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1766",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "a8af8e2cdd85",
+   "proposal": {
+    "sig": "a8af8e2cdd85",
+    "run_at": "2026-11-09T10:21:43+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "5198e87e-7638-46f4-9607-6c977cdae7f9",
+    "report": "2026-11-09/v0.5.7rc4__pr6185.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6151": {
+   "tag": "v0.5.7rc4",
+   "num": 6151,
+   "title": "[Build][XPU] Align release wheels with vLLM v0.32.0",
+   "checked_at": "2026-11-09T10:21:51+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 32,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7rc4::6209": {
+   "tag": "v0.5.7rc4",
+   "num": 6209,
+   "title": "[Misc] Agent skills for p2p",
+   "checked_at": "2026-11-09T10:21:52+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 30,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4341",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "8d5ca5cfe099",
+   "proposal": {
+    "sig": "8d5ca5cfe099",
+    "run_at": "2026-11-09T10:21:52+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "e61ae341-8df9-4a77-bfbd-943355361783",
+    "report": "2026-11-09/v0.5.7rc4__pr6209.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6238": {
+   "tag": "v0.5.7rc4",
+   "num": 6238,
+   "title": "[Refactor] Organize in-process examples and benchmarks",
+   "checked_at": "2026-11-09T10:22:00+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 31,
+    "failed": 3,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "CPU device (ubuntu-22.04 / opt-125m / grpc)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/41435959083/job/125257129028",
+      "workflow": "CPU Device Tests"
+     },
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1174",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4333",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "558c8383ad57",
+   "proposal": {
+    "sig": "558c8383ad57",
+    "run_at": "2026-11-09T10:22:00+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "ff4ee02d-33a1-4191-bce0-df019dbd019c",
+    "report": "2026-11-09/v0.5.7rc4__pr6238.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6239": {
+   "tag": "v0.5.7rc4",
+   "num": 6239,
+   "title": "Move InProcess-only tests into tests/inprocess",
+   "checked_at": "2026-11-09T10:22:07+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 45,
+    "passed": 40,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1171",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4330",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "5f6a3bae6323",
+   "proposal": {
+    "sig": "5f6a3bae6323",
+    "run_at": "2026-11-09T10:22:07+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "5aedb1be-56d4-4d0f-a90f-1a75b5264b3e",
+    "report": "2026-11-09/v0.5.7rc4__pr6239.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::4072": {
+   "tag": "v0.5.7rc4",
+   "num": 4072,
+   "title": "fix: guard transfer-context close against in-flight gather/scatter",
+   "checked_at": "2026-11-09T10:22:14+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 32,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4326",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1756",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "8ebc98900faa",
+   "proposal": {
+    "sig": "8ebc98900faa",
+    "run_at": "2026-11-09T10:22:14+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "1ee85575-c40a-4477-b7b6-593d78af5881",
+    "report": "2026-11-09/v0.5.7rc4__pr4072.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6240": {
+   "tag": "v0.5.7rc4",
+   "num": 6240,
+   "title": "docs: require PR branches on contributor forks",
+   "checked_at": "2026-11-09T10:22:22+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 41,
+    "passed": 30,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1170",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "47a827b030fb",
+   "proposal": {
+    "sig": "47a827b030fb",
+    "run_at": "2026-11-09T10:22:22+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "bd688360-2630-4552-a207-01b0618496e3",
+    "report": "2026-11-09/v0.5.7rc4__pr6240.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6242": {
+   "tag": "v0.5.7rc4",
+   "num": 6242,
+   "title": "[Bugfix][MP] Repair KV event tests after L1 manager refactor",
+   "checked_at": "2026-11-09T10:22:29+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 51,
+    "passed": 39,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 1,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1166",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "605c814d338f",
+   "proposal": {
+    "sig": "605c814d338f",
+    "run_at": "2026-11-09T10:22:29+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "f306cf70-a143-4df2-9ce2-3a3d8fcb630f",
+    "report": "2026-11-09/v0.5.7rc4__pr6242.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6119": {
+   "tag": "v0.5.7rc4",
+   "num": 6119,
+   "title": "[Bugfix][MP] Gate CPU KV events on committed chunk residency",
+   "checked_at": "2026-11-09T10:22:36+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 40,
+    "passed": 30,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/unit-tests-xpu",
+      "link": "https://buildkite.com/lmcache/unit-tests-xpu/builds/2913",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1751",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "273be0fab16b",
+   "proposal": {
+    "sig": "273be0fab16b",
+    "run_at": "2026-11-09T10:22:36+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "63334436-a690-40eb-8402-9fe821b9fba8",
+    "report": "2026-11-09/v0.5.7rc4__pr6119.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7rc4::6236": {
+   "tag": "v0.5.7rc4",
+   "num": 6236,
+   "title": "[Bugfix][MP] Let the gRPC server process exit when it fails to start",
+   "checked_at": "2026-11-09T10:22:44+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 51,
+    "passed": 41,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "Build cu129 / Build cu129 artifacts (arm64)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/41393924196/job/125111053788",
+      "workflow": "PR Full Build"
+     },
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1162",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "48633d0c7333",
+   "proposal": {
+    "sig": "48633d0c7333",
+    "run_at": "2026-11-09T10:22:44+07:00",
+    "model": "default",
+    "secs": 6,
+    "cost_usd": 0,
+    "turns": 1,
+    "session_id": "3361192e-47eb-4433-834b-28b53eea320d",
+    "report": "2026-11-09/v0.5.7rc4__pr6236.md",
+    "status": "error",
+    "error": "You've hit your 5-hour limit · resets 2:20pm (Asia/Ho_Chi_Minh)"
+   }
+  },
+  "v0.5.7::4549": {
+   "tag": "v0.5.7",
+   "num": 4549,
+   "title": "docker: cache uv's directory in the build-deps layer, not pip's",
+   "checked_at": "2026-11-09T10:22:52+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 45,
+    "passed": 40,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4398",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "7e9efe3b23cb",
+   "proposal": {
+    "sig": "7e9efe3b23cb",
+    "run_at": "2026-11-08T23:42:49+07:00",
+    "model": "default",
+    "secs": 113,
+    "cost_usd": 0.6509733,
+    "turns": 14,
+    "session_id": "5c38379c-56f6-4a42-8b7e-ddf8f410d7f0",
+    "report": "2026-11-08/v0.5.7__pr4549.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "Both failed k3-blend-test jobs in build #4398 died at git checkout with 'git@github.com: Permission denied (publickey)' (exit 128). The same transient SSH auth outage hit builds #4394-#4398 from five unrelated PRs between about 09:08 and 10:10 UTC on 2026-11-04.",
+     "Cả 2 job k3-blend-test của build #4398 chết ở bước git checkout với 'Permission denied (publickey)' (exit 128). Sự cố SSH thoáng qua này cũng làm hỏng các build #4394-#4398 của 5 PR khác nhau, khoảng 09:08-10:10 UTC ngày 04-11."
+    ],
+    "fix": [
+     "No code fix is needed: the merge-commit build #4405 on dev passed. Optionally retry #4398 for a clean status, and track the recurrence of K3 agent SSH checkout failures.",
+     "Không cần sửa code: build #4405 trên merge commit ở dev đã xanh. Có thể retry #4398 cho sạch trạng thái, và theo dõi tần suất lỗi SSH checkout trên agent K3."
+    ],
+    "guard": [
+     "Add automatic retry on exit_status 128 for K3 steps, switch to HTTPS/token or a mirrored checkout, open an infra ticket if SSH publickey failures recur 3 or more times a week, and have the release tracer match a gate run's head_sha against the PR merge time.",
+     "Thêm auto-retry cho exit 128 ở các step K3, chuyển checkout sang HTTPS/token hoặc mirror, mở ticket infra nếu lỗi publickey lặp từ 3 lần/tuần, và cho tracer đối chiếu head_sha của gate với thời điểm PR merge."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test: CacheBlend plugin compat (Llama-8B)",
+     "buildkite/k3-blend-test: CacheBlend coordinator global match (gpt-oss-20b)"
+    ],
+    "repro": "",
+    "unverified": [
+     "Logs of builds #4395 and #4396 were not opened",
+     "Exact cause of the SSH publickey outage on K3 agents",
+     "Root cause of the cu129 torch==2.14.0 Unsatisfiable gate (only shown that it predates #4549: run 41792796540 ran on 4f5c6cc5 at 07:30Z)"
+    ]
+   }
+  },
+  "v0.5.7::6279": {
+   "tag": "v0.5.7",
+   "num": 6279,
+   "title": "[Bugfix][MP] Repair the lazy offload unit tests after the packed-token-id change",
+   "checked_at": "2026-11-09T10:22:54+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 31,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "CPU device (ubuntu-22.04 / opt-125m / grpc)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/41784154675/job/126436500558",
+      "workflow": "CPU Device Tests"
+     }
+    ]
+   },
+   "sig": "683b0a73697a",
+   "proposal": {
+    "sig": "683b0a73697a",
+    "run_at": "2026-11-08T23:44:44+07:00",
+    "model": "default",
+    "secs": 136,
+    "cost_usd": 0.5066638,
+    "turns": 14,
+    "session_id": "b74e8137-8346-427f-a761-b9489e09aec5",
+    "report": "2026-11-08/v0.5.7__pr6279.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "The GitHub-hosted runner for the CPU device (ubuntu-22.04 / opt-125m / grpc) job lost communication with the server during Checkout, before any code or test ran; the same failure hit 3 other unrelated branches the same day.",
+     "Runner GitHub của job CPU device (ubuntu-22.04 / opt-125m / grpc) mất kết nối ngay ở bước Checkout, trước khi chạy code/test; cùng ngày có 3 branch khác không liên quan bị y hệt."
+    ],
+    "fix": [
+     "Rerun the failed job if a green record is wanted; treat it as infra noise for v0.5.7 and open an infra ticket since it recurred 4 times in one day.",
+     "Rerun job đỏ nếu cần bằng chứng xanh; coi là nhiễu infra cho v0.5.7 và mở ticket infra vì lặp lại 4 lần trong một ngày."
+    ],
+    "guard": [
+     "Add a short timeout-minutes to the Checkout step in cpu_device.yml, track runner-lost recurrences in an infra ticket, and make the release tracer classify Checkout/runner-lost failures as infra instead of linking them to test gates.",
+     "Thêm timeout-minutes ngắn cho bước Checkout trong cpu_device.yml, theo dõi tần suất runner lost bằng ticket infra, và cho tracer release xếp lỗi Checkout/runner lost vào loại infra thay vì gắn vào gate test."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     "CPU device (ubuntu-22.04 / opt-125m / grpc)"
+    ],
+    "repro": "",
+    "unverified": [
+     "Underlying cause of runner loss (network/OOM/GitHub incident) — no log available",
+     "cpu_device.yml read from local clone, not at PR head SHA",
+     "Recurrence frequency outside 2026-11-04 not counted"
+    ]
+   }
+  },
+  "v0.5.7::4934": {
+   "tag": "v0.5.7",
+   "num": 4934,
+   "title": "fix(mp/mq): isolate malformed server requests",
+   "checked_at": "2026-11-09T10:22:56+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 45,
+    "passed": 43,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7::6270": {
+   "tag": "v0.5.7",
+   "num": 6270,
+   "title": "[Refactor] Extract a shared HeartbeatThread for different integrations",
+   "checked_at": "2026-11-09T10:22:57+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 34,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7::6199": {
+   "tag": "v0.5.7",
+   "num": 6199,
+   "title": "[Feat][MP] Propagate matching tags from requests",
+   "checked_at": "2026-11-09T10:22:59+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 44,
+    "passed": 43,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7::5639": {
+   "tag": "v0.5.7",
+   "num": 5639,
+   "title": "[Bugfix][CLI] Preserve L2 benchmark timeout accounting after warmup",
+   "checked_at": "2026-11-09T10:23:00+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 46,
+    "passed": 41,
+    "failed": 1,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/k3-blend-test",
+      "link": "https://buildkite.com/lmcache/k3-blend-test/builds/4394",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "f713288ae2e6",
+   "proposal": {
+    "sig": "f713288ae2e6",
+    "run_at": "2026-11-08T23:47:05+07:00",
+    "model": "default",
+    "secs": 107,
+    "cost_usd": 0.6288552000000001,
+    "turns": 13,
+    "session_id": "8b3abf60-be9c-4716-9370-0ef6251e8855",
+    "report": "2026-11-08/v0.5.7__pr5639.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "Buildkite K3 agents failed SSH auth to GitHub (`Permission denied (publickey)`) during git checkout between about 09:49 and 10:09 UTC on 2026-11-04, hitting several unrelated PRs; no test ran.",
+     "Agent Buildkite K3 không xác thực SSH được với GitHub (`Permission denied (publickey)`) khi checkout trong khoảng 09:49–10:09 UTC ngày 2026-11-04, làm hỏng nhiều PR không liên quan; chưa test nào được chạy."
+    ],
+    "fix": [
+     "No code fix needed; the dev merge build #4402 passed. Rerun the job if a green PR check is wanted, and open an infra ticket if the error recurs.",
+     "Không cần sửa code; build #4402 của commit merge trên dev đã pass. Rerun job nếu muốn check PR xanh, và mở ticket infra nếu lỗi lặp lại."
+    ],
+    "guard": [
+     "Check out over HTTPS with a GitHub App token, or add longer checkout retries on K3 agents; have the release tracer filter checkout exit-128 errors.",
+     "Checkout bằng HTTPS + GitHub App token, hoặc retry checkout lâu hơn trên agent K3; cho tracer của release lọc lỗi checkout exit 128."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     "buildkite/k3-blend-test: CacheBlend coordinator global match (gpt-oss-20b) [checkout]"
+    ],
+    "repro": "",
+    "unverified": [
+     "Exact agent-side cause of the publickey failures",
+     "Logs of sibling builds #4395 and #4397",
+     "Root cause of the cu129 torch==2.14.0 release gate (the tracer's link to this PR looks wrong)"
+    ]
+   }
+  },
+  "v0.5.7::5902": {
+   "tag": "v0.5.7",
+   "num": 5902,
+   "title": "[Bugfix][CLI] Handle incomplete HTTP response bodies",
+   "checked_at": "2026-11-09T10:23:02+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 40,
+    "passed": 30,
+    "failed": 0,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": []
+   },
+   "sig": "97d170e1550e"
+  },
+  "v0.5.7::5035": {
+   "tag": "v0.5.7",
+   "num": 5035,
+   "title": "fix(build): make the hipify guard reachable in the ROCm profile",
+   "checked_at": "2026-11-09T10:23:03+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 42,
+    "passed": 30,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/unit-tests-xpu",
+      "link": "https://buildkite.com/lmcache/unit-tests-xpu/builds/2963",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1801",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "f37295976507",
+   "proposal": {
+    "sig": "f37295976507",
+    "run_at": "2026-11-08T23:48:56+07:00",
+    "model": "default",
+    "secs": 148,
+    "cost_usd": 0.7868259,
+    "turns": 19,
+    "session_id": "1ab327af-7bb0-46cc-804a-a1bee25c8f3f",
+    "report": "2026-11-08/v0.5.7__pr5035.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "PR #5174 merged at 03:49 on 11-04 from a ~415-commit-stale base, adding lazy_offload tests that still pass LoadStoreOp(token_ids=...) after #5150 renamed the field to token_bytes; Buildkite pre-merged that red dev into #5035's XPU run. The xpu-mp-test p2p failure looks like an unrelated coordinator-registration race.",
+     "PR #5174 merge lúc 03:49 ngày 11-04 trên base cũ khoảng 415 commit, thêm test lazy_offload vẫn gọi LoadStoreOp(token_ids=...) trong khi #5150 đã đổi field thành token_bytes; Buildkite merge dev đang đỏ đó vào job XPU của #5035. Lỗi p2p của xpu-mp-test có vẻ là race đăng ký coordinator, không liên quan."
+    ],
+    "fix": [
+     "Already fixed on dev by #6279 (update tests to pack_token_ids/token_bytes and fill the missing fake fields); no action is needed for #5035.",
+     "Đã sửa trên dev bằng #6279 (test dùng pack_token_ids/token_bytes và bổ sung field cho fake); #5035 không cần làm gì."
+    ],
+    "guard": [
+     "Require up-to-date branches or a merge queue on dev, run unit tests on push to dev or nightly, drop -x in the XPU run.sh, and make the p2p test wait until both instances are registered.",
+     "Bắt buộc nhánh cập nhật với dev hoặc dùng merge queue, chạy unit test khi push lên dev hoặc nightly, bỏ -x trong run.sh XPU, và cho test p2p chờ đủ 2 instance đăng ký."
+    ],
+    "option": "B",
+    "fix_pr": 6279,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "tests/v1/lazy_offload/test_mp_connector.py::test_build_connector_meta_forwards_step_and_applies_actions",
+     "buildkite/xpu-mp-test :xpu: p2p / engine_driven"
+    ],
+    "repro": "git checkout 791a25b9 && pytest -x tests/v1/lazy_offload/test_mp_connector.py",
+    "unverified": [
+     "Other PRs failing with the same error (taken from the #6279 description, not opened myself)",
+     "Root cause of the XPU p2p 'p2p test failed' and why its retry hung",
+     "That release gate cu129 torch==2.14.0 is unrelated to #5035"
+    ]
+   }
+  },
+  "v0.5.7::4105": {
+   "tag": "v0.5.7",
+   "num": 4105,
+   "title": "chore(deps): bump actions/setup-go from 5 to 6",
+   "checked_at": "2026-11-09T10:23:05+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 33,
+    "passed": 25,
+    "failed": 3,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/1222",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/unit-tests-xpu",
+      "link": "https://buildkite.com/lmcache/unit-tests-xpu/builds/2973",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1811",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "4e887e4b770e",
+   "proposal": {
+    "sig": "4e887e4b770e",
+    "run_at": "2026-11-08T23:51:26+07:00",
+    "model": "default",
+    "secs": 140,
+    "cost_usd": 0.6936007,
+    "turns": 18,
+    "session_id": "0a448c5c-4233-4d3a-8a29-d054f91282ee",
+    "report": "2026-11-08/v0.5.7__pr4105.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "PR #4105 only bumps actions/setup-go v5->v6 in the GHA operator workflows, which no Buildkite pipeline uses; the two XPU builds were canceled right after the merge 17s after they were triggered, before any job ran, and coordinator-integration-test failed during setup after 5s (it normally takes ~3m20s), so none of the red checks is a code failure.",
+     "PR #4105 chỉ đổi actions/setup-go v5->v6 trong workflow operator của GHA, không pipeline Buildkite nào dùng; hai build XPU bị hủy ngay sau khi PR được merge 17 giây sau lúc kích hoạt, trước khi job nào chạy, còn coordinator-integration-test lỗi ở bước setup sau 5 giây (bình thường ~3 phút 20 giây), nên không check đỏ nào là lỗi code."
+    ],
+    "fix": [
+     "No code fix needed; treat the red checks as infra noise (optionally rerun), and the dev builds of merge commit 119d195c are green or skipped.",
+     "Không cần sửa code; coi các check đỏ là nhiễu hạ tầng (có thể rerun nếu muốn), các build dev của merge commit 119d195c đều xanh hoặc skipped."
+    ],
+    "guard": [
+     "Require Buildkite checks to finish before merge (merge queue), add path filters so XPU and coordinator pipelines skip PRs that only touch .github/workflows/operator_*, and give the MCP token read access to the tensormesh org.",
+     "Bắt buộc check Buildkite chạy xong mới được merge (merge queue), thêm lọc theo đường dẫn để pipeline XPU và coordinator bỏ qua PR chỉ sửa .github/workflows/operator_*, và cấp cho token MCP quyền đọc org tensormesh."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "medium",
+    "failing_tests": [
+     "buildkite/coordinator-integration-test",
+     "buildkite/unit-tests-xpu",
+     "buildkite/xpu-mp-test"
+    ],
+    "repro": "",
+    "unverified": [
+     "Exact cause of coordinator-integration-test #1222 failing after 5s (tensormesh org not accessible)",
+     "What canceled XPU builds #2973 and #1811 (branch deletion after merge vs a newer build superseding them)"
+    ]
+   }
+  },
+  "v0.5.7::4697": {
+   "tag": "v0.5.7",
+   "num": 4697,
+   "title": "[Bugfix][RawBlock] Bound outstanding I/O and report full submission queues",
+   "checked_at": "2026-11-09T10:23:07+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 44,
+    "passed": 40,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 1,
+    "fail": [
+     {
+      "name": "CPU device (ubuntu-22.04 / opt-125m / grpc)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/41768739049/job/126379828416",
+      "workflow": "CPU Device Tests"
+     },
+     {
+      "name": "CPU device (ubuntu-22.04 / opt-125m / zmq)",
+      "link": "https://github.com/LMCache/LMCache/actions/runs/41768739049/job/126379828249",
+      "workflow": "CPU Device Tests"
+     }
+    ]
+   },
+   "sig": "d0acf28c19af",
+   "proposal": {
+    "sig": "d0acf28c19af",
+    "run_at": "2026-11-08T23:53:48+07:00",
+    "model": "default",
+    "secs": 115,
+    "cost_usd": 0.4550332,
+    "turns": 12,
+    "session_id": "6ccbc776-9f9d-4d3a-bed5-f9162b4e2401",
+    "report": "2026-11-08/v0.5.7__pr4697.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "Both CPU Device Tests jobs died in the Checkout step after ~1h with 'The hosted runner lost communication with the server', a GitHub-hosted runner outage that hit several unrelated PRs on 2026-11-04 05:00-08:00Z; the PR's Rust raw_block changes are unrelated.",
+     "Cả 2 job CPU Device Tests chết ở bước Checkout sau khoảng 1h với lỗi 'hosted runner lost communication', do runner GitHub gặp sự cố, ảnh hưởng nhiều PR khác sáng 2026-11-04; thay đổi Rust raw_block của PR không liên quan."
+    ],
+    "fix": [
+     "Rerun the two failed jobs to confirm green; no code change needed. Track recurrence and open an infra ticket since it happened ≥4 times in one morning.",
+     "Rerun 2 job lỗi để xác nhận xanh, không cần sửa code; theo dõi tần suất và mở ticket infra vì đã lặp ≥4 lần trong một buổi sáng."
+    ],
+    "guard": [
+     "Require all checks to finish before merge (merge queue / branch protection), add timeout-minutes on the Checkout step so hung runners fail fast, and track runner-lost frequency.",
+     "Bắt buộc check xong mới được merge (merge queue / branch protection), đặt timeout-minutes cho bước Checkout để runner treo fail nhanh, và theo dõi tần suất lỗi runner mất kết nối."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     "CPU device (ubuntu-22.04 / opt-125m / grpc)",
+     "CPU device (ubuntu-22.04 / opt-125m / zmq)"
+    ],
+    "repro": "",
+    "unverified": [
+     "Root cause of the runner disconnect (GitHub outage vs harden-runner network block)",
+     "Annotation of sibling job 126386056860 (valkey run) not read",
+     "PR code not exercised on the grpc/zmq opt-125m configs"
+    ]
+   }
+  },
+  "v0.5.7::5697": {
+   "tag": "v0.5.7",
+   "num": 5697,
+   "title": "[Bugfix][Tooling] Respect cache simulator budgets smaller than a chunk",
+   "checked_at": "2026-11-09T10:23:08+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 43,
+    "passed": 38,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/coordinator-integration-test",
+      "link": "https://buildkite.com/tensormesh/coordinator-integration-test/builds/988",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1517",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "7be2f96c0875",
+   "proposal": {
+    "sig": "7be2f96c0875",
+    "run_at": "2026-11-08T23:55:44+07:00",
+    "model": "default",
+    "secs": 139,
+    "cost_usd": 0.6417868,
+    "turns": 20,
+    "session_id": "91ebc345-f3da-42d3-bd70-e6b199971a33",
+    "report": "2026-11-08/v0.5.7__pr5697.md",
+    "status": "ok",
+    "cls": "infra",
+    "impact": "none",
+    "root_cause": [
+     "xpu-mp-test ran a pipeline definition taken from dev, which includes the hma_swa_correctness step added by #6017, against PR head 72314e22. That commit was branched before #6017, so it lacks hma-swa-correctness.sh, and run.sh exits 2 with 'not implemented'. The PR change (cache simulator only) is unrelated.",
+     "xpu-mp-test chạy định nghĩa pipeline lấy từ dev (có step hma_swa_correctness do #6017 thêm) trên PR head 72314e22. Commit này tách nhánh trước #6017 nên thiếu hma-swa-correctness.sh, và run.sh exit 2 'not implemented'. Thay đổi của PR (chỉ cache simulator) không liên quan."
+    ],
+    "fix": [
+     "No code fix needed: dev and the merge commit already contain the script, so rebasing or rerunning on dev makes it green. Make the XPU pipeline load its YAML from the checked-out commit.",
+     "Không cần sửa code: dev và merge commit đã có script, rebase hoặc rerun trên dev là xanh. Nên cho pipeline XPU nạp YAML từ commit được checkout."
+    ],
+    "guard": [
+     "Upload the XPU pipeline YAML from the built commit, or have run.sh skip missing workloads with a warning. Require up-to-date branches or a merge queue before merge.",
+     "Upload YAML pipeline XPU từ commit đang build, hoặc cho run.sh skip workload thiếu kèm cảnh báo. Bắt branch up-to-date hoặc dùng merge queue trước khi merge."
+    ],
+    "option": "R",
+    "fix_pr": null,
+    "fix_status": "none",
+    "confidence": "high",
+    "failing_tests": [
+     ":xpu: hma_swa_correctness / engine_driven / inline",
+     ":xpu: hma_swa_correctness / engine_driven / shm",
+     "buildkite/coordinator-integration-test"
+    ],
+    "repro": "gh api \"repos/LMCache/LMCache/contents/.buildkite/k3_tests/multiprocess/scripts/workloads/vllm?ref=72314e224af341c700088270d47df118e45f5f95\" --jq '.[].name' | grep hma-swa || echo missing",
+    "unverified": [
+     "coordinator-integration-test #988 root cause (tensormesh org inaccessible)",
+     "exact mechanism loading pipeline YAML from dev",
+     "link between PR and cu129 release gate"
+    ]
+   }
+  },
+  "v0.5.7::6231": {
+   "tag": "v0.5.7",
+   "num": 6231,
+   "title": "[Test][HF3FS] Add an SDK-free native test harness for the HF3FS connector",
+   "checked_at": "2026-11-09T10:23:10+07:00",
+   "check_error": "",
+   "checks": {
+    "total": 44,
+    "passed": 34,
+    "failed": 2,
+    "pending": 0,
+    "cancelled": 0,
+    "fail": [
+     {
+      "name": "buildkite/unit-tests-xpu",
+      "link": "https://buildkite.com/lmcache/unit-tests-xpu/builds/2968",
+      "workflow": ""
+     },
+     {
+      "name": "buildkite/xpu-mp-test",
+      "link": "https://buildkite.com/lmcache/xpu-mp-test/builds/1806",
+      "workflow": ""
+     }
+    ]
+   },
+   "sig": "39a9981ef84f",
+   "proposal": {
+    "sig": "39a9981ef84f",
+    "run_at": "2026-11-08T23:58:06+07:00",
+    "model": "default",
+    "secs": 167,
+    "cost_usd": 1.0730007000000001,
+    "turns": 21,
+    "session_id": "fe205d83-91ad-4fc9-b887-37aa51436a72",
+    "report": "2026-11-09/v0.5.7__pr6231.md",
+    "status": "ok",
+    "cls": "dev-red",
+    "impact": "none",
+    "root_cause": [
+     "PR #5174 merged a new test calling LoadStoreOp(token_ids=...) 20s after its XPU build was created, although #5150 had already renamed the field to token_bytes, so dev (and PR #6231's merge build) failed on XPU only.",
+     "PR #5174 merge test mới gọi LoadStoreOp(token_ids=...) chỉ 20 giây sau khi build XPU của nó được tạo, trong khi #5150 đã đổi field này thành token_bytes, nên dev (và build merge của #6231) fail trên XPU."
+    ],
+    "fix": [
+     "Already fixed by #6279, which updates the lazy-offload tests to pack_token_ids/token_bytes; no action needed for #6231.",
+     "Đã sửa bởi #6279 (cập nhật test lazy-offload sang pack_token_ids/token_bytes); #6231 không cần làm gì thêm."
+    ],
+    "guard": [
+     "Require up-to-date branches or a merge queue with unit-tests-xpu as a required check; run vLLM-gated tests in a main unit pipeline; drop --maxfail=1 in the XPU run.sh.",
+     "Bắt buộc branch cập nhật hoặc merge queue với unit-tests-xpu là check bắt buộc; chạy test cần vLLM trong pipeline unit chính; bỏ --maxfail=1 trong run.sh XPU."
+    ],
+    "option": "B",
+    "fix_pr": 6279,
+    "fix_status": "merged",
+    "confidence": "high",
+    "failing_tests": [
+     "tests/v1/lazy_offload/test_mp_connector.py::test_build_connector_meta_forwards_step_and_applies_actions",
+     "buildkite/xpu-mp-test (canceled manually, not a failure)"
+    ],
+    "repro": "git checkout 737d8eaf && pip install vllm && pytest -q tests/v1/lazy_offload/test_mp_connector.py",
+    "unverified": [
+     "v0.5.7 tag contains 4f5c6cc5",
+     "whether #5174 ever ran CI on a base containing #5150",
+     "reason build #1806 was canceled"
+    ]
+   }
+  }
+ },
+ "runs": [
+  {
+   "at": "2026-11-08T23:17:58+07:00",
+   "cases": [
+    {
+     "key": "v0.5.7::g_st_prof",
+     "status": "ok"
+    }
+   ],
+   "cost_usd": 0.9738859999999998
+  },
+  {
+   "at": "2026-11-08T23:29:10+07:00",
+   "traced": [],
+   "cost_usd": 0.0
+  },
+  {
+   "at": "2026-11-08T23:31:19+07:00",
+   "traced": [
+    {
+     "key": "v0.5.7rc4::6208",
+     "status": "ok"
+    }
+   ],
+   "cost_usd": 1.49
+  },
+  {
+   "at": "2026-11-08T23:42:47+07:00",
+   "traced": [
+    {
+     "key": "v0.5.7::4549",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::6279",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::5639",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::5035",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::4105",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::4697",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::5697",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7::6231",
+     "status": "ok"
+    }
+   ],
+   "cost_usd": 5.44
+  },
+  {
+   "at": "2026-11-09T09:22:30+07:00",
+   "traced": [
+    {
+     "key": "v0.5.7rc1::5922",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc1::4990",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc1::5167",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6056",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6037",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6062",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6071",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6052",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6017",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::5573",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6044",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6049",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6031",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc2::6023",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc3::5458",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc3::6140",
+     "status": "ok"
+    },
+    {
+     "key": "v0.5.7rc3::6123",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc3::6117",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6228",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6185",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6209",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6238",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6239",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::4072",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6240",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6242",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6119",
+     "status": "error"
+    },
+    {
+     "key": "v0.5.7rc4::6236",
+     "status": "error"
+    }
+   ],
+   "cost_usd": 19.57
+  }
+ ]
+}

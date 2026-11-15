@@ -1,0 +1,280 @@
+2026-11-08 23:15:49 v0.5.7rc1::g_rc1_blend       fail  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7rc1::g_rc1_pub1        fail  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7rc1::g_rc1_pub2        fail  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7rc2::g_rc2_pub         warn  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7rc4::g_rc4_amd         fail  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7rc4::g_rc4_blend       fail  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7::g_st_cu129           fail  last=—  state=—  next=run: new
+2026-11-08 23:15:49 v0.5.7::g_st_prof            fail  last=—  state=—  next=run: new
+2026-11-08 23:17:58 trace_agent_daily: 8 case(s) in scope (>= v0.5.7), 1 to run
+2026-11-08 23:17:58 - v0.5.7::g_st_prof (new)
+2026-11-08 23:21:24   ok    v0.5.7::g_st_prof  205s  $0.9738859999999998  -> 2026-11-08/v0.5.7__g_st_prof.md
+2026-11-08 23:21:24 done: 1/1 ok, cost $0.97
+2026-11-08 23:21:28 build_page.py: exit 0 i18n: 815 strings, 21 rules; mindmap hook=True
+2026-11-08 23:21:34 verify_page.py: exit 0 RESULT: PASS
+2026-11-08 23:29:10 trace_agent_daily: 5 release(s) >= v0.5.7
+2026-11-08 23:29:10 - v0.5.7rc1: 12 PRs
+2026-11-08 23:29:12    #5821: CI green (29/39)
+2026-11-08 23:29:14    #5976: CI green (28/38)
+2026-11-08 23:29:15    #5960: CI green (30/38)
+2026-11-08 23:29:17    #5922: 1 failed check(s) -> new
+2026-11-08 23:29:18    #5995: CI green (29/39)
+2026-11-08 23:29:20    #5979: CI green (28/38)
+2026-11-08 23:29:21    #5436: CI green (28/38)
+2026-11-08 23:29:23    #4990: 1 failed check(s) -> new
+2026-11-08 23:29:25    #5986: CI green (28/38)
+2026-11-08 23:29:27    #5471: CI green (27/37)
+2026-11-08 23:29:29    #5167: 1 failed check(s) -> new
+2026-11-08 23:29:30    #5973: CI green (30/38)
+2026-11-08 23:29:30 - v0.5.7rc2: 12 PRs
+2026-11-08 23:29:31    #6056: 2 failed check(s) -> new
+2026-11-08 23:29:33    #6132: CI green (40/43)
+2026-11-08 23:29:34    #6037: 1 failed check(s) -> new
+2026-11-08 23:29:36    #6062: 3 failed check(s) -> new
+2026-11-08 23:29:37    #6071: 1 failed check(s) -> new
+2026-11-08 23:29:39    #6052: 2 failed check(s) -> new
+2026-11-08 23:29:41    #6017: 1 failed check(s) -> new
+2026-11-08 23:29:42    #5573: 2 failed check(s) -> new
+2026-11-08 23:29:44    #6044: 1 failed check(s) -> new
+2026-11-08 23:29:46    #6049: 1 failed check(s) -> new
+2026-11-08 23:29:47    #6031: 2 failed check(s) -> new
+2026-11-08 23:29:50    #6023: 2 failed check(s) -> new
+2026-11-08 23:29:50 - v0.5.7rc3: 12 PRs
+2026-11-08 23:29:51    #5458: 1 failed check(s) -> new
+2026-11-08 23:29:53    #6179: CI green (40/43)
+2026-11-08 23:29:55    #6184: CI green (42/51)
+2026-11-08 23:29:56    #6167: CI green (31/41)
+2026-11-08 23:29:59    #6194: CI green (31/41)
+2026-11-08 23:30:00    #6158: CI green (40/50)
+2026-11-08 23:30:02    #6138: CI green (31/41)
+2026-11-08 23:30:04    #6140: 1 failed check(s) -> new
+2026-11-08 23:30:05    #6178: CI green (31/41)
+2026-11-08 23:30:07    #6123: 1 failed check(s) -> new
+2026-11-08 23:30:09    #6117: 1 failed check(s) -> new
+2026-11-08 23:30:11    #5711: CI green (41/51)
+2026-11-08 23:30:11 - v0.5.7rc4: 12 PRs
+2026-11-08 23:30:12    #6208: 1 failed check(s) -> new
+2026-11-08 23:30:14    #6228: 2 failed check(s) -> new
+2026-11-08 23:30:16    #6185: 2 failed check(s) -> new
+2026-11-08 23:30:17    #6151: CI green (32/42)
+2026-11-08 23:30:19    #6209: 1 failed check(s) -> new
+2026-11-08 23:30:21    #6238: 3 failed check(s) -> new
+2026-11-08 23:30:22    #6239: 2 failed check(s) -> new
+2026-11-08 23:30:24    #4072: 2 failed check(s) -> new
+2026-11-08 23:30:26    #6240: 1 failed check(s) -> new
+2026-11-08 23:30:27    #6242: 1 failed check(s) -> new
+2026-11-08 23:30:29    #6119: 2 failed check(s) -> new
+2026-11-08 23:30:31    #6236: 2 failed check(s) -> new
+2026-11-08 23:30:31 - v0.5.7: 12 PRs
+2026-11-08 23:30:32    #4549: 1 failed check(s) -> new
+2026-11-08 23:30:34    #6279: 1 failed check(s) -> new
+2026-11-08 23:30:36    #4934: CI green (43/45)
+2026-11-08 23:30:38    #6270: CI green (34/43)
+2026-11-08 23:30:39    #6199: CI green (43/44)
+2026-11-08 23:30:41    #5639: 1 failed check(s) -> new
+2026-11-08 23:30:43    #5902: CI green (30/40)
+2026-11-08 23:30:44    #5035: 2 failed check(s) -> new
+2026-11-08 23:30:46    #4105: 3 failed check(s) -> new
+2026-11-08 23:30:48    #4697: 2 failed check(s) -> new
+2026-11-08 23:30:49    #5697: 2 failed check(s) -> new
+2026-11-08 23:30:51    #6231: 2 failed check(s) -> new
+2026-11-08 23:30:51 done: traced 0 PR(s), cost $0.00
+2026-11-08 23:30:55 build_page.py: exit 0 i18n: 815 strings, 21 rules; mindmap hook=True
+2026-11-08 23:31:00 verify_page.py: exit 0 RESULT: PASS
+2026-11-08 23:31:19 trace_agent_daily: 1 release(s) >= v0.5.7
+2026-11-08 23:31:19 - v0.5.7rc4: 12 PRs
+2026-11-08 23:31:21    #6208: 1 failed check(s) -> new
+2026-11-08 23:34:50       agent ok  210s  $1.4929201  -> 2026-11-08/v0.5.7rc4__pr6208.md
+2026-11-08 23:34:50 done: traced 1 PR(s), cost $1.49
+2026-11-08 23:42:47 trace_agent_daily: 1 release(s) >= v0.5.7
+2026-11-08 23:42:47 - v0.5.7: 12 PRs
+2026-11-08 23:42:49    #4549: 1 failed check(s) -> new
+2026-11-08 23:44:42       agent ok  113s  $0.6509733  -> 2026-11-08/v0.5.7__pr4549.md
+2026-11-08 23:44:44    #6279: 1 failed check(s) -> new
+2026-11-08 23:46:59       agent ok  136s  $0.5066638  -> 2026-11-08/v0.5.7__pr6279.md
+2026-11-08 23:47:01    #4934: CI green (43/45)
+2026-11-08 23:47:02    #6270: CI green (34/43)
+2026-11-08 23:47:04    #6199: CI green (43/44)
+2026-11-08 23:47:05    #5639: 1 failed check(s) -> new
+2026-11-08 23:48:53       agent ok  107s  $0.6288552000000001  -> 2026-11-08/v0.5.7__pr5639.md
+2026-11-08 23:48:54    #5902: CI green (30/40)
+2026-11-08 23:48:56    #5035: 2 failed check(s) -> new
+2026-11-08 23:51:24       agent ok  148s  $0.7868259  -> 2026-11-08/v0.5.7__pr5035.md
+2026-11-08 23:51:26    #4105: 3 failed check(s) -> new
+2026-11-08 23:53:46       agent ok  140s  $0.6936007  -> 2026-11-08/v0.5.7__pr4105.md
+2026-11-08 23:53:48    #4697: 2 failed check(s) -> new
+2026-11-08 23:55:43       agent ok  115s  $0.4550332  -> 2026-11-08/v0.5.7__pr4697.md
+2026-11-08 23:55:44    #5697: 2 failed check(s) -> new
+2026-11-08 23:58:04       agent ok  139s  $0.6417868  -> 2026-11-08/v0.5.7__pr5697.md
+2026-11-08 23:58:06    #6231: 2 failed check(s) -> new
+2026-11-09 00:00:52       agent ok  167s  $1.0730007000000001  -> 2026-11-09/v0.5.7__pr6231.md
+2026-11-09 00:00:52 done: traced 8 PR(s), cost $5.44
+2026-11-09 09:21:49 v0.5.7rc1  (12 PRs in tracer, 152 in release)
+2026-11-09 09:21:49    #5821  checks=0 failed/39  proposal=— 
+2026-11-09 09:21:49    #5976  checks=0 failed/38  proposal=— 
+2026-11-09 09:21:49    #5960  checks=0 failed/38  proposal=— 
+2026-11-09 09:21:49    #5922  checks=1 failed/38  proposal=— 
+2026-11-09 09:21:49    #5995  checks=0 failed/39  proposal=— 
+2026-11-09 09:21:49    #5979  checks=0 failed/38  proposal=— 
+2026-11-09 09:21:49    #5436  checks=0 failed/38  proposal=— 
+2026-11-09 09:21:49    #4990  checks=1 failed/37  proposal=— 
+2026-11-09 09:21:49    #5986  checks=0 failed/38  proposal=— 
+2026-11-09 09:21:49    #5471  checks=0 failed/37  proposal=— 
+2026-11-09 09:21:49    #5167  checks=1 failed/41  proposal=— 
+2026-11-09 09:21:49    #5973  checks=0 failed/38  proposal=— 
+2026-11-09 09:21:49 v0.5.7rc2  (12 PRs in tracer, 23 in release)
+2026-11-09 09:21:49    #6056  checks=2 failed/39  proposal=— 
+2026-11-09 09:21:49    #6132  checks=0 failed/43  proposal=— 
+2026-11-09 09:21:49    #6037  checks=1 failed/40  proposal=— 
+2026-11-09 09:21:49    #6062  checks=3 failed/42  proposal=— 
+2026-11-09 09:21:49    #6071  checks=1 failed/39  proposal=— 
+2026-11-09 09:21:49    #6052  checks=2 failed/39  proposal=— 
+2026-11-09 09:21:49    #6017  checks=1 failed/39  proposal=— 
+2026-11-09 09:21:49    #5573  checks=2 failed/39  proposal=— 
+2026-11-09 09:21:49    #6044  checks=1 failed/39  proposal=— 
+2026-11-09 09:21:49    #6049  checks=1 failed/39  proposal=— 
+2026-11-09 09:21:49    #6031  checks=2 failed/43  proposal=— 
+2026-11-09 09:21:49    #6023  checks=2 failed/38  proposal=— 
+2026-11-09 09:21:49 v0.5.7rc3  (12 PRs in tracer, 60 in release)
+2026-11-09 09:21:49    #5458  checks=1 failed/41  proposal=— 
+2026-11-09 09:21:49    #6179  checks=0 failed/43  proposal=— 
+2026-11-09 09:21:49    #6184  checks=0 failed/51  proposal=— 
+2026-11-09 09:21:49    #6167  checks=0 failed/41  proposal=— 
+2026-11-09 09:21:49    #6194  checks=0 failed/41  proposal=— 
+2026-11-09 09:21:49    #6158  checks=0 failed/50  proposal=— 
+2026-11-09 09:21:49    #6138  checks=0 failed/41  proposal=— 
+2026-11-09 09:21:49    #6140  checks=1 failed/43  proposal=— 
+2026-11-09 09:21:49    #6178  checks=0 failed/41  proposal=— 
+2026-11-09 09:21:49    #6123  checks=1 failed/42  proposal=— 
+2026-11-09 09:21:49    #6117  checks=1 failed/44  proposal=— 
+2026-11-09 09:21:49    #5711  checks=0 failed/51  proposal=— 
+2026-11-09 09:21:49 v0.5.7rc4  (12 PRs in tracer, 26 in release)
+2026-11-09 09:21:49    #6208  checks=1 failed/42  proposal=ok 2026-11-08T23:31
+2026-11-09 09:21:49    #6228  checks=2 failed/42  proposal=— 
+2026-11-09 09:21:49    #6185  checks=2 failed/41  proposal=— 
+2026-11-09 09:21:49    #6151  checks=0 failed/42  proposal=— 
+2026-11-09 09:21:49    #6209  checks=1 failed/41  proposal=— 
+2026-11-09 09:21:49    #6238  checks=3 failed/42  proposal=— 
+2026-11-09 09:21:49    #6239  checks=2 failed/45  proposal=— 
+2026-11-09 09:21:49    #4072  checks=2 failed/42  proposal=— 
+2026-11-09 09:21:49    #6240  checks=1 failed/41  proposal=— 
+2026-11-09 09:21:49    #6242  checks=1 failed/51  proposal=— 
+2026-11-09 09:21:49    #6119  checks=2 failed/40  proposal=— 
+2026-11-09 09:21:49    #6236  checks=2 failed/51  proposal=— 
+2026-11-09 09:21:49 v0.5.7  (12 PRs in tracer, 21 in release)
+2026-11-09 09:21:49    #4549  checks=1 failed/45  proposal=ok 2026-11-08T23:42
+2026-11-09 09:21:49    #6279  checks=1 failed/43  proposal=ok 2026-11-08T23:44
+2026-11-09 09:21:49    #4934  checks=0 failed/45  proposal=— 
+2026-11-09 09:21:49    #6270  checks=0 failed/43  proposal=— 
+2026-11-09 09:21:49    #6199  checks=0 failed/44  proposal=— 
+2026-11-09 09:21:49    #5639  checks=1 failed/46  proposal=ok 2026-11-08T23:47
+2026-11-09 09:21:49    #5902  checks=0 failed/40  proposal=— 
+2026-11-09 09:21:49    #5035  checks=2 failed/42  proposal=ok 2026-11-08T23:48
+2026-11-09 09:21:49    #4105  checks=3 failed/33  proposal=ok 2026-11-08T23:51
+2026-11-09 09:21:49    #4697  checks=2 failed/44  proposal=ok 2026-11-08T23:53
+2026-11-09 09:21:49    #5697  checks=2 failed/43  proposal=ok 2026-11-08T23:55
+2026-11-09 09:21:49    #6231  checks=2 failed/44  proposal=ok 2026-11-08T23:58
+2026-11-09 09:22:30 trace_agent_daily: 5 release(s) >= v0.5.7
+2026-11-09 09:22:30 - v0.5.7rc1: 12 PRs
+2026-11-09 09:22:32    #5821: CI green (29/39)
+2026-11-09 09:22:33    #5976: CI green (28/38)
+2026-11-09 09:22:35    #5960: CI green (30/38)
+2026-11-09 09:22:36    #5922: 1 failed check(s) -> new
+2026-11-09 09:25:34       agent ok  178s  $1.0505497  -> 2026-11-09/v0.5.7rc1__pr5922.md
+2026-11-09 09:25:36    #5995: CI green (29/39)
+2026-11-09 09:25:37    #5979: CI green (28/38)
+2026-11-09 09:25:39    #5436: CI green (28/38)
+2026-11-09 09:25:41    #4990: 1 failed check(s) -> new
+2026-11-09 09:29:51       agent ok  250s  $0.8720475999999999  -> 2026-11-09/v0.5.7rc1__pr4990.md
+2026-11-09 09:29:52    #5986: CI green (28/38)
+2026-11-09 09:29:54    #5471: CI green (27/37)
+2026-11-09 09:29:55    #5167: 1 failed check(s) -> new
+2026-11-09 09:32:38       agent ok  162s  $0.6141711  -> 2026-11-09/v0.5.7rc1__pr5167.md
+2026-11-09 09:32:39    #5973: CI green (30/38)
+2026-11-09 09:32:39 - v0.5.7rc2: 12 PRs
+2026-11-09 09:32:41    #6056: 2 failed check(s) -> new
+2026-11-09 09:35:13       agent ok  152s  $0.9405777  -> 2026-11-09/v0.5.7rc2__pr6056.md
+2026-11-09 09:35:14    #6132: CI green (40/43)
+2026-11-09 09:35:16    #6037: 1 failed check(s) -> new
+2026-11-09 09:38:50       agent ok  214s  $0.8902855000000001  -> 2026-11-09/v0.5.7rc2__pr6037.md
+2026-11-09 09:38:52    #6062: 3 failed check(s) -> new
+2026-11-09 09:43:31       agent ok  279s  $1.9256154  -> 2026-11-09/v0.5.7rc2__pr6062.md
+2026-11-09 09:43:32    #6071: 1 failed check(s) -> new
+2026-11-09 09:48:18       agent ok  286s  $1.3064485000000003  -> 2026-11-09/v0.5.7rc2__pr6071.md
+2026-11-09 09:48:20    #6052: 2 failed check(s) -> new
+2026-11-09 09:51:15       agent ok  175s  $1.0976645  -> 2026-11-09/v0.5.7rc2__pr6052.md
+2026-11-09 09:51:16    #6017: 1 failed check(s) -> new
+2026-11-09 09:55:03       agent ok  227s  $1.077954  -> 2026-11-09/v0.5.7rc2__pr6017.md
+2026-11-09 09:55:04    #5573: 2 failed check(s) -> new
+2026-11-09 09:58:18       agent ok  194s  $1.8006497999999997  -> 2026-11-09/v0.5.7rc2__pr5573.md
+2026-11-09 09:58:19    #6044: 1 failed check(s) -> new
+2026-11-09 10:02:05       agent ok  226s  $1.0548064000000001  -> 2026-11-09/v0.5.7rc2__pr6044.md
+2026-11-09 10:02:07    #6049: 1 failed check(s) -> new
+2026-11-09 10:05:55       agent ok  228s  $1.0200095000000002  -> 2026-11-09/v0.5.7rc2__pr6049.md
+2026-11-09 10:05:57    #6031: 2 failed check(s) -> new
+2026-11-09 10:08:49       agent ok  173s  $1.3589412  -> 2026-11-09/v0.5.7rc2__pr6031.md
+2026-11-09 10:08:51    #6023: 2 failed check(s) -> new
+2026-11-09 10:12:19       agent ok  208s  $1.4652466999999996  -> 2026-11-09/v0.5.7rc2__pr6023.md
+2026-11-09 10:12:19 - v0.5.7rc3: 12 PRs
+2026-11-09 10:12:20    #5458: 1 failed check(s) -> new
+2026-11-09 10:15:47       agent ok  207s  $0.9007856999999999  -> 2026-11-09/v0.5.7rc3__pr5458.md
+2026-11-09 10:15:49    #6179: CI green (40/43)
+2026-11-09 10:15:51    #6184: CI green (42/51)
+2026-11-09 10:15:53    #6167: CI green (31/41)
+2026-11-09 10:15:54    #6194: CI green (31/41)
+2026-11-09 10:15:56    #6158: CI green (40/50)
+2026-11-09 10:15:58    #6138: CI green (31/41)
+2026-11-09 10:15:59    #6140: 1 failed check(s) -> new
+2026-11-09 10:18:57       agent ok  178s  $1.1283919  -> 2026-11-09/v0.5.7rc3__pr6140.md
+2026-11-09 10:18:59    #6178: CI green (31/41)
+2026-11-09 10:19:00    #6123: 1 failed check(s) -> new
+2026-11-09 10:21:23       agent error  143s  $1.0688029  -> 2026-11-09/v0.5.7rc3__pr6123.md
+2026-11-09 10:21:25    #6117: 1 failed check(s) -> new
+2026-11-09 10:21:31       agent error  6s  $0  -> 2026-11-09/v0.5.7rc3__pr6117.md
+2026-11-09 10:21:32    #5711: CI green (41/51)
+2026-11-09 10:21:32 - v0.5.7rc4: 12 PRs
+2026-11-09 10:21:34    #6208: 1 failed check(s) -> proposal fresh, skip
+2026-11-09 10:21:36    #6228: 2 failed check(s) -> new
+2026-11-09 10:21:41       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6228.md
+2026-11-09 10:21:43    #6185: 2 failed check(s) -> new
+2026-11-09 10:21:49       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6185.md
+2026-11-09 10:21:51    #6151: CI green (32/42)
+2026-11-09 10:21:52    #6209: 1 failed check(s) -> new
+2026-11-09 10:21:58       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6209.md
+2026-11-09 10:22:00    #6238: 3 failed check(s) -> new
+2026-11-09 10:22:05       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6238.md
+2026-11-09 10:22:07    #6239: 2 failed check(s) -> new
+2026-11-09 10:22:12       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6239.md
+2026-11-09 10:22:14    #4072: 2 failed check(s) -> new
+2026-11-09 10:22:20       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr4072.md
+2026-11-09 10:22:22    #6240: 1 failed check(s) -> new
+2026-11-09 10:22:27       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6240.md
+2026-11-09 10:22:29    #6242: 1 failed check(s) -> new
+2026-11-09 10:22:35       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6242.md
+2026-11-09 10:22:36    #6119: 2 failed check(s) -> new
+2026-11-09 10:22:42       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6119.md
+2026-11-09 10:22:44    #6236: 2 failed check(s) -> new
+2026-11-09 10:22:50       agent error  6s  $0  -> 2026-11-09/v0.5.7rc4__pr6236.md
+2026-11-09 10:22:50 - v0.5.7: 12 PRs
+2026-11-09 10:22:52    #4549: 1 failed check(s) -> proposal fresh, skip
+2026-11-09 10:22:54    #6279: 1 failed check(s) -> proposal fresh, skip
+2026-11-09 10:22:56    #4934: CI green (43/45)
+2026-11-09 10:22:57    #6270: CI green (34/43)
+2026-11-09 10:22:59    #6199: CI green (43/44)
+2026-11-09 10:23:00    #5639: 1 failed check(s) -> proposal fresh, skip
+2026-11-09 10:23:02    #5902: CI green (30/40)
+2026-11-09 10:23:03    #5035: 2 failed check(s) -> proposal fresh, skip
+2026-11-09 10:23:05    #4105: 3 failed check(s) -> proposal fresh, skip
+2026-11-09 10:23:07    #4697: 2 failed check(s) -> proposal fresh, skip
+2026-11-09 10:23:08    #5697: 2 failed check(s) -> proposal fresh, skip
+2026-11-09 10:23:10    #6231: 2 failed check(s) -> proposal fresh, skip
+2026-11-09 10:23:10 done: traced 28 PR(s), cost $19.57
+2026-11-09 10:23:12 build_page.py: exit 0 i18n: 818 strings, 21 rules; mindmap hook=True
+2026-11-09 10:23:14 verify_page.py: exit 0 RESULT: PASS
+2026-11-09 20:28:13 [dirs] trace_agent_dirs: data 2026-10-05..2026-11-04, bug #6530 exists=False
+2026-11-09 20:51:16 [dirs] trace_agent_dirs: data 2026-10-05..2026-11-04, bug #6530 exists=False
+2026-11-09 20:51:16 [dirs]    flaky: new
+2026-11-09 20:54:19 [dirs]    flaky: agent ok 183s $1.1548479 -> 2026-11-09/dir_flaky.md
+2026-11-09 21:10:32 [dirs] trace_agent_dirs: data 2026-10-05..2026-11-04, bug #6530 exists=False
+2026-11-09 21:10:32 [dirs]    gpuload: new
+2026-11-09 21:14:26 [dirs]    gpuload: agent ok 234s $1.3876602999999998 -> 2026-11-09/dir_gpuload.md
