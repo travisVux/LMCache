@@ -47,7 +47,7 @@ End with exactly one fenced ```json block:
 ## Context (measured, verify before you trust it)
 
 - Data window: 2026-10-05..2026-11-04, pipeline `k3-multiprocess-test`, 937 builds (cache, may be days old)
-- Local LMCache clone: `C:\Users\HoiPC\Desktop\Works\CacheAgent\third_party\LMCache`
+- Local LMCache clone: `<workspace>\third_party\LMCache`
 
 - 297 of 480 first-try job failures passed on retry; retries used 191.7 GPU-h; 258 had test exit codes (1/2), 39 infra codes (128/255/-1/100)
 - GHA Test: 108 runs passed only on attempt >= 2 (2026-10-04..2026-11-07)

@@ -48,7 +48,7 @@ End with exactly one fenced ```json block:
 ## Context (measured, verify before you trust it)
 
 - Data window: 2026-10-05..2026-11-04, pipeline `k3-multiprocess-test`, 937 builds (cache, may be days old)
-- Local LMCache clone: `C:\Users\HoiPC\Desktop\Works\CacheAgent\third_party\LMCache`
+- Local LMCache clone: `<workspace>\third_party\LMCache`
 
 - Total 4091.2 GPU-h in the window; by build outcome: {'running': 16.5, 'passed': 2918.5, 'failed': 354.8, 'canceled': 801.4, 'skipped': 0.0}
 - Passed PR build p50: 8.02 GPU-h; queue wait p50/p90 18.5/56.5 min; passed PR build duration p50/p90 86.7/287.6 min

@@ -3,12 +3,12 @@
   python -I -X utf8 build_report1130.py    # analyse local data -> report1130.json -> rewrite the R1130 blocks
 
 Inputs (local files only, made by the P1 steps listed in the Reproduce tab):
-  ../P1/window.json                fixed window [since, until) UTC
-  ../P1/jobs_all_30d.csv           Buildkite job attempts, k3-multiprocess-test + k3-unit-tests (GPU)
-  ../P1/raw/builds*_30d.json       Buildkite builds (build times)
-  ../P1/gh_jobs_30d.csv            GitHub Actions job attempts on PR commits (CPU)
-  ../P1/pr_30d.csv, pr_commit_30d.csv, ttg_30d.csv, retry_events_30d.csv, join_quality.json
-  ../P1/raw/fail_signatures.json   evidence lines for failed-then-retried attempts
+  ../<P1_NAME>/window.json                fixed window [since, until) UTC
+  ../<P1_NAME>/jobs_all_30d.csv           Buildkite job attempts, k3-multiprocess-test + k3-unit-tests (GPU)
+  ../<P1_NAME>/raw/builds*_30d.json       Buildkite builds (build times)
+  ../<P1_NAME>/gh_jobs_30d.csv            GitHub Actions job attempts on PR commits (CPU)
+  ../<P1_NAME>/pr_30d.csv, pr_commit_30d.csv, ttg_30d.csv, retry_events_30d.csv, join_quality.json
+  ../<P1_NAME>/raw/fail_signatures.json   evidence lines for failed-then-retried attempts
   report_data.json (weekly / monthly merges), ops_ci_24h.json + ops_hist/ (last 24 h, for tracking)
 Units: GPU-min = job execution minutes x GPUs the job asks for. job-min = job execution minutes (one runner / agent).
 Queue (waiting for an agent / runner) is never added to execution.
@@ -24,7 +24,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-P1 = os.path.normpath(os.path.join(HERE, "..", "P1"))
+# data folder of the baseline window: P1_2026-10-17 = last 30 days at 2026-11-16 (baseline B); R1130_P1=P1 rebuilds the first baseline (2026-10-05 .. 11-04)
+P1_NAME = os.environ.get("R1130_P1", "P1_2026-10-17")
+P1 = os.path.normpath(os.path.join(HERE, "..", P1_NAME))
 sys.path.insert(0, P1)
 from build_jobs_table import GPU as GPU_MAP, parse_label  # noqa: E402  (same GPU-per-workload map as the baseline)
 
@@ -96,6 +98,21 @@ def hist_bins(vals, n=12, step=0.5):
         bins[min(n - 1, int(v // w))]["n"] += 1
     bins[-1]["open"] = True
     return dict(bins=bins, p50=r1(pct(vals, .5)), p90=r1(pct(vals, .9)), n=len(vals))
+
+
+def union_min(iv):
+    """minutes covered by the union of (start, end) datetime intervals: overlapping waits count once."""
+    tot_s, cs, ce = 0.0, None, None
+    for a, b in sorted(iv):
+        if ce is None or a > ce:
+            if ce is not None:
+                tot_s += (ce - cs).total_seconds()
+            cs, ce = a, b
+        else:
+            ce = max(ce, b)
+    if ce is not None:
+        tot_s += (ce - cs).total_seconds()
+    return tot_s / 60
 
 
 def sha12(path):
@@ -176,19 +193,7 @@ def analyze():
     for r in ran:
         if r["runnable_at"]:
             waits[r["pr"]].append((dt(r["runnable_at"]), dt(r["started_at"])))
-    pr_wait = collections.defaultdict(float)   # minutes
-    for pr in gpu_pr:
-        iv, tot_s, cs, ce = sorted(waits.get(pr, [])), 0.0, None, None
-        for a, b in iv:
-            if ce is None or a > ce:
-                if ce is not None:
-                    tot_s += (ce - cs).total_seconds()
-                cs, ce = a, b
-            else:
-                ce = max(ce, b)
-        if ce is not None:
-            tot_s += (ce - cs).total_seconds()
-        pr_wait[pr] = tot_s / 60
+    pr_wait = {pr: union_min(waits.get(pr, [])) for pr in gpu_pr}   # minutes
 
     def cost_views(d, step):
         out = {}
@@ -203,10 +208,37 @@ def analyze():
     gj = [r for r in csvr("gh_jobs_30d.csv") if inwin(r["suite_created"])]
     for r in gj:
         r["x"] = f(r["exec_min"]) or 0.0
+    # runner queue per job from the REST jobs API (fetch_gh_job_queue.py): created_at (job queued, after its `needs:`) -> started_at.
+    # Matched to the GraphQL check run by (run id, job name, started_at); copies of a job in a later re-run attempt (started < created) are not used.
+    rq_path = os.path.join(P1, "raw", "gh_run_jobs_30d.jsonl")
+    created = {}
+    fetched_runs = set()
+    if os.path.exists(rq_path):
+        for line in open(rq_path, encoding="utf-8"):
+            try:
+                o = json.loads(line)
+            except ValueError:
+                continue
+            fetched_runs.add(str(o["run_id"]))
+            for j in o["jobs"]:
+                if j.get("created_at") and j.get("started_at") and j["started_at"] >= j["created_at"]:
+                    created[(str(o["run_id"]), j["name"], j["started_at"])] = j["created_at"]
+                    created.setdefault((str(o["run_id"]), None, j["started_at"]), j["created_at"])
+    for r in gj:
+        rid = r["run_url"].rstrip("/").rsplit("/", 1)[1]
+        c = created.get((rid, r["job"], r["started"])) or created.get((rid, None, r["started"]))
+        r["ca"] = c
+        r["q"] = mins(c, r["started"]) if c else None
+    gj_runs = {r["run_url"] for r in gj}
+    q_cov = dict(runs=len(gj_runs), runs_fetched=sum(1 for u in gj_runs if u.rstrip("/").rsplit("/", 1)[1] in fetched_runs),
+                 jobs=len(gj), jobs_matched=sum(1 for r in gj if r["q"] is not None))
+    q_ok = q_cov["runs"] and q_cov["runs_fetched"] / q_cov["runs"] >= 0.98
     cpr = collections.defaultdict(float)
     runs_pr = collections.defaultdict(set)
     cday = collections.defaultdict(lambda: [0.0, 0.0])
-    wf = collections.defaultdict(lambda: dict(min=0.0, jobs=0, rerun=0, rerun_min=0.0, ex=[], sd=[], runs=set()))
+    wf = collections.defaultdict(lambda: dict(min=0.0, jobs=0, rerun=0, rerun_min=0.0, ex=[], sd=[], rq=[], runs=set()))
+    for r in gj:
+        wf[r["workflow"]]["rq"].append(r["q"])
     for r in gj:
         cpr[r["pr"]] += r["x"]
         runs_pr[r["pr"]].add(r["run_url"])
@@ -226,13 +258,21 @@ def analyze():
                pushes_pr=p5090(list(push_pr.values()), 1, 0),
                exec_all=p5090([r["x"] for r in gj]), delay_all=p5090([f(r["start_delay_min"]) for r in gj]),
                exec_cq=p5090([r["x"] for r in cq]), delay_cq=p5090([f(r["start_delay_min"]) for r in cq]),
+               queue_cq=p5090([r["q"] for r in cq]) if q_ok else None, queue_all=p5090([r["q"] for r in gj]) if q_ok else None, queue_cov=q_cov,
                rerun_h=round(rer / 60, 1), rerun_share=round(100 * rer / ctot, 1) if ctot else None, rerun_jobs=sum(1 for r in gj if r["replaced"] == "1"),
                series=[dict(d=d, a=round(cday[d][0] / 60, 1), b=round(cday[d][1] / 60, 2)) for d in dl],
                workflows=sorted([dict(name=k, job_h=round(v["min"] / 60, 1), share=round(100 * v["min"] / ctot, 1) if ctot else 0, jobs=v["jobs"], runs=len(v["runs"]),
-                                      exec=p5090(v["ex"]), delay=p5090(v["sd"]), rerun=v["rerun"], rerun_h=round(v["rerun_min"] / 60, 1)) for k, v in wf.items()],
+                                      exec=p5090(v["ex"]), delay=p5090(v["sd"]), queue=p5090(v["rq"]) if q_ok else None,
+                                      rerun=v["rerun"], rerun_h=round(v["rerun_min"] / 60, 1)) for k, v in wf.items()],
                                 key=lambda x: -x["job_h"]),
                pr_hist=hist_bins([v / 60 for v in cpr.values()], step=0.5))
-    cpu["views"] = cost_views(cpr, 0.5)   # run time only: GitHub gives no runner queue time for old runs
+    cpu["views"] = cost_views(cpr, 0.5)
+    if q_ok:   # queue time per PR = union of the runner waits of all its jobs (all workflows run side by side)
+        cw = collections.defaultdict(list)
+        for r in gj:
+            if r["q"] is not None:
+                cw[r["pr"]].append((dt(r["ca"]), dt(r["started"])))
+        cpu["wait_views"] = cost_views({pr: union_min(cw.get(pr, [])) for pr in cpr}, 0.5)
 
     # ---------------- time to green (merged PRs) + merges per week / month
     tt = csvr("ttg_30d.csv")
@@ -416,11 +456,11 @@ def analyze():
                         ctx[(x["context"].replace("buildkite/", ""), bool(x["isRequired"]))] += 1
     other = sorted([dict(name=k[0], n=v) for k, v in ctx.items() if not k[1]], key=lambda x: -x["n"])
     inputs = []
-    for rel in ("window.json", "raw/builds_30d.json", "raw/builds_k3-unit-tests_30d.json", "raw/gh_checks_30d.json", "raw/fail_signatures.json",
+    for rel in ("window.json", "raw/builds_30d.json", "raw/builds_k3-unit-tests_30d.json", "raw/gh_checks_30d.json", "raw/gh_run_jobs_30d.jsonl", "raw/fail_signatures.json",
                 "jobs_all_30d.csv", "gh_jobs_30d.csv", "pr_commit_30d.csv", "pr_30d.csv", "ttg_30d.csv", "retry_events_30d.csv"):
         p = os.path.join(P1, rel)
         if os.path.exists(p):
-            inputs.append(dict(path="outputs/P1/" + rel, sha=sha12(p), kb=round(os.path.getsize(p) / 1024),
+            inputs.append(dict(path=f"outputs/{P1_NAME}/" + rel, sha=sha12(p), kb=round(os.path.getsize(p) / 1024),
                                made=datetime.fromtimestamp(os.path.getmtime(p), timezone.utc).strftime("%Y-%m-%d %H:%M")))
     sigf = json.load(open(os.path.join(P1, "raw", "fail_signatures.json"), encoding="utf-8")) if os.path.exists(os.path.join(P1, "raw", "fail_signatures.json")) else {}
     quality = dict(Q, other_pipelines=other, inputs=inputs, gh_made=(G or {}).get("made"), fail_logs=len(sigf),
@@ -547,7 +587,7 @@ JS = r"""
   const barPath=(x,y,w,h,r)=>{r=Math.min(r,w,h/2);return `M${x},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h-r}Q${x+w},${y+h} ${x+w-r},${y+h}H${x}Z`;};
   const niceMax=v=>{const p=Math.pow(10,Math.floor(Math.log10(v||1))),m=v/p;return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p;};
   const legend=items=>el('div',{class:'r11-leg'},items.map(([lab,col])=>el('span',{},el('i',{style:`background:${col}`}),lab)));
-  const tableView=(cols,rows)=>el('details',{class:'r11-tv'},el('summary',{},T('Show as table','Xem dạng bảng')),table(cols,rows.map(r=>el('tr',{},r.map((c,i)=>el('td',{class:i?'r':''},c))))));
+  const tableView=(cols,rows)=>el('details',{class:'r11-tv'},el('summary',{},T('Show as table','Xem dạng bảng')),table(cols,rows.map(r=>el('tr',{},r.map((c,i)=>el('td',{class:i?'r':'r11-wf'},c))))));
   // stacked daily columns: a = first try, b = re-run / retried (same unit)
   function dailyChart(series,u,la,lb){const W_=1000,H=200,ml=40,mr=8,mt=10,mb=26,iw=W_-ml-mr,ih=H-mt-mb,n=series.length,band=iw/n,bw=Math.min(24,band*0.7);
     const mx=niceMax(Math.max(...series.map(d=>d.a+d.b),0.1)),y=v=>mt+ih-ih*v/mx,svg=sv('svg',{viewBox:`0 0 ${W_} ${H}`,class:'r11-svg',role:'img','aria-label':`${la} / ${lb}`});
@@ -697,22 +737,32 @@ JS = r"""
     s.append(el('div',{class:'ops-kpis'},
       tile(C.job_h,'job-h',T('CPU time, 30 days','CPU, 30 ngày'),T(`${fmt(C.job_h_day)} job-h per day`,`${fmt(C.job_h_day)} giờ job mỗi ngày`)),
       ctile((C.views||{}).merged?C.views.merged.stats:C.job_pr,'job-h',T('CPU per merged PR, until merge','CPU mỗi PR đã merge, tới khi merge'),
-        T('queued time not included (GitHub does not give it for old runs)','không tính thời gian chờ queue (GitHub không trả số này cho run cũ)')),
+        T('run time only','chỉ thời gian chạy')),
+      (C.wait_views||{}).merged?ctile(C.wait_views.merged.stats,'h',T('Queue time per merged PR, until merge','Thời gian chờ queue mỗi PR đã merge, tới khi merge'),
+        T('wall-clock hours with a job waiting for a runner','số giờ thật có job đang chờ runner')):null,
       mtile(C.runs_pr,'',T('Workflow runs per PR','Workflow run mỗi PR')),
       mtile(C.pushes_pr,'',T('Pushes per PR','Push mỗi PR')),
       mtile(C.exec_cq,T('min','phút'),T('Check code quality: run','Check code quality: chạy')),
-      mtile(C.delay_cq,T('min','phút'),T('Check code quality: wait to start','Check code quality: chờ bắt đầu')),
+      C.queue_cq?mtile(C.queue_cq,T('min','phút'),T('Check code quality: wait for a runner','Check code quality: chờ runner'))
+        :mtile(C.delay_cq,T('min','phút'),T('Check code quality: wait to start','Check code quality: chờ bắt đầu')),
       tile(C.rerun_h,'job-h',T('Re-runs','Chạy lại'),T(`${C.rerun_share}% of CPU · ${fmt(C.rerun_jobs)} job attempts`,`${C.rerun_share}% CPU · ${fmt(C.rerun_jobs)} lần chạy job`),C.rerun_share>5?'warn':'')));
     s.append(el('h3',{},T('CPU job-hours per day','Giờ job CPU theo ngày')),dailyChart(C.series,'job-h',T('first attempt','lần chạy đầu'),T('re-run attempts','lần chạy lại')));
-    const WF=C.workflows.slice(0,10);
+    const WF=C.workflows.slice(0,10),HQ=!!C.queue_all,qd=w=>HQ&&w.queue?w.queue:w.delay;
     s.append(el('h3',{style:'margin-top:14px'},T('CPU job-hours by workflow (top 10)','Giờ job CPU theo workflow (10 đầu)')),
-      rankBars(WF,{val:w=>w.job_h,lab:w=>w.name,col:()=>C1,fmtv:w=>`${fmt(w.job_h)} h · ${w.share}%`,detail:w=>T(`median run ${h1(w.exec.p50)} min · median start delay ${h1(w.delay.p50)} min`,`trung vị chạy ${h1(w.exec.p50)} phút · trung vị trễ bắt đầu ${h1(w.delay.p50)} phút`)}),
-      tableView([['Workflow'],[T('Job-h','Giờ job'),'r'],['%','r'],[T('Runs','Run'),'r'],[T('Jobs','Job'),'r'],[T('Run time, min (median · p90)','Chạy, phút (trung vị · p90)'),'r'],[T('Start delay, min (median · p90)','Trễ bắt đầu, phút (trung vị · p90)'),'r'],[T('Re-run jobs','Job chạy lại'),'r']],
-        C.workflows.map(w=>[w.name,fmt(w.job_h),w.share+'%',fmt(w.runs),fmt(w.jobs),`${h1(w.exec.p50)} · p90 ${h1(w.exec.p90)}`,`${h1(w.delay.p50)} · p90 ${h1(w.delay.p90)}`,w.rerun])));
+      rankBars(WF,{val:w=>w.job_h,lab:w=>w.name,col:()=>C1,fmtv:w=>`${fmt(w.job_h)} h · ${w.share}%`,detail:w=>HQ?T(`median run ${h1(w.exec.p50)} min · median runner queue ${h1(qd(w).p50)} min`,`trung vị chạy ${h1(w.exec.p50)} phút · trung vị chờ runner ${h1(qd(w).p50)} phút`):T(`median run ${h1(w.exec.p50)} min · median start delay ${h1(w.delay.p50)} min`,`trung vị chạy ${h1(w.exec.p50)} phút · trung vị trễ bắt đầu ${h1(w.delay.p50)} phút`)}),
+      tableView([['Workflow'],[T('Job-h','Giờ job'),'r'],['%','r'],[T('Runs','Run'),'r'],[T('Jobs','Job'),'r'],[T('Run time, min (median · p90)','Chạy, phút (trung vị · p90)'),'r'],HQ?[T('Runner queue, min (median · p90)','Chờ runner, phút (trung vị · p90)'),'r']:[T('Start delay, min (median · p90)','Trễ bắt đầu, phút (trung vị · p90)'),'r'],[T('Re-run jobs','Job chạy lại'),'r']],
+        C.workflows.map(w=>[w.name,fmt(w.job_h),w.share+'%',fmt(w.runs),fmt(w.jobs),`${h1(w.exec.p50)} · p90 ${h1(w.exec.p90)}`,`${h1(qd(w).p50)} · p90 ${h1(qd(w).p90)}`,w.rerun])));
     s.append(el('h3',{style:'margin-top:14px'},T('What one PR costs in CPU until it merges','Một PR tốn bao nhiêu CPU tới khi merge')),
-      costChart(C.views,'job-h',T('CPU job-hours per PR (GitHub Actions jobs on the PR commits)','Giờ job CPU mỗi PR (job GitHub Actions trên commit của PR)'),['Run time','Thời gian chạy'],['job start → job end on the runner. There is no "with queued" view for CPU: GitHub does not give the runner queue time of old runs, and the start delay it does give also holds the wait for earlier jobs of the same workflow run (adding it up would count the same wait many times)','job bắt đầu → job xong trên runner. CPU không có cách xem "có queue": GitHub không trả thời gian chờ runner của run cũ, và độ trễ bắt đầu mà GitHub trả còn gồm thời gian chờ các job trước trong cùng workflow run (cộng lại sẽ tính một lần chờ nhiều lần)']));
-    s.append(src('job-min = job start → job end on a GitHub-hosted runner. Start delay = job start − workflow run creation: it holds the runner queue AND the wait for earlier jobs of the same workflow; GitHub does not expose the pure runner queue for old runs, so the queue is reported as unavailable. Re-run attempt = an earlier attempt of the same job in the same workflow run.',
-      'job-phút = job bắt đầu → job xong trên runner của GitHub. Độ trễ bắt đầu = lúc job bắt đầu − lúc tạo workflow run: gồm cả chờ runner VÀ chờ các job trước trong cùng workflow; GitHub không trả thời gian chờ runner thuần cho run cũ, nên queue được ghi là không có. Lần chạy lại = lần chạy trước của cùng job trong cùng workflow run.'));}
+      el('h4',{},T('a · Run time (CPU used)','a · Thời gian chạy (CPU đã dùng)')),
+      costChart(C.views,'job-h',T('CPU job-hours per PR, run time (GitHub Actions jobs on the PR commits)','Giờ job CPU mỗi PR, thời gian chạy (job GitHub Actions trên commit của PR)'),['Run time','Thời gian chạy'],
+        ['sum over every job of the PR of (completedAt − startedAt) on the runner. Queue time is not in this chart.','tổng trên mọi job của PR: (completedAt − startedAt) trên runner. Thời gian chờ queue không nằm trong biểu đồ này.']),
+      el('h4',{},T('b · Queue time (how long the PR waits for a runner)','b · Thời gian chờ queue (PR chờ runner bao lâu)')),
+      C.wait_views?costChart(C.wait_views,'h',T('Hours per PR with a job waiting for a runner','Số giờ mỗi PR có job chờ runner'),['Queue time','Thời gian chờ queue'],
+        ['each job waits from created_at to started_at (GitHub REST jobs API; for a job with needs:, created_at is when its last dependency finished, so this is the pure runner queue). Jobs of all workflows of the PR wait at the same time, so the waits are merged as time intervals per PR, not added up. Wall-clock hours.','mỗi job chờ từ created_at tới started_at (GitHub REST jobs API; với job có needs:, created_at là lúc job phụ thuộc cuối xong, nên đây là thời gian chờ runner thuần). Các job của mọi workflow trong PR chờ cùng lúc, nên các khoảng chờ được gộp theo thời gian cho mỗi PR, không cộng dồn. Giờ thật.'])
+        :el('p',{class:'meta'},T(`Runner queue data not fetched yet (${fmt((C.queue_cov||{}).runs_fetched||0)} of ${fmt((C.queue_cov||{}).runs||0)} workflow runs). Run __P1__/fetch_gh_job_queue.py.`,`Chưa lấy đủ dữ liệu chờ runner (${fmt((C.queue_cov||{}).runs_fetched||0)} trên ${fmt((C.queue_cov||{}).runs||0)} workflow run). Chạy P1/fetch_gh_job_queue.py.`)));
+    const QC=C.queue_cov||{};
+    s.append(src(`job-min = job start → job end on a GitHub-hosted runner (GraphQL check run startedAt → completedAt). Runner queue = job created_at → started_at from the REST jobs API (fetch_gh_job_queue.py), matched to the check run by run id + job name + start time: ${fmt(QC.jobs_matched||0)} of ${fmt(QC.jobs||0)} job attempts matched. Copies of a job in a re-run attempt that did not run again are not counted. Re-run attempt = an earlier attempt of the same job in the same workflow run.`,
+      `job-phút = job bắt đầu → job xong trên runner của GitHub (startedAt → completedAt của check run GraphQL). Chờ runner = created_at → started_at của job từ REST jobs API (fetch_gh_job_queue.py), khớp với check run theo run id + tên job + giờ bắt đầu: khớp ${fmt(QC.jobs_matched||0)} trên ${fmt(QC.jobs||0)} lần chạy job. Bản sao của job trong lần re-run mà không chạy lại thì không tính. Lần chạy lại = lần chạy trước của cùng job trong cùng workflow run.`));}
 
   // ================= 3 · Time to green + merges
   function rGreen(){const s=sec('green');if(!s)return;const G=D.ttg,M=D.merges;
@@ -779,9 +829,9 @@ JS = r"""
     s.append(el('h3',{style:'margin-top:14px'},T('Evidence found in the logs','Bằng chứng tìm thấy trong log')),table([[T('Signature','Dấu hiệu')],[T('Class','Loại')],[T('Cases','Ca'),'r'],['GPU-h','r'],[T('Example line from a log','Dòng ví dụ trong log')]],
       R.sigs.map(x=>el('tr',{},el('td',{},L(x.name)),el('td',{},el('span',{class:'r11-dot',style:`background:${CLSC[x.cls]||CN}`}),L(D.cls[x.cls]||x.cls)),el('td',{class:'r'},x.n),el('td',{class:'r'},fmt(x.gpu_h)),el('td',{},x.line?el('code',{class:'r11-line'},x.line):'—')))));
     s.append(el('h3',{style:'margin-top:14px'},T('By pipeline and step','Theo pipeline và bước')),table([[T('System · pipeline / workflow','Hệ thống · pipeline / workflow')],[T('Step','Bước')],[T('First attempts','Lần chạy đầu'),'r'],[T('Failed first','Fail lần đầu'),'r'],[T('Ran again','Chạy lại'),'r'],[T('Passed next','Pass lần sau'),'r'],[T('Failed again','Fail tiếp'),'r'],[T('Lost','Mất'),'r'],[T('Evidence','Bằng chứng')]],
-      R.steps.map(x=>el('tr',{},el('td',{},`${x.system} · ${x.pipeline}`),el('td',{},x.step),el('td',{class:'r'},fmt(x.first)),el('td',{class:'r'},x.fail_pct==null?'—':`${x.first_fail} (${x.fail_pct}%)`),el('td',{class:'r'},x.n),el('td',{class:'r'},x.ok),el('td',{class:'r'},x.again),el('td',{class:'r'},`${fmt(x.lost_h)} ${x.unit}`),
+      R.steps.map(x=>el('tr',{},el('td',{class:'r11-wf'},`${x.system} · ${x.pipeline}`),el('td',{},x.step),el('td',{class:'r'},fmt(x.first)),el('td',{class:'r'},x.fail_pct==null?'—':`${x.first_fail} (${x.fail_pct}%)`),el('td',{class:'r'},x.n),el('td',{class:'r'},x.ok),el('td',{class:'r'},x.again),el('td',{class:'r'},`${fmt(x.lost_h)} ${x.unit}`),
         el('td',{},Object.entries(x.cls).sort((a,b)=>b[1]-a[1]).map(([k,v])=>el('span',{class:'r11-cls'},el('span',{class:'r11-dot',style:`background:${CLSC[k]}`}),`${k} ${v}`)))))));
-    s.append(src(`Evidence = the failure region of the Buildkite log (the 120 lines before the agent's error line, last 400 KB, read by P1/sample_fail_logs.py; only the matched line is kept). "Performance threshold missed" and "test reported failed" that then pass on the same commit point to a timing-sensitive or flaky test, but a busy shared GPU can cause the same, so treat them as test-side evidence, not proof. GitHub Actions logs are not read: every GitHub re-run stays unknown. Kinds: ${Object.entries(R.kinds).map(([k,v])=>k+' '+v).join(', ')}.`,
+    s.append(src(`Evidence = the failure region of the Buildkite log (the 120 lines before the agent's error line, last 400 KB, read by __P1__/sample_fail_logs.py; only the matched line is kept). "Performance threshold missed" and "test reported failed" that then pass on the same commit point to a timing-sensitive or flaky test, but a busy shared GPU can cause the same, so treat them as test-side evidence, not proof. GitHub Actions logs are not read: every GitHub re-run stays unknown. Kinds: ${Object.entries(R.kinds).map(([k,v])=>k+' '+v).join(', ')}.`,
       `Bằng chứng = vùng lỗi của log Buildkite (120 dòng trước dòng lỗi của agent, trong 400 KB cuối, đọc bằng P1/sample_fail_logs.py; chỉ giữ dòng khớp). "Trượt ngưỡng hiệu năng" và "test báo fail" mà chạy lại trên cùng commit thì pass cho thấy test nhạy thời gian hoặc flaky, nhưng GPU dùng chung bị bận cũng gây ra như vậy, nên coi là bằng chứng phía test, chưa phải kết luận. Log GitHub Actions không được đọc: mọi lần chạy lại trên GitHub để "chưa rõ". Loại: ${Object.entries(R.kinds).map(([k,v])=>k+' '+v).join(', ')}.`));}
 
   // ================= 5 · Per PR × commit
@@ -826,18 +876,15 @@ JS = r"""
       const ch=r.base&&r.now!=null?Math.round(100*(r.now-r.base)/r.base):null,good=ch==null?null:(r.better==='up'?ch>0:ch<0);
       return el('tr',{},el('td',{},L(r.label)),el('td',{class:'r'},`${fmt(r.base)} ${r.unit}`),el('td',{class:'r'},r.now==null?(r.na?L(r.na):'—'):`${fmt(r.now)} ${r.unit}`),el('td',{class:'r'},ch==null?'—':el('b',{style:`color:var(--${Math.abs(ch)<5?'text-muted':good?'good':'critical'})`},`${ch>0?'+':''}${ch}%`)));})));
     if((D.hist||[]).length)s.append(el('h3',{style:'margin-top:14px'},T('Daily history (one row per collector day, job-min)','Lịch sử theo ngày (mỗi ngày chạy collector một dòng, phút job)')),table([[T('Day','Ngày')],[T('MP job-min','Phút job MP'),'r'],[T('Unit job-min','Phút job unit'),'r'],[T('GPU re-run min','Phút GPU chạy lại'),'r'],[T('CPU re-run min','Phút CPU chạy lại'),'r']],D.hist.map(h=>el('tr',{},el('td',{},h.date),el('td',{class:'r'},fmt(h.mp)),el('td',{class:'r'},fmt(h.unit)),el('td',{class:'r'},fmt(h.gpu_rerun)),el('td',{class:'r'},fmt(h.cpu_rerun))))));
-    s.append(src('One day is noisy: compare a 7-day average with the baseline before calling a change. 24 h CPU = GitHub Actions runs with a pull_request event; the baseline counts jobs on PR commits, which is the same set in practice. To make a new baseline, change the dates in outputs/P1/window.json and re-run the Reproduce steps; keep the old files to compare.','Một ngày còn nhiễu: so trung bình 7 ngày với baseline trước khi kết luận. CPU 24 giờ = run GitHub Actions có sự kiện pull_request; baseline đếm job trên commit của PR, thực tế là cùng tập. Muốn baseline mới, đổi ngày trong outputs/P1/window.json rồi chạy lại các bước Reproduce; giữ file cũ để so sánh.'));}
+    s.append(src('One day is noisy: compare a 7-day average with the baseline before calling a change. 24 h CPU = GitHub Actions runs with a pull_request event; the baseline counts jobs on PR commits, which is the same set in practice. To make a new baseline, change the dates in outputs/__P1__/window.json and re-run the Reproduce steps; keep the old files to compare.','Một ngày còn nhiễu: so trung bình 7 ngày với baseline trước khi kết luận. CPU 24 giờ = run GitHub Actions có sự kiện pull_request; baseline đếm job trên commit của PR, thực tế là cùng tập. Muốn baseline mới, đổi ngày trong outputs/__P1__/window.json rồi chạy lại các bước Reproduce; giữ file cũ để so sánh.'));}
 
   // ================= 7 · Reproduce + definitions
   function rRepro(){const s=sec('repro');if(!s)return;const Q=D.quality;
-    s.replaceChildren(head('7','Reproduce the numbers','Tái tạo số liệu',`Run from LM-762-ci-resource/plan-2026-11/, in this order. Steps 1–3 call the Buildkite / GitHub APIs (read-only; Buildkite token from the environment, GitHub through the logged-in gh CLI); the rest only read local files, so the same inputs give the same numbers. The window is fixed in outputs/P1/window.json: ${D.since} → ${D.until} (end excluded).`,
-      `Chạy từ LM-762-ci-resource/plan-2026-11/, theo thứ tự này. Bước 1–3 gọi API Buildkite / GitHub (chỉ đọc; token Buildkite từ biến môi trường, GitHub qua gh CLI đã đăng nhập); các bước còn lại chỉ đọc file local, nên cùng đầu vào cho cùng kết quả. Khung cố định trong outputs/P1/window.json: ${D.since} → ${D.until} (không gồm mốc cuối).`));
-    const steps=[[T('Buildkite builds + jobs of the required GPU pipelines (window end fixed)','Build + job Buildkite của các pipeline GPU bắt buộc (cố định mốc cuối)'),'python -I -X utf8 outputs/P1/fetch_builds.py'],
-      [T('GitHub PRs, commits and all check runs incl. re-runs (+ force-pushed commits by SHA)','PR, commit và mọi check run trên GitHub kể cả chạy lại (+ commit bị force-push, đọc theo SHA)'),'python -I -X utf8 outputs/P1/fetch_gh_checks.py'],
-      [T('Per-job table (both pipelines, commit SHA, GPU-min, queue)','Bảng theo job (hai pipeline, SHA commit, GPU-phút, queue)'),'python -I -X utf8 outputs/P1/build_jobs_table.py'],
-      [T('Evidence from failed-then-retried logs (keeps earlier results; --fresh to redo)','Bằng chứng từ log fail rồi retry (giữ kết quả cũ; --fresh để làm lại)'),'python -I -X utf8 outputs/P1/sample_fail_logs.py'],
-      [T('MP detail per workload (startup share, cost by label)','Chi tiết MP theo workload (tỉ lệ khởi động, chi phí theo label)'),'python -I -X utf8 outputs/P1/aggregate.py'],
-      [T('Join PR × commit × builds; time to green; retry events','Nối PR × commit × build; thời gian tới xanh; sự kiện retry'),'python -I -X utf8 outputs/P1/build_pr_table.py'],
+    s.replaceChildren(head('7','Reproduce the numbers','Tái tạo số liệu',`Run from LM-762-ci-resource/plan-2026-11/, in this order. Steps 1–2 call the Buildkite / GitHub APIs through the ETL in LM-762-ci-resource/etl (read-only; Buildkite token from the environment, GitHub through the logged-in gh CLI; raw payloads kept in etl/lake); the rest only read local files, so the same inputs give the same numbers. The window is fixed in outputs/__P1__/window.json: ${D.since} → ${D.until} (end excluded).`,
+      `Chạy từ LM-762-ci-resource/plan-2026-11/, theo thứ tự này. Bước 1–2 gọi API Buildkite / GitHub qua ETL trong LM-762-ci-resource/etl (chỉ đọc; token Buildkite từ biến môi trường, GitHub qua gh CLI đã đăng nhập; dữ liệu thô giữ trong etl/lake); các bước còn lại chỉ đọc file local, nên cùng đầu vào cho cùng kết quả. Khung cố định trong outputs/__P1__/window.json: ${D.since} → ${D.until} (không gồm mốc cuối).`));
+    const steps=[[T('ETL: fetch only what is missing, changed or failed into the lake (Buildkite builds, GitHub PRs + checks, force-pushed commits, runner queue per job), export the window in P1 format, run the P1 transforms. Safe to stop and run again.','ETL: chỉ lấy phần còn thiếu, đã đổi hoặc bị lỗi vào lake (build Buildkite, PR + check GitHub, commit bị force-push, thời gian chờ runner của từng job), xuất khung theo định dạng P1, chạy các bước transform P1. Dừng giữa chừng rồi chạy lại vẫn an toàn.'),`python -X utf8 ../etl/etl.py window --since ${D.since.slice(0,10)} --until ${D.until.slice(0,10)} --out outputs/__P1__`],
+      [T('If a partition failed (API timeout, 5xx): retry only the failed ones, then export again','Nếu có partition lỗi (API timeout, 5xx): thử lại riêng phần lỗi, rồi xuất lại'),`python -X utf8 ../etl/etl.py retry && python -X utf8 ../etl/etl.py window --since ${D.since.slice(0,10)} --until ${D.until.slice(0,10)} --out outputs/__P1__`],
+      [T('Check the lake: partitions per source, final or not, failures','Kiểm tra lake: số partition theo source, đã ổn định hay chưa, lỗi'),'python -X utf8 ../etl/etl.py status'],
       [T('Last 24 h for the Track tab (optional)','24 giờ gần nhất cho tab Track (tuỳ chọn)'),'python -I -X utf8 outputs/cpu_tests/observe_ops_collect.py --no-build'],
       [T('Rebuild this report','Build lại báo cáo này'),'python -I -X utf8 outputs/cpu_tests/build_report1130.py']];
     s.append(el('ol',{class:'r11-steps'},steps.map(([t,c])=>el('li',{},el('div',{},t),el('code',{class:'obsraw'},c),' ',el('button',{type:'button',class:'tr-btn sm',onclick:e=>{try{navigator.clipboard.writeText(c);e.target.textContent='✓';}catch(x){}}},T('Copy','Chép'))))));
@@ -846,7 +893,7 @@ JS = r"""
       [T('PR build','Build PR'),T('A Buildkite build of k3-multiprocess-test or k3-unit-tests with a pull_request. Dev pushes and nightlies are left out.','Build Buildkite của k3-multiprocess-test hoặc k3-unit-tests có pull_request. Bỏ push dev và nightly.')],
       [T('Required checks','Check bắt buộc'),T('DCO, Check code quality, buildkite/k3-unit-tests, buildkite/k3-multiprocess-test (GitHub isRequired = true on the PRs of the window).','DCO, Check code quality, buildkite/k3-unit-tests, buildkite/k3-multiprocess-test (GitHub isRequired = true trên các PR trong khung).')],
       [T('Execution','Thời gian chạy'),T('Job start → job end. Buildkite: started_at → finished_at. GitHub: check run startedAt → completedAt.','Job bắt đầu → job xong. Buildkite: started_at → finished_at. GitHub: startedAt → completedAt của check run.')],
-      [T('Queue','Chờ queue'),T('Buildkite: runnable_at → started_at (waiting for an agent). GitHub: not available for old runs; "start delay" (workflow created → job start) is shown instead and named so.','Buildkite: runnable_at → started_at (chờ agent). GitHub: không có cho run cũ; hiện "độ trễ bắt đầu" (tạo workflow → job bắt đầu) và ghi rõ tên.')],
+      [T('Queue','Chờ queue'),T('Buildkite: runnable_at → started_at (waiting for an agent). GitHub: job created_at → started_at from the REST jobs API (waiting for a runner; for a job with needs:, created_at is when its last dependency finished). Per PR: the waits of all its jobs merged as time intervals (overlaps count once), wall-clock hours.','Buildkite: runnable_at → started_at (chờ agent). GitHub: created_at → started_at của job từ REST jobs API (chờ runner; với job có needs:, created_at là lúc job phụ thuộc cuối xong). Mỗi PR: các khoảng chờ của mọi job được gộp theo thời gian (chồng nhau chỉ tính một lần), giờ thật.')],
       ['GPU-min',T('Execution minutes × GPUs the job asks for (pod limit nvidia.com/gpu in pipeline.yml). Jobs with no known GPU count are left out and listed in Data quality.','Số phút chạy × số GPU job yêu cầu (pod limit nvidia.com/gpu trong pipeline.yml). Job không rõ số GPU bị bỏ và liệt kê ở Data quality.')],
       ['job-min',T('Execution minutes of one job on one runner / agent (CPU side).','Số phút chạy của một job trên một runner / agent (phía CPU).')],
       [T('Trigger','Lần trigger'),T('Per PR: pushes with CI (distinct commits that got a check suite or build), GitHub workflow runs, Buildkite builds per pipeline.','Mỗi PR: số lần push có CI (commit khác nhau có check suite hoặc build), số workflow run GitHub, số build Buildkite theo pipeline.')],
@@ -867,7 +914,8 @@ JS = r"""
       li('gap',`Other Buildkite pipelines that report on PRs are not in this baseline (not required checks): ${Q.other_pipelines.slice(0,10).map(x=>x.name+' '+x.n).join(', ')} (status updates in the window).`,`Các pipeline Buildkite khác có báo trên PR không nằm trong baseline này (không phải check bắt buộc): ${Q.other_pipelines.slice(0,10).map(x=>x.name+' '+x.n).join(', ')} (số lần cập nhật status trong khung).`),
       li('gap','Dev-branch pushes and nightlies are left out by design (PR baseline).','Push lên dev và nightly bị bỏ có chủ đích (baseline của PR).')));
     s.append(el('h3',{},T('Fields that are missing or weaker','Trường bị thiếu hoặc yếu hơn')),el('ul',{class:'r11-ql'},
-      li('gap','GitHub Actions runner queue: unavailable for old runs. The CPU tab shows "start delay" (workflow created → job start) instead, which also holds the wait for earlier jobs.','Thời gian chờ runner GitHub Actions: không có cho run cũ. Tab CPU hiện "độ trễ bắt đầu" (tạo workflow → job bắt đầu), gồm cả chờ các job trước.'),
+      (D.cpu.queue_cov&&D.cpu.queue_all)?li('ok',`GitHub Actions runner queue: from the REST jobs API (created_at → started_at), ${fmt(D.cpu.queue_cov.runs_fetched)} of ${fmt(D.cpu.queue_cov.runs)} workflow runs fetched, ${fmt(D.cpu.queue_cov.jobs_matched)} of ${fmt(D.cpu.queue_cov.jobs)} job attempts matched.`,`Thời gian chờ runner GitHub Actions: từ REST jobs API (created_at → started_at), đã lấy ${fmt(D.cpu.queue_cov.runs_fetched)} trên ${fmt(D.cpu.queue_cov.runs)} workflow run, khớp ${fmt(D.cpu.queue_cov.jobs_matched)} trên ${fmt(D.cpu.queue_cov.jobs)} lần chạy job.`)
+        :li('gap','GitHub Actions runner queue: not fetched yet (__P1__/fetch_gh_job_queue.py). The CPU tab shows "start delay" (workflow created → job start) instead, which also holds the wait for earlier jobs.','Thời gian chờ runner GitHub Actions: chưa lấy (__P1__/fetch_gh_job_queue.py). Tab CPU hiện "độ trễ bắt đầu" (tạo workflow → job bắt đầu), gồm cả chờ các job trước.'),
       li('gap','Push time: GitHub does not record every push. The last push = the first check suite or build created on the commit (usually seconds after the push).','Thời điểm push: GitHub không ghi mọi lần push. Lần push cuối = check suite hoặc build đầu tiên tạo trên commit (thường vài giây sau push).'),
       li('note',`GPU count per job comes from a static map of pod specs (unchanged in the window). Jobs with no known count are left out of GPU-min: ${fmt(Q.bk_jobs_without_gpu_count)} jobs, ${fmt(Q.bk_job_min_without_gpu_count)} job-min (${Q.bk_unknown_gpu_workloads}).`,`Số GPU mỗi job lấy từ bảng tĩnh theo pod spec (không đổi trong khung). Job không rõ số GPU bị bỏ khỏi GPU-phút: ${fmt(Q.bk_jobs_without_gpu_count)} job, ${fmt(Q.bk_job_min_without_gpu_count)} phút job (${Q.bk_unknown_gpu_workloads}).`),
       li('note','k3-unit-tests waits for a free GPU inside the job (pick-free-gpu.sh, up to 60 min). That wait is counted as execution, because Buildkite cannot see it.','k3-unit-tests chờ GPU trống bên trong job (pick-free-gpu.sh, tối đa 60 phút). Thời gian chờ này bị tính là chạy, vì Buildkite không thấy được.'),
@@ -875,7 +923,7 @@ JS = r"""
       li('note',`Time to green: ${fmt(Q.ttg_not_green)} merged PRs never had all four checks green on the merged commit (listed on the Time to green tab); ${fmt(Q.ttg_bk_green_from_status_context||0)} Buildkite green times come from the status context because the passing build was before the window.`,`Thời gian tới xanh: ${fmt(Q.ttg_not_green)} PR đã merge chưa từng xanh đủ bốn check trên commit được merge (liệt kê ở tab Time to green); ${fmt(Q.ttg_bk_green_from_status_context||0)} mốc xanh Buildkite lấy từ status context vì build pass nằm trước khung.`),
       li('note','The earlier version of this baseline had no window end date and read 937 MP builds, 2 still running. The window now has a fixed end, so the MP numbers moved a little (941 builds, none running).','Phiên bản trước của baseline không có mốc cuối và đọc 937 build MP, 2 build còn đang chạy. Giờ khung có mốc cuối cố định, nên số MP thay đổi một chút (941 build, không build nào đang chạy).')));
     s.append(el('h3',{},T('GPU count per workload (from pipeline.yml)','Số GPU mỗi workload (từ pipeline.yml)')),el('p',{class:'meta'},Object.entries(Q.gpu_map).map(([k,v])=>`${k} ${v}`).join(' · ')));
-    s.append(src(`GitHub data read ${(Q.gh_made||'').replace('T',' ').slice(0,16)} UTC. Report built ${D.made.replace('T',' ').slice(0,16)} UTC. Raw files are kept in outputs/P1/raw so the same numbers can be rebuilt without the APIs.`,`Dữ liệu GitHub đọc lúc ${(Q.gh_made||'').replace('T',' ').slice(0,16)} UTC. Báo cáo build lúc ${D.made.replace('T',' ').slice(0,16)} UTC. File thô giữ trong outputs/P1/raw nên có thể build lại cùng số liệu mà không cần gọi API.`));}
+    s.append(src(`GitHub data read ${(Q.gh_made||'').replace('T',' ').slice(0,16)} UTC. Report built ${D.made.replace('T',' ').slice(0,16)} UTC. Raw files are kept in outputs/__P1__/raw so the same numbers can be rebuilt without the APIs.`,`Dữ liệu GitHub đọc lúc ${(Q.gh_made||'').replace('T',' ').slice(0,16)} UTC. Báo cáo build lúc ${D.made.replace('T',' ').slice(0,16)} UTC. File thô giữ trong outputs/__P1__/raw nên có thể build lại cùng số liệu mà không cần gọi API.`));}
 
   function render(){rBaseline();rCpu();rGreen();rRetry();rPrs();rTrack();rRepro();rQuality();}
   render();addEventListener('langchange',render);
@@ -957,7 +1005,7 @@ def main():
     page = open(PAGE, encoding="utf-8").read()
     page = put(page, "/* R1130:CSS:START */", "/* R1130:CSS:END */", CSS, "@media (max-width:980px)")
     page = put(page, "<!-- R1130:HTML:START -->", "<!-- R1130:HTML:END -->", HTML, "<!-- ONBOARD:HTML:START -->")
-    page = put(page, "<!-- R1130:JS:START -->", "<!-- R1130:JS:END -->", JS.replace("__DATA__", json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")), "</body>")
+    page = put(page, "<!-- R1130:JS:START -->", "<!-- R1130:JS:END -->", JS.replace("__P1__", P1_NAME).replace("__DATA__", json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")), "</body>")
     open(PAGE, "w", encoding="utf-8").write(page)
     g, c, t, r = data["gpu"], data["cpu"], data["ttg"], data["retry"]
     print(f"r1130: {data['window']} GPU {g['gpu_h']} GPU-h ({g['prs']} PRs); CPU {c['job_h']} job-h ({c['prs']} PRs); "

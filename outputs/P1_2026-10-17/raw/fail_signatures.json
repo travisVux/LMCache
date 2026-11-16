@@ -1,0 +1,3317 @@
+{
+"01a14c13-afc9-42d5-a0cb-4931a2b1183c": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14c37-1b0b-4ab4-8613-aeebc2c6a8b3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14c13-afd0-426c-80ef-550a36a70786": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14c13-afd2-4984-b82e-fa234da30ffa": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a14aa0-0c6d-4418-b3d0-323d6737b715": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14ad8-55a1-4d19-ad5b-66ba6bb3e21e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14aa0-0c74-4dc8-9843-d252f8d8d0d2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14a94-3651-4e1a-92d7-b353fa38c63b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14ada-b84a-40dd-acd4-3906cf255dd8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14a8a-b46f-4982-ae37-8f568655596e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14a3d-95d7-4de4-8f2a-40aad46dea60": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14a5e-184b-412a-b891-3a46834b9ce5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a149af-1e4e-447b-bc05-a4a14844c727": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a148d5-8399-428d-8a0b-b6dac703800a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1490e-86a6-428b-8795-ad872f82d457": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a14916-eed3-40eb-8b53-3e9e28a056a9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a148c3-a8b9-4ca3-8e09-6782af28d838": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1490f-581c-4ebc-a08e-6e2ef382039f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1489f-623d-4b4d-afb8-945eee613fd9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a148a5-e7f0-4424-a2dd-0a610c60fdab": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1489f-624b-484a-8b14-7d1a1e0277b9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a148c1-bec1-450c-8dd5-fbbe9a04e84a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a147c5-cfc6-45da-b8c2-e9562b3a5007": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14780-0d23-4454-bd7c-a8cd9e1e94af": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14735-a711-49b1-aced-c9f3e0bd1ce8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14f4c-b286-4f47-81dd-a3f9ca939035": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a14d07-d8f6-4d51-9984-771b293a0173": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a14d07-d8fb-44a6-8801-b098a71528c1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a14d07-d906-45ea-be38-b66e96f76a3b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a14d19-9878-4fa0-b3d4-b1a8ef808d9b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a14cd3-9416-4abe-8fce-7d4f1ac35989": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a15646-64fe-4741-be45-9cf5b3be75c9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a155b6-f933-4a67-bb23-bf1fda278809": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15411-9b88-4691-8bc3-643dde002af4": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1544e-a40c-4842-bd75-f9aacdeaded2": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a152fc-48b6-48c8-bd8e-000a495ebc54": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a152fc-48c7-4f27-9538-9bb2130c20f7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a152ed-ed2d-4a68-b7e8-a15241a3c61f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a152fb-2e3d-43d8-91e9-d2916e0a41b2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15284-2155-440e-bea2-1e6a76899847": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1526c-75a3-4c6e-8ffa-197579c7af3f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a151e8-694d-4b63-8d84-4f6bc02bdb9f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a15bbc-594c-4ef3-a08f-eceb15d20723": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15bea-eb31-43b1-a5f6-6e18772e3a73": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15b5d-7bb2-41c8-98c5-80fc34bb7e6d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15b90-4962-40a3-a4f1-7a9b31ca4d9f": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15bab-9406-4003-a91e-de5f588a23ad": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15b5d-7bbd-4fd3-9a30-3015a1e10504": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15b31-663f-4a5f-9aad-e1406d7f7748": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15b62-9db9-47a3-8d63-f5dc52de232c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15963-79d2-4864-9807-99d66ac32627": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15963-79dd-4d54-84bb-4d39c42b314b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a158f5-6d7d-4804-8b29-53ac334e7df1": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15868-f412-4937-a4f3-3a6ae1d8dd54": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1583e-ac96-49ba-ae63-db21012e12cf": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1583e-aca7-4aa0-b83d-926ccf3eaf80": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1583e-acb2-4d25-9876-04754352e7b4": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a157a7-50f0-4357-aac0-6329cfc00b68": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a157a7-50f1-46cc-a962-39a10730155b": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a157a7-50f5-45d2-892a-de627e61a14d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15770-2e6d-495d-b6bf-8471375938d0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a156cb-6ef5-47e1-bc15-07f4bd982009": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a157ee-cad6-4c99-b0ca-be966dcc45ac": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a156a7-6c93-4bed-99fd-2cd2ee766461": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a156d7-f901-4bfc-8a8d-bb7e9ddd5c5d": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a160c6-f2c9-402d-9ab3-d9a2235c0e7b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16071-ee0b-4c50-91a9-4afd1c557f5c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16041-066f-4a3a-a6c7-4aeea39d69e5": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15fbe-57db-4409-9ce3-871064011f15": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a15fbe-580a-4821-9ba7-096cafed862e": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15fbe-580a-4594-a7db-f5576741a1b5": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15fbd-c783-4b24-b195-f8a0ddca7cc6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a15f62-18e2-45a1-9ea6-1f8d133b78de": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15edf-cb79-43d6-a4a8-f2023a53cf72": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15eb9-3339-4d7d-944b-92494760f35a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a15e94-b749-4454-95cf-e7b1027fd96e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15e67-8c67-4ed6-8f05-0f2d969c1794": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15d9d-e54f-4dbe-9fe1-8f5647eed225": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15d61-ebd7-4675-a704-e762a24c0383": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15dd9-8e4d-4eb8-8aec-d246541a4f29": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebde-481b-abf2-5064670ca99f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d73-c4b0-4b7f-8fd9-07cb195ae14f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebe0-4838-98c0-71d81b2a22e3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a15d61-ebe0-400a-a087-5e97c575fe97": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d78-41a2-4aca-82a5-1b2e6f8161a0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebed-4813-883e-03fe1e153331": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d78-ea8f-4f9d-a31c-b2c930f3fdad": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d61-ebee-461d-9c93-5394f69d63d3": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d78-514e-4b68-8a50-83a4b8afd17b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a15d3e-23ac-4373-af50-ab9a0465550f": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15de3-b6ac-47e8-a177-184e648ec056": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a15d3e-23b4-45d6-95e9-47ca32175525": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a15d26-2687-41ba-8c13-9674205677c5": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a16600-05aa-499f-adba-b5c3136b7804": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a16616-ba08-48cf-b603-b47c3c32f692": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a16618-396e-4976-ac22-71beeedb01ed": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a165d5-2439-473c-8a05-9ba05f57cbb0": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a165f3-3a6d-4e84-9c32-808b1ff24a93": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a163c8-71cd-4da9-84a0-9f6cc72143df": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a163e2-94dc-47a1-ae0c-1a0c7a6bee48": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16388-a148-47e5-b350-eb0b2fe0f163": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1629b-db33-4810-b0b8-abb7248d1a79": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1629c-07bd-4a77-baaf-db1fcf403647": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1629b-db3b-4fcb-8c05-2669a3b73ecf": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16261-4cd3-46aa-af29-9c409287b2a1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16a5d-e4bc-43d8-ae56-631e9ea7a486": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a167c1-3f4d-4a37-91c7-13eb3f6d1435": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16699-b649-4233-a05f-7f7a8ea48d14": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16675-60af-4d1a-a037-f527fe8e9529": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16640-28d6-4e90-8101-1d130e96b47f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16e25-d518-4053-83a9-c5806baab340": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16de3-acba-479b-9bec-a24463ab9b63": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16c10-e87c-4123-a132-0ca54c2d5662": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16c28-6b87-45cf-b355-8aac458282c6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16c38-2c76-4c19-8fb9-29cebc89260c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a16bae-59a7-4ef9-871a-89bc3f7bff72": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16bc9-d4e1-41c4-ae6d-3c3fb9ff14a3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16b5e-eaac-470b-a15d-e8ae00f2db59": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a16b5d-88b0-4165-9e05-73ed38f97084": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a16b96-198b-44d0-8914-9475830b241c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1736b-ad1c-4ce5-a0d2-a08d0999823f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1736b-ad27-41f0-8726-43856a7bd561": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17385-0b2b-4bf0-8f66-53e86d2dc43c": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a171b2-fe31-46b9-8e6f-7877af0726ed": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17112-7973-4c46-b0c4-4c6b9864ba74": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a170f1-9948-4aab-ac96-acdd1d8d57be": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17109-c645-4a34-ac02-5caba27791ff": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a170f1-994e-49f4-b48d-937a861ba910": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a1710a-9dc8-475e-9196-51edf84c58b1": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a170c1-f04f-4c3e-8b4d-fb7349391a8e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a170d5-ff6e-4cee-b208-7c8ae2857eee": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17a8d-c2c7-468c-bb46-19ed230e688c": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17a32-4916-4f38-bae9-64072b31bd39": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17a31-f1fc-4f7b-86d4-83c7cad67f51": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17a31-617c-4567-ba08-9b487cc99e31": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17a18-4257-4426-9808-091153696352": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17a1e-1329-4fff-841c-30894f6fe92b": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17980-a441-4669-a8ea-82e7cb91a95f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a17831-4089-4387-ba9a-521d216b3a65": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17831-408a-4bc7-98c7-60df8289415a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17840-4546-4b55-98fd-8a59869887ba": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a177b1-30f7-496c-93d2-977024737d84": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a175fd-4f37-47fb-9b5d-aa916c7d8d43": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a17656-d498-49d9-a0c0-71036325e3b6": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a175ad-4451-4bbf-afef-6d34b1b66806": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a17fb4-c6ab-4172-b970-8cfadc8ed6bc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17f94-edce-4518-8ccd-7f71e9b090a1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17fb4-71d9-4be7-9e7d-1b337783dda1": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17f6c-ff68-4718-9f65-f4721e8ee383": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17f4f-d605-4da8-9c7a-c3aaa7bfd9df": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17f26-4383-4cdd-bcc2-6e33d9caa7f7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17f26-4389-4620-94eb-507d797417b7": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17f60-33f8-48f2-a100-de644399dd08": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17e26-5230-4ed6-85a5-34e3e85ba317": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17e26-523c-429a-9581-ca41f326b01a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17e26-523d-43ab-94dd-cce6fbeaa892": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17c53-bff3-4397-8822-7efce42bfb4b": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a17c0b-3f72-4681-b7f5-5af83623d739": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a17bf7-11e0-4fa7-8462-662428789329": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a17bf7-11e2-404a-bb74-ffba89b5d473": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17c06-3d8b-4ac5-b7ad-791be5b3f591": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a17bf7-11e6-4644-8074-2faca998436e": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17bfe-f344-4980-a24d-b1eea3c2535f": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a17aee-e780-41b7-9476-bdee6592b944": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a184bf-09f0-44bd-b9cd-5b5df974ed3d": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a184bf-09f0-458e-9f6d-0101243b53e3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a184bf-09f6-4e0a-8690-76a75e888106": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1849f-24f9-444f-8463-7258e9161559": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a184b2-a518-4544-b057-73032c35f53a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1842b-0273-4e66-b12b-039aa1b08328": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18429-f6dd-4f8a-8179-9594209bf0f9": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a18429-f6e4-46fa-9857-c0c6871d56a8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18429-f6e5-4787-a4a9-a9c848cdfb21": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18429-f6e5-4b5a-b8f4-5d264c99d2d6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18446-537b-4d4c-a87f-a454ba6a9d58": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18429-f6ea-41ac-8e4e-1d71956b29bd": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a18441-8eca-4c4e-bd81-f66cda0a6d2e": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a183ed-92ef-40ea-a32b-6ed28c70ea21": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a183ed-92f1-4ca3-b9ad-6b6761eebbf4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a183b0-16fc-46a1-8797-57aac979d144": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a18381-8f7c-4e58-a5b6-59d84edf150e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1833d-8674-43f3-884b-6efbde3500e7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1833d-2b89-43b6-a23e-71370108123f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18306-8439-4dfd-9406-4d13555bcdd3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a18306-843c-442b-bc74-0c135424dc70": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18306-8454-4871-bc4f-9755ea3b0888": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a182ec-220b-416d-9ba2-d5cb2656be61": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a1829e-0ad8-4d09-b539-75eaa018fd18": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18277-a16e-4c38-ab8a-532e4e1a69a1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18277-a16f-4fbd-b04e-4a85cbc9a515": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a181d2-7404-459a-958c-07045b6eb596": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a181d2-7408-4ff1-8d88-b13962e69104": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a180fe-b832-4f44-93de-438ed93f432c": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a180fc-a5fa-4c09-8e51-7e7ba027e93c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1811b-952c-4891-a3e4-7ba85a814ec1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1808a-654a-4a83-b224-3afed215548c": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1823a-52c8-4c09-bed8-73a9a3d43177": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1808a-323f-47f3-b6f3-659a3eb824a7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1808a-3241-4d1a-9cf4-35a87263ebc4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1804c-18da-45dc-946f-62d6c01c2ab5": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a18024-119c-45ae-9bf5-a283e5370da4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a18940-afd3-4951-b248-c6027b5de02f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18940-afd4-42d5-a464-378e3d444006": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a188ed-a23f-4e91-ab99-a13314f03a67": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a188ed-a243-445c-b496-959d4a15c33c": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a188d3-1033-4d1c-85db-96cb42cff272": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a187ea-8ea9-49af-86dd-618df6a299f4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a187c6-1092-4b4d-9df8-c77ff7d05f30": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a187c6-1093-423a-9f19-f0af6d765075": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a187f3-93d1-4038-b4dc-d70e44605b0e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a187ad-b598-4623-aec1-317dd8acbb37": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18753-bce6-401c-8c13-a3abbf629f56": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2909) ERROR 10-29 04:07:48 [core.py:1632] EngineCore failed to start."
+},
+"01a18758-6d21-4621-a506-b9d234dd3664": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2910) ERROR 10-29 04:12:53 [core.py:1632] EngineCore failed to start."
+},
+"01a1874e-dd72-4e45-b677-7856ab474a93": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2900) ERROR 10-29 04:02:23 [core.py:1632] EngineCore failed to start."
+},
+"01a186a4-d4f6-4b85-b911-006b420c934b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a186b0-36d8-4259-a698-e27105fef110": {
+"sig": "test_failed",
+"cls": "test",
+"line": "dsv4_flash_tp test failed"
+},
+"01a18694-fb76-4fee-a89b-278dcb91289c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18552-29e3-4f4f-99a0-f15f13d2cf1f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18f2e-0a52-408c-8ad4-403bce54a3c3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a18e38-c9bd-4621-b949-460a3994d71a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a18bc5-de65-4371-83ca-cf004ad4d5b7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a18bd5-76bc-4ea8-a2cd-27fddd195d48": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a190b7-853b-494f-b108-2555e6826073": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a19075-ff6c-4819-885e-d5810badf383": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a19090-4208-4922-87b4-e405fc2f5a69": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a19075-ff73-45e8-b1de-24ad273b7668": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19096-be6f-4d9c-9119-c968ee28cfde": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a18fb2-9df8-4224-9c17-b8f374d9cd8b": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'gds_smoke_test' is not implemented for vLLM."
+},
+"01a19e7d-6cb9-45a1-88ca-261619e4c13a": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19e0d-57f3-4c69-be48-10f25bee842d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a19bd2-2f7d-438f-a47b-79a1b63ea8a5": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19ae0-c152-4070-baa1-8795fdb5d993": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a19a31-03d2-4fd8-bef0-397fb0046cf0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a1ba-a626-4b37-81af-874c6a57e2df": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a1ba-a628-40c7-8699-fd1e6557aa8e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a19f44-6367-4746-842a-3758578008ac": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a19f1d-5c58-4648-9708-b92a8799b5d7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a19f39-d54d-4f86-ac74-c3dd6f8b6e46": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a19f1d-5c59-4709-a8d1-8100c1ba346f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a8e5-76d1-4a33-b08b-dbfdb4d1b5e8": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a982-7d68-4c97-8433-c7779ef6b50d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a8e5-76d5-4c6c-a831-7cae3329d2a5": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a98a-0728-41f3-9278-b8914e00ce3d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a8e5-76db-42f1-8ab6-ff675185d48a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a8d1-9180-4b3f-926a-8fcfce96041d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a8d1-9190-40b4-96fa-9c6277d4016b": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1a702-dd0e-40f1-b1d3-872fd6656ee9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a659-9b88-4de8-a0f5-91a3dbd4f6cb": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a666-c169-4f0f-84b7-a6fc7d5baa27": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a659-9b89-4f0e-9367-61eac0cc193d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a668-f8e2-421e-bc15-0a8a9ce809d6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a5e0-b123-422b-91d4-ad0586605991": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a61c-6bc9-4f7b-94e4-dc76f03ea8e5": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b12a-4bdc-9547-d27543b7cfc1": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b12e-4e44-90a5-c26eb0408252": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5fb-dabd-4b47-a9e1-a91eebced17c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b12f-49cf-83e1-0f9d56cf628a": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a601-8540-43d1-9215-361fc737c6ee": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6234/head\" \"7a12dc4f379e26ced403a2731ad7c0478997e349\"]: fetching refspecs [refs/pull/6234/head 7a12dc4f379e26ced403a2731ad7c0478997e349]: e"
+},
+"01a1a5e0-b12f-4458-9a3a-4083188698c3": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a602-5868-476c-bf9f-18a45d47b65b": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b130-49ab-92fc-92de9860d38f": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a609-9174-46c8-b0ed-735b91d4b144": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6234/head\" \"7a12dc4f379e26ced403a2731ad7c0478997e349\"]: fetching refspecs [refs/pull/6234/head 7a12dc4f379e26ced403a2731ad7c0478997e349]: e"
+},
+"01a1a5e0-b134-485f-a7fe-49583bbd78ba": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a616-6cfa-44d7-8654-e3a8cefcaf58": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b134-41e0-a778-d1844a2bbb31": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b138-4784-ba04-b3fa1688792e": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5fd-10ce-456d-9294-b4bcabe8b2b7": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-b139-4d09-a5a4-e562d0fd7153": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6225-4d6f-b81c-a15b045fc009": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6229-42a4-a580-8fdd5eced90c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a625-317e-4671-a820-c6f02e297a7a": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622c-4009-b065-56dafa290628": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5fa-f2b1-458d-a979-4f0b860718fb": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a617-21c7-44e7-a16a-24d8c71ccc32": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622c-4e87-b37a-dfc99bfc2405": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/3992/head\" \"9d6156ecc5f29aa97e99fe3f81e34c6ef7fe2ad4\"]: fetching refspecs [refs/pull/3992/head 9d6156ecc5f29aa97e99fe3f81e34c6ef7fe2ad4]: e"
+},
+"01a1a5e0-622d-48da-a10c-177d336f698c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622d-42cf-a7bf-bcc644e4fb5b": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5f1-c142-44ea-8afa-34c66f0929e0": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622e-4911-9fda-ba262ec67967": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-622e-4c18-8ae4-9fa4f89cce1c": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5ef-074a-43e3-a35d-5dd76d312447": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6232-4e22-a8b4-9e0db513b2cc": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6232-432c-93d0-68b73d170d32": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6235-4f1c-b43b-bf1d0d87b27f": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5f2-050b-408a-8adf-f8450bbeb077": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6235-4384-a4df-cf8eb43bdcee": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5f2-bb4d-403e-a9e0-9bf1b5b572c6": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5e0-6235-414c-bf18-736b273d3cfa": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5c4-818d-4f63-b2f3-35d5d80bf2fa": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a61e-833b-4438-a5d2-9af377a38c69": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6269/head\" \"c2bbedb05135167208e8fdc342e7f1fdbd89ed61\"]: fetching refspecs [refs/pull/6269/head c2bbedb05135167208e8fdc342e7f1fdbd89ed61]: e"
+},
+"01a1a5c4-8194-4588-817d-c27993f6cec6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a5dc-4eae-4316-b62d-97723e709080": {
+"sig": "git",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: cloning git repository: exit status 128"
+},
+"01a1a5ee-3e2e-4ee7-803f-5d30882f695b": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6269/head\" \"c2bbedb05135167208e8fdc342e7f1fdbd89ed61\"]: fetching refspecs [refs/pull/6269/head c2bbedb05135167208e8fdc342e7f1fdbd89ed61]: e"
+},
+"01a1a5b3-3b65-4fb3-bd19-0edac57bbef2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a50e-96dc-4a49-9741-ac45706fa695": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1a410-cdcc-42e1-b502-62bd104d890e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1ae16-d5c1-482d-aebd-7479f7374d7f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ad78-bb47-4839-9f68-7756b2851d04": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ad78-bb49-442a-b0b1-ad0c1fcc6315": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1a9d6-81bd-4c9e-a10b-5e9638c89dbd": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a9f5-07a0-46a0-9245-7689680c0ff0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a9af-bd46-4d9f-8812-cf6d7d3859d1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1a9af-bd48-4248-8c52-7e313b4e7313": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a936-181d-4900-9b81-296f5fcc359e": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a98e-c7ee-429e-bcfc-327e561a5c37": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a936-1823-404b-b38c-c0b7e9a7d0c2": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a995-619d-4ff5-8158-2fffb38eba64": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a912-7710-430c-aaa6-4b5fedf7e76a": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a972-2092-4e26-b101-4761faf050a2": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for vLLM."
+},
+"01a1a912-7715-40c6-a248-311595e220ea": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a977-db49-496e-8c55-3735a8db123d": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'dsv4_flash_tp' is not implemented for SGLang."
+},
+"01a1a912-7724-499a-bcf5-ef52698e39e1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1a937-d4e0-4439-8762-a5debb4a1f9f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ae95-0e54-474a-8403-e7c3df714c63": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ae95-0e54-4ee5-8530-58260d0d7e49": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ae40-251e-4d99-ad6d-6cb22371a3b8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ae40-251f-4815-9876-6e3e9ffd1939": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1b6bb-4e52-4ab0-a311-dec19fa83fe6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1b688-250c-45ac-bc56-fee5366f2f33": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1b69d-e95f-4b1b-a00c-e192eaa16466": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1b69e-6a56-4fa0-91c0-1121cd1ecdcd": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1b688-250e-4870-8f84-bbc536d62adf": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1b69d-c181-4f4b-93e5-a9c235de0c88": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1b531-cafc-4cf9-971c-b9c74d918ac2": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1b949-c138-4434-8976-19f560071c73": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1b949-c13a-4939-8453-6e68c0a456e8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1b8e8-22dc-4135-8b9d-40d42ee9c636": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1b8e8-22df-44f5-82e4-7d3994c5d139": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c2ba-59d0-441a-bb32-464930c9763c": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2872) ERROR 11-09 15:56:16 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2bd-ec4d-4b9c-bc94-d80ac983b9f1": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2885) ERROR 11-09 16:12:57 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2ba-59db-4a27-94eb-6c3db2c74e83": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3169) ERROR 11-09 16:39:03 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2e5-15ca-4d90-a4f0-91abcdf98b04": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3166) ERROR 11-09 16:58:09 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2ba-59de-4695-9c01-c65ab3c8b02a": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3181) ERROR 11-09 17:01:52 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2ba-59e0-450d-8619-e36e04e84e8d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3145) ERROR 11-09 16:59:30 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2ba-59e9-411e-abf8-00698e2bfd55": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3169) ERROR 11-09 16:35:19 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2e1-acee-479b-8eb2-8fabf72a29b5": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3221) ERROR 11-09 16:53:09 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2ba-59ef-49b8-8d1a-e08cf5bf0edd": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start."
+},
+"01a1c2ba-59f5-46ff-924a-ec601d62b29d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2611) ERROR 11-09 16:02:38 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2c3-bdc9-46bb-8b0a-7eb06d535832": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2614) ERROR 11-09 16:16:13 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2ba-59f6-4508-9728-61a922881087": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2581) ERROR 11-09 16:02:32 [core.py:1584] EngineCore failed to start."
+},
+"01a1c2c3-b408-4ad1-817a-7e16ca5a036b": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2594) ERROR 11-09 16:16:03 [core.py:1584] EngineCore failed to start."
+},
+"01a1c25a-623b-44fd-916e-cb226cc760b3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c28d-5775-42a2-bd25-1506212dc36e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c244-4856-4add-88f7-cf27e0cf2adb": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2874) ERROR 11-09 13:47:43 [core.py:1584] EngineCore failed to start."
+},
+"01a1c248-3e21-4071-b9ed-bc9c3a9f5c55": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2879) ERROR 11-09 14:07:05 [core.py:1584] EngineCore failed to start."
+},
+"01a1c244-4867-4409-85ce-6bb670e6971f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3155) ERROR 11-09 13:59:16 [core.py:1584] EngineCore failed to start."
+},
+"01a1c252-cd29-4e60-b419-6becf5d3607d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3160) ERROR 11-09 14:32:25 [core.py:1584] EngineCore failed to start."
+},
+"01a1c271-2e6a-4bc2-ab20-779659ee527b": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3172) ERROR 11-09 14:46:53 [core.py:1584] EngineCore failed to start."
+},
+"01a1c244-486a-47cd-9223-938ce715391e": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3180) ERROR 11-09 13:57:49 [core.py:1584] EngineCore failed to start."
+},
+"01a1c251-7fd9-4660-81f1-53cdcdf13758": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3205) ERROR 11-09 14:28:57 [core.py:1584] EngineCore failed to start."
+},
+"01a1c26e-07c1-4ab6-a407-41b1c046e681": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3196) ERROR 11-09 14:45:21 [core.py:1584] EngineCore failed to start."
+},
+"01a1c244-486d-4db1-9573-81275160d5b8": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3172) ERROR 11-09 14:05:15 [core.py:1584] EngineCore failed to start."
+},
+"01a1c258-4561-4ea2-8454-dd99ef24b8bd": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3173) ERROR 11-09 14:26:23 [core.py:1584] EngineCore failed to start."
+},
+"01a1c244-486f-4679-bc10-9803395b9067": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3184) ERROR 11-09 13:51:42 [core.py:1584] EngineCore failed to start."
+},
+"01a1c24b-eae5-4292-9fa7-7811c2d68c32": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3168) ERROR 11-09 14:34:02 [core.py:1584] EngineCore failed to start."
+},
+"01a1c244-4874-44be-ad06-08187d2ed397": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start."
+},
+"01a1c263-d779-4d6e-a1ff-043f6e07390e": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start."
+},
+"01a1c244-4879-4f2b-a92a-2d70900351b6": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2605) ERROR 11-09 13:55:04 [core.py:1584] EngineCore failed to start."
+},
+"01a1c24e-f629-436d-9d19-6beebf4180bf": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2621) ERROR 11-09 14:11:37 [core.py:1584] EngineCore failed to start."
+},
+"01a1c244-4879-4970-bf64-578f1330fd2d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2574) ERROR 11-09 13:54:01 [core.py:1584] EngineCore failed to start."
+},
+"01a1c24e-0b32-48f5-9a69-4fafba8ae6f6": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2574) ERROR 11-09 14:11:20 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b6a-414a-b1db-b2f92394da78": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2908) ERROR 11-09 12:52:56 [core.py:1584] EngineCore failed to start."
+},
+"01a1c216-18b3-4e47-84e6-3620d1b1e7bb": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2920) ERROR 11-09 13:03:01 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b77-4172-9edd-84eb478f1623": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3185) ERROR 11-09 13:14:19 [core.py:1584] EngineCore failed to start."
+},
+"01a1c229-aa0d-421d-8a7e-94080382792f": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3202) ERROR 11-09 13:29:47 [core.py:1584] EngineCore failed to start."
+},
+"01a1c237-d6bf-489a-80b8-1141ead38827": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3194) ERROR 11-09 13:36:12 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b7a-45df-a3cd-d1bc2c85cc8b": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3257) ERROR 11-09 13:14:56 [core.py:1584] EngineCore failed to start."
+},
+"01a1c22a-3227-413e-b468-80522828bb86": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3191) ERROR 11-09 13:27:36 [core.py:1584] EngineCore failed to start."
+},
+"01a1c235-cfd8-4c3c-a086-a2fa5a9d07f8": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3210) ERROR 11-09 13:33:57 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b7b-4a59-8760-93154c681bce": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3184) ERROR 11-09 12:55:28 [core.py:1584] EngineCore failed to start."
+},
+"01a1c218-6763-49a5-ab53-0d9efe5b49b1": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3200) ERROR 11-09 13:12:09 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b7d-4998-a1c1-a602dca21710": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3216) ERROR 11-09 13:02:20 [core.py:1584] EngineCore failed to start."
+},
+"01a1c21e-acf6-4c9c-9141-8426dfb4fa6a": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=3187) ERROR 11-09 13:09:04 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b81-4389-9435-a1490c0da39d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "vLLM failed to start."
+},
+"01a1c212-4b81-4547-b81b-dd51a9a4cd03": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1c212-4b83-4518-aa48-77b9aeb7d8eb": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2643) ERROR 11-09 12:55:28 [core.py:1584] EngineCore failed to start."
+},
+"01a1c218-645c-4991-b432-a64a6251e7bb": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2658) ERROR 11-09 13:06:46 [core.py:1584] EngineCore failed to start."
+},
+"01a1c212-4b84-45e3-9243-a40bf62099dd": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2592) ERROR 11-09 12:55:02 [core.py:1584] EngineCore failed to start."
+},
+"01a1c218-01d2-482b-8123-edc4f9811b55": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "(EngineCore pid=2606) ERROR 11-09 13:06:44 [core.py:1584] EngineCore failed to start."
+},
+"01a1c1d8-e3c7-4b20-9120-ac91a470983b": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c1b5-c1a3-4a67-bc1f-2e9904412e41": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'hma_dsv4_correctness' is not implemented for SGLang."
+},
+"01a1c1b5-f00b-493d-a86b-77ca7552ac1e": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'hma_dsv4_correctness' is not implemented for SGLang."
+},
+"01a1c1b5-c1b1-4933-a0e2-d48bca11483c": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1bf40-a48c-4d04-ba20-b32e362917f3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1be31-d3f1-44ca-b165-8d665f35da5c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be38-9580-4d53-806c-53ea548d7d04": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be44-c3a5-40b1-92b9-32b50490e8d4": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be31-d3fa-49a9-a25a-5d0bafd26325": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be3b-1192-4147-af86-4bffdc6908b8": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be3d-9e11-48c0-aed4-7ece64e8d6b9": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be31-d3fa-4ccd-94e5-154828a19415": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be31-d404-4587-8e39-7290313c691b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be31-d408-4e44-a9d7-7513c9e32a84": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be31-d409-42d4-b2cb-15abc4fb5774": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1be31-d409-448f-9789-da1ea1a9874d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c7f0-cb1f-45e6-b535-d8843648aca9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c81e-916e-4fc2-b617-4154b2caec00": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c847-87ad-4bb8-aeea-e37c201e43f1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c7f0-cb23-4116-a2b9-c32a2a56835e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c7f0-1949-4bf0-a27e-60d6ed4eacaf": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c7f0-1949-4556-95b6-9cb7ece69a0f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c7d6-919e-4d6b-8edb-06d4de13e5c0": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c7ea-bca7-434e-9de5-2838a9103a64": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c734-9c53-4159-9a4e-cb8c12128076": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c738-0cb9-424c-b3a5-5617e52225d9": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c58-462e-8a6a-3dda73638353": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c73e-2485-4c04-be81-b5aceca485e2": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c5c-40a1-88f7-d04319b59f2c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c73d-7f99-4f12-aa1b-0df96a8a0812": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c746-be77-471b-998e-4e354daae890": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c5d-4f4a-9c2a-476af4a05126": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c73d-cf9b-4a57-98ef-30291932a672": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c74b-9766-49e9-8165-d695267ad856": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c5e-43cc-b515-1bf473ccbcbd": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c744-2de4-4c02-91bd-7f719956dd35": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c5f-481d-96d6-54ad9f45d014": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c753-1223-4b90-b17c-6a8467ec967d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c60-4280-9ebe-30370125461b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c755-115b-40c9-b140-6d61004aa847": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c64-4608-a41e-0bf46c90d825": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c73f-86c6-4607-aa23-14c028b4e26f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c64-49e9-bc18-f7d99c8ec8f8": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c745-a76e-432e-afd7-5259c169cad9": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c6a-4883-b3d8-011d4760fe9a": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c73d-d79e-48c9-8f18-1c75f7f701aa": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c6b-4ac6-a0b2-f12b303a547e": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c73e-14e3-4dbd-83de-8eea9ee70c2b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c6b-480d-bab6-09c08a1b7749": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c745-d0af-419d-a7ac-7f26574121d6": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c734-9c6b-44d4-9545-8c33ca188480": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c745-bbcc-428e-8e2c-b0a4fd57dcb5": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c725-ab96-45a0-a42f-0b6018d3d1c7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c725-ab9e-4242-b0ea-1549d0943e0d": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1c6db-d24b-46ad-9dfc-02caba1aab69": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6de-1931-48c5-b095-43011d89091d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d24f-4967-a7ff-7ef4374afa39": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e3-e6e7-46c9-9614-12e33fad98ed": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d253-4ada-bf41-a5f9441bfb0c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6dd-f44a-438b-8d71-89c872034393": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e4-ac50-4bff-a28d-3f390bc14732": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d254-4b3a-874b-1beff4e2e9df": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6de-1b15-445f-a2bb-6f5bb562c69c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e3-f556-4f72-bb02-37e0e0347bf3": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d254-43f9-92e2-d67d9f491854": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6ed-1f34-46a6-a551-ad928c714207": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d255-44a6-985c-bec9cfed70ac": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6f0-1311-4507-9fc8-6fe547034f28": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d257-4dd3-aeaa-3c102a6087c6": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6dd-f843-4aed-9e9f-b7cc8da60270": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d25c-49ca-8a97-a85360f3656f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e2-91f6-46d8-9fe2-6719618e40bc": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d25c-4924-a425-1f9a515163ca": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6ef-06d0-4d1d-a6c8-b48666c68b64": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d260-4275-8f4d-2105cef1f42b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e0-3a98-4ff6-9eff-68515d382ee1": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d260-4fba-8d67-642321e588cf": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e2-457a-4cc0-b6ad-a92df049c84d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d260-4af6-831f-83e5de7205cd": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e6-4091-4bfb-b499-c7c147986e4b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6db-d260-4ca8-8a5c-1019ecd45b6b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c6e8-3c6b-4cbe-9ca8-17dc428ced57": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c671-45d9-487e-947e-abde82c7f0f5": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c671-45db-4cd0-91cf-2de1e82eeaa3": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c6b7-bae3-4a96-872c-2fa32f77184b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c54a-5f74-423a-bb35-dd63df3230db": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c54a-5f78-434a-b22e-d7a7d534e618": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1c498-9fb9-417c-8a4b-fd4e967539d6": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1c498-9fb9-4ff2-b472-4ece10e1fd66": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1c3e8-2919-472f-826d-92241ae30683": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c3e8-2923-4270-b9a6-622a69a36113": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c3c1-1a30-4613-94ee-f3bdd57f6ac7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c3fc-1296-45de-ad4c-363b86bb04f1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c3c1-1a31-478a-8688-1f888a3fe3f9": {
+"sig": "interrupted",
+"cls": "infra",
+"line": "\ud83d\udea8 Error: The command was interrupted by a signal: signal: terminated"
+},
+"01a1c3c1-1a31-4d10-96cf-f8e1faca93e4": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c366-c92d-4b69-b2d7-b7497af6d0a1": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1c2ec-f580-47e8-a61b-9bfcbc10c9a8": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c2ec-f58f-4e52-95c3-4b431f5efe4f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c2ec-af49-4c0b-acbe-e23abf7180ff": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1c2ec-af6d-456d-b822-a69233e831f2": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c2ec-af6e-4cb1-b2a3-07f8d6671567": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c2ec-5416-471c-a212-5187ae20180a": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1c2eb-0a10-4690-b863-1ceeb949a93b": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c2eb-0a17-4dc6-87b6-efbcaa862fb0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1cbaa-de5a-4763-916d-e1d8f9a432f8": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1cb79-2ea2-4ace-bc1d-061bf9844df9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1cb79-2ea4-4b23-bb90-44f851282ba2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1cb88-77ef-45a7-8292-aeeae87330a3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1caeb-6225-4334-8674-fc76165e51d6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1caeb-6225-4a90-aaed-7d28280c97f6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1caf9-d30e-4dcb-868f-f8b1e87ea134": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1ca84-805b-460e-8789-e5efadf0c644": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1ca5b-1c4b-4587-a7e6-37a0d54dbbed": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1ca5b-1c4e-4d5e-8a65-95832da1e139": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ca49-e247-4494-b875-a6341c39f5da": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1ca4c-da46-4de2-91a1-53da666e66a7": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1ca49-e252-47e6-9774-da962f263a5e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1ca49-e253-45d6-8c68-8c13698fbe93": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1ca49-e255-4ef5-bffb-63e6a019b818": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1ca06-e360-488d-981c-25cbcba50675": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1ca09-f9b7-42ba-8f7e-44f89622e693": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9d7-8418-43d1-b605-9d5a4556860d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9da-342e-43bc-8223-855aa888c8b0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9d7-841e-453c-b490-b6dd93476338": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1c9d0-d263-42d5-a877-fd954105cdfa": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9d0-d26e-4516-af3d-e46a93b438b2": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9d0-d270-4ccc-b326-67d8bbae6c87": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9d0-d270-48d1-93d0-704aa0b84ed5": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9b5-ec03-4fb3-b135-da3bbb8fef51": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9b8-b0bc-4537-af66-3b3ecd0001a9": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9cb-96f3-4dc8-b43b-a7928823b0e8": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c9b5-ec22-4f88-b15a-131b6df25433": {
+"sig": "test_failed",
+"cls": "test",
+"line": "lazy_offload test failed"
+},
+"01a1c979-c7bc-4388-b604-0288b4730668": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c97c-a88a-4d80-b0ea-f5e7c73ac741": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c98c-9328-4fb8-a53d-6e4b5b50b734": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1cc10-9ea2-4542-80d4-958119264133": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1cc14-91af-431a-897b-a36e3fadac96": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1c979-c7da-48ed-9248-c6ff61b4d778": {
+"sig": "test_failed",
+"cls": "test",
+"line": "lazy_offload test failed"
+},
+"01a1c865-8420-417d-a785-5729a2ce188f": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1c87b-e627-407c-955b-80a8c5ee92f2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1c865-8422-4ea2-a1fc-9b5268b9e658": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1d024-7b1d-4eba-a9e2-4219b2bbc590": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d044-da71-4d41-ac34-4ee5621ce1e0": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d024-7b1f-4ce7-af66-a64559e41bc8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d032-d55c-4fe6-9f7a-b4ade4240639": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d049-138c-4eff-a173-bc6fe31ae6c9": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d25c-84b0-4f1a-b957-026fe68c19ff": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1cfd1-e7a3-4a5f-b661-c82bb7ac4740": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1cfd1-e7ab-4495-b432-6c958d85e4da": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1cef1-409b-4b2e-9f61-8888b6321756": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1cf54-726c-4a42-b738-837fb915bb3f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1ced0-99aa-45e5-808b-fab3b29f0573": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1ced0-99aa-466d-81c7-44d0b52e6c70": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1cead-20a7-4f1d-ae37-7c2300746b75": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1ce45-1979-46a4-bf6c-788ad9f800ef": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1ce62-35e1-4e89-9fb2-ca1c1bce289c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1cda5-4186-4278-ad1b-021aad75b1d3": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1cd65-90fa-4aa9-9749-e6450a19512d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1cd53-c729-4042-b3ab-80aa69f8e181": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1cd3b-9180-4ec0-8781-17de947fda28": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1d758-bdf9-4993-a987-cd8ba76fb7d5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d726-2b51-43b3-b276-046cca4c0ebc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d619-459f-4f21-a3e9-7c97c2a66553": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d619-45a2-4df0-aca2-968634bd6f8f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d601-5afc-4daa-b2b9-61eed8dcf7a7": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1d399-aab7-4191-a599-b4d05a77b9d9": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1d3c5-35ad-4073-b5bb-1676d040d416": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1d399-aab9-49f7-bfb4-4322d1d460cd": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d365-ff22-49af-9091-19b9793253bc": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d36b-8f15-4d35-9315-dfb07aea9eeb": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d365-ff41-4f25-b11b-451ab6de2bb3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d373-83de-4ac2-8fff-888c9d7a10d4": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d365-ff45-472c-9539-7034a37451c2": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d373-2a31-44c0-9a69-b09ac0da8d5d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d365-ff65-47fc-85cc-bcdfa7556dce": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d396-7843-4c76-8b86-694912c6e13e": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d365-ff95-44a1-85e7-1f411443ece8": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d378-01ae-43d3-bbac-c08aaad1cdc5": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d365-ff95-484d-9890-fabe645ac6ee": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d377-0efb-46c1-a534-2dbf901bf678": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d2d2-3339-4796-b596-b2ba9f458c33": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d2d2-333a-46d8-8a4b-b0d6ce3196dd": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d2b7-d14e-44b7-88ab-20551fe78fb6": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d2b7-d151-4f44-8b94-8992b2b148a7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d2a0-4d16-4068-855b-caf2ae5666a2": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d2a0-4d29-43da-ab2d-c22e2f9e813b": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d278-5fe1-4070-bb2e-f8cd9faa8522": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d28c-993a-4b53-b940-8918dd9ee993": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d278-5fea-4e54-aafd-5102527ceb44": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d2bc-260f-4d77-93e6-17b005e0b17e": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1d278-5ff2-4612-8632-01629f17958c": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1d299-4016-4535-9e6e-1f95b205697e": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1d278-5ff6-45e2-b93f-71d3b7ab1eb2": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d28d-7faf-4c7f-8c71-ad1644331bc8": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d278-5ff7-48d6-bbd8-0f9d29d24857": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d294-73d8-4332-90f2-e29b0fa263e9": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d268-f514-4b4c-9f8f-a38f4e6cc8ec": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d270-ee89-424d-a190-807855a100d2": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1dc4c-6a13-4e0c-bf68-2fce8804f789": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dc70-b922-4497-a8eb-b675e1009192": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1dbc3-6023-440c-8ee3-4e32fd79ac2e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1dbd2-ffee-4ee4-b87b-8ae25eac9cd2": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1dbe8-98b3-470b-a962-d6654e604a1e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1dbc3-6028-4b98-9db5-eb12e39b86e6": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dbce-b224-4421-94df-c174c6ad47b8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dbe2-9430-4be4-a907-169030d74d0f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1db9f-443d-4917-a4d2-3c58b4fbc8e5": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1db83-4fac-48b2-8f14-af3e0910c393": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1db83-4fb1-4ea5-965b-ca6a84deab7d": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dafa-dfc3-45e7-84cb-851f403f21d7": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1db14-6ad5-481e-8d4f-4ec978bdc086": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1dafa-dfcb-456c-bd12-2074577b6990": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1db06-1ee2-4cb3-88db-610ce012bb5f": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1d7c9-e116-44a3-8f9e-363dc42f3f4e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "eviction_aware_lazy_offload test failed"
+},
+"01a1d7a6-8b19-49d6-aa1c-d3ba9e731e7a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d7bb-2b02-4710-a344-d4f5d70284b3": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1d7a6-8b1b-41ef-9e77-a77119a51edb": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d7c3-3bc1-4a5a-8319-d1b518c92ef4": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d7a6-8b1f-4f9c-8ace-41d0483f3525": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a1d7a6-83fc-421d-b997-edbea7cf2bb4": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'hma_dsv4_correctness' is not implemented for vLLM."
+},
+"01a1d7a6-8405-442f-a99d-4e26a22b17b4": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'hma_dsv4_correctness' is not implemented for SGLang."
+},
+"01a1d7a6-840b-4abf-af5d-5a8442ed5cbc": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-840d-4382-a14c-e8d376ad8714": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-840d-49da-9c43-70f7b763310c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-840e-4fdb-8aac-0cb2d6a44775": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-840f-4f66-825a-1cab084ad8d7": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8410-45f3-ad0b-ae54b89f4ab0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8411-4b2f-9202-d17a0e9627ec": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8412-48d7-be51-b03385db24c0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8413-4ca1-8371-782d0bded329": {
+"sig": "not_implemented",
+"cls": "config",
+"line": "Test 'kimi_linear_tp' is not implemented for SGLang."
+},
+"01a1d7a6-841c-4665-8c7e-00dea7574bc4": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-841d-4f9e-aded-006acc7e8b7c": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-841d-4781-aba8-2b491d25f521": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-841e-44c4-83f9-e71de7cf87cb": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-841f-451c-953a-1d5d1e04e55f": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8420-4fb3-9003-9a0ccbed4138": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8420-43c0-acc5-8059e8c36311": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8421-4f92-88c3-3a5ce3da8650": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8422-4864-8fe7-b4769e033685": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8422-4407-81f4-cbc80bf832ff": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8423-4819-9d60-989228b22f03": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8424-431d-ac9e-916ca61229b0": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8425-4c15-8f3a-cdd223495284": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8426-4024-9c2e-2d0c6f316bad": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8426-44cd-b9d5-06c263dd1a3d": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d7a6-8427-4a17-8d53-0802d2a74f49": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1d795-2969-45e3-be86-33f4836ed460": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1d7e1-cfc0-4a6a-827a-01c35d31f1a7": {
+"sig": "test_failed",
+"cls": "test",
+"line": "long_doc_qa_l2 test failed"
+},
+"01a1e067-2936-4909-b6d2-3b12d3064d45": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1e07a-32ea-4399-b7b7-b92ccd2d4b09": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1e086-94c2-4f1f-a5d8-372354301da8": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1e03e-bade-495d-bbf5-743598262b1c": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Threshold verification FAILED"
+},
+"01a1e03e-bae3-4d44-9668-379d1782dc82": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1ddb9-601d-439d-98a7-079b25de8f87": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1ddeb-ea6c-40e2-a4d3-3c44edab506b": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dcf7-8484-4ee5-9ccd-aee6acd4825a": {
+"sig": "perf_threshold",
+"cls": "test",
+"line": "Verification failed"
+},
+"01a1dcf7-848e-4b9d-9bda-734cafe350dc": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dd18-21e1-41a0-9e6a-753dacb13fab": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dd23-ba6b-4758-835c-05776518d960": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dc82-3339-49e5-85eb-d80faca81b2e": {
+"sig": "test_failed",
+"cls": "test",
+"line": "kimi_linear_tp test failed"
+},
+"01a1dcac-a166-4da9-9368-85234c857a33": {
+"sig": "engine_start",
+"cls": "unknown",
+"line": "SGLang failed to start."
+},
+"01a14aa1-909d-4c10-bd2a-bb9ae9bc2458": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8180 passed, 306 skipped, 1 xpassed, 498 warnings in 1430.70s (0:23:50) ======================================="
+},
+"01a15598-4706-4a28-8f56-162569013cca": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 5237 passed, 130 skipped, 1 xpassed, 334 warnings in 670.01s (0:11:10) ======================================="
+},
+"01a15497-2071-4264-90d8-87678d2e2e89": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a156cb-6b32-47b6-bdf4-854cc6616058": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 5779 passed, 131 skipped, 1 xpassed, 339 warnings in 866.10s (0:14:26) ======================================="
+},
+"01a164b9-bb6e-424c-9502-731f7b2e5404": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8486 passed, 331 skipped, 1 xpassed, 495 warnings in 1404.84s (0:23:24) ======================================="
+},
+"01a188ec-ce4a-4c8b-97b4-fe726b3759ce": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 951 passed, 38 skipped, 340 warnings in 229.48s (0:03:49) =============================================="
+},
+"01a187df-119e-474f-b963-5c7ea2f7b12c": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 7056 passed, 269 skipped, 1 xpassed, 455 warnings in 1001.85s (0:16:41) ======================================="
+},
+"01a18af7-4fb6-4776-b831-700847a463c4": {
+"sig": "none",
+"cls": "unknown",
+"line": ""
+},
+"01a1a66e-c9b3-4680-a865-bc54097903d4": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 7987 passed, 302 skipped, 1 xpassed, 508 warnings in 1369.79s (0:22:49) ======================================="
+},
+"01a1ad78-bac2-49d8-ac18-81885a14dc30": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1408 passed, 45 skipped, 360 warnings in 311.66s (0:05:11) ============================================="
+},
+"01a1ade1-8738-4347-85d7-19be89bd0995": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1408 passed, 45 skipped, 360 warnings in 288.56s (0:04:48) ============================================="
+},
+"01a1ae14-3382-452f-a47e-274ecc4e3c70": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1408 passed, 45 skipped, 360 warnings in 253.86s (0:04:13) ============================================="
+},
+"01a1ae21-89a1-48aa-b45a-53179644e16a": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1408 passed, 45 skipped, 360 warnings in 251.34s (0:04:11) ============================================="
+},
+"01a1ad48-db26-464a-91f4-33a95410484f": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1358 passed, 44 skipped, 341 warnings in 224.78s (0:03:44) ============================================="
+},
+"01a1acdc-be67-4246-8856-cc15d95e2ec2": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1358 passed, 43 skipped, 341 warnings in 216.13s (0:03:36) ============================================="
+},
+"01a1abed-fbf7-4d75-9754-5fcd374b2c29": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1353 passed, 33 skipped, 248 warnings in 182.07s (0:03:02) ============================================="
+},
+"01a1a960-a03c-4c44-a37b-9d6f24aa5946": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1351 passed, 44 skipped, 359 warnings in 286.66s (0:04:46) ============================================="
+},
+"01a1a978-f1da-4fce-b00f-6ce6cd267a83": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================= 1 failed, 1351 passed, 44 skipped, 359 warnings in 254.83s (0:04:14) ============================================="
+},
+"01a1a90c-ba46-45c3-9e24-94bde6913f34": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 7530 passed, 293 skipped, 1 xpassed, 501 warnings in 1231.83s (0:20:31) ======================================="
+},
+"01a1b6bb-5207-48a4-b762-3682146b41d6": {
+"sig": "test_assert",
+"cls": "test",
+"line": "====================================== 1 failed, 8541 passed, 308 skipped, 1 xpassed, 284 warnings in 1056.89s (0:17:36) ======================================="
+},
+"01a1c2a8-9291-4e2f-a2a8-8358dbd250be": {
+"sig": "test_assert",
+"cls": "test",
+"line": "======================================= 1 failed, 1914 passed, 36 skipped, 1 xpassed, 252 warnings in 202.81s (0:03:22) ========================================"
+},
+"01a1cef1-0cce-4677-84ea-78c796bcaae3": {
+"sig": "test_assert",
+"cls": "test",
+"line": "============================================ 1 failed, 6387 passed, 155 skipped, 264 warnings in 745.99s (0:12:25) ============================================="
+},
+"01a1a624-c70a-4925-b6a2-96ae58125084": {
+"sig": "git",
+"cls": "infra",
+"line": "\u26a0\ufe0f Warning: Checkout failed! Fetching PR refspec [\"refs/pull/6269/head\" \"c2bbedb05135167208e8fdc342e7f1fdbd89ed61\"]: fetching refspecs [refs/pull/6269/head c2bbedb05135167208e8fdc342e7f1fdbd89ed61]: e"
+}
+}
