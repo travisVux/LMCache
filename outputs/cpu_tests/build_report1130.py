@@ -166,21 +166,38 @@ def analyze():
                pr_hist=hist_bins([v / 60 for v in gpu_pr.values()]),
                cancel_gpu_h=round(sum(f(r["gpu_min"]) or 0 for r in ran if r["state"] == "canceled") / 60, 1))
 
-    # ---------------- what one PR costs: merged PRs (cost until merge) or all PRs; run time only or run + queued time
+    # ---------------- what one PR costs: merged PRs (cost until merge) or all PRs. Two separate charts:
+    #   run time   = GPU-h (job run time x GPUs)
+    #   queue time = wall-clock hours the PR had at least one job waiting for an agent (Buildkite runnable_at -> started_at).
+    # The jobs of a build (and the MP + unit builds of one push) wait side by side: their waits are merged as time
+    # intervals per PR, never added up (adding would count the same hour once per waiting job). No GPU factor: GPUs are not held while waiting.
     merged_prs = {r["pr"] for r in csvr("pr_30d.csv") if r.get("merged")}
-    gpu_q = collections.defaultdict(float)
-    for r in ran:   # queued = agent wait (job runnable -> started) x GPUs the job asks for
-        gpu_q[r["pr"]] += (f(r["gpu_min"]) or 0) + (f(r["queue_wait_min"]) or 0) * (f(r["gpus"]) or 0)
+    waits = collections.defaultdict(list)
+    for r in ran:
+        if r["runnable_at"]:
+            waits[r["pr"]].append((dt(r["runnable_at"]), dt(r["started_at"])))
+    pr_wait = collections.defaultdict(float)   # minutes
+    for pr in gpu_pr:
+        iv, tot_s, cs, ce = sorted(waits.get(pr, [])), 0.0, None, None
+        for a, b in iv:
+            if ce is None or a > ce:
+                if ce is not None:
+                    tot_s += (ce - cs).total_seconds()
+                cs, ce = a, b
+            else:
+                ce = max(ce, b)
+        if ce is not None:
+            tot_s += (ce - cs).total_seconds()
+        pr_wait[pr] = tot_s / 60
 
-    def cost_views(run, withq, step):
+    def cost_views(d, step):
         out = {}
         for sc, keep in (("merged", lambda k: k in merged_prs), ("all", lambda k: True)):
-            for qk, d in (("run", run), ("q", withq)):
-                vals = [v / 60 for k, v in d.items() if keep(k)]
-                out[f"{sc}_{qk}"] = dict(hist=hist_bins(vals, step=step), stats=p5090(vals, 1, 1), total=round(sum(vals), 1), prs=len(vals))
+            vals = [v / 60 for k, v in d.items() if keep(k)]
+            out[sc] = dict(hist=hist_bins(vals, step=step), stats=p5090(vals, 1, 1), total=round(sum(vals), 1), prs=len(vals))
         return out
-    gpu["views"] = cost_views(gpu_pr, gpu_q, 0.5)
-    gpu["queue_h"] = round((sum(gpu_q.values()) - tot) / 60, 1)
+    gpu["views"] = cost_views(gpu_pr, 0.5)
+    gpu["wait_views"] = cost_views(pr_wait, 0.5)
 
     # ---------------- CPU baseline (GitHub Actions jobs on PR commits)
     gj = [r for r in csvr("gh_jobs_30d.csv") if inwin(r["suite_created"])]
@@ -215,11 +232,7 @@ def analyze():
                                       exec=p5090(v["ex"]), delay=p5090(v["sd"]), rerun=v["rerun"], rerun_h=round(v["rerun_min"] / 60, 1)) for k, v in wf.items()],
                                 key=lambda x: -x["job_h"]),
                pr_hist=hist_bins([v / 60 for v in cpr.values()], step=0.5))
-    cpu_q = collections.defaultdict(float)
-    for r in gj:   # queued = start delay (runner queue + wait for earlier jobs of the same workflow run)
-        cpu_q[r["pr"]] += r["x"] + (f(r["start_delay_min"]) or 0)
-    cpu["views"] = cost_views(cpr, cpu_q, 0.5)
-    cpu["queue_h"] = round((sum(cpu_q.values()) - ctot) / 60, 1)
+    cpu["views"] = cost_views(cpr, 0.5)   # run time only: GitHub gives no runner queue time for old runs
 
     # ---------------- time to green (merged PRs) + merges per week / month
     tt = csvr("ttg_30d.csv")
@@ -567,17 +580,15 @@ JS = r"""
       const t=sv('text',{x:anc==='end'?xx-5:xx+5,y:yy,class:'r11-ax r11-rl'+(p9?' r11-p90t':''),'text-anchor':anc});t.textContent=lab;svg.append(t);});
     return el('div',{},svg,el('div',{class:'meta'},T(`${what}, ${Hs.n} PRs. Solid line: p90 (9 in 10 PRs are at or below: what the costly PRs pay). Dashed line: median (half the PRs are at or below). Last bin = ${b[b.length-1].lo} ${unit} and more.`,`${what}, ${Hs.n} PR. Đường liền: p90 (9/10 PR bằng hoặc thấp hơn: mức các PR tốn nhiều phải trả). Đường nét đứt: trung vị (một nửa số PR bằng hoặc thấp hơn). Cột cuối = ${b[b.length-1].lo} ${unit} trở lên.`)),
       tableView([[unit],['PR','r']],b.map(x=>[x.open?`${x.lo}+`:`${x.lo}–${x.hi}`,x.n])));}
-  // what one PR costs: switch merged PRs / all PRs and run time only / run + queued; the queued choice is always written next to the chart
-  function costChart(Vw,unit,what,qtxt){if(!Vw)return null;const st={s:'merged',q:'run'},box=el('div',{class:'r11-cost'});
-    const draw=()=>{const v=Vw[st.s+'_'+st.q];
-      const btn=(g,val,lab)=>el('button',{type:'button',class:'r11-sw'+(st[g]===val?' on':''),'aria-pressed':String(st[g]===val),onclick:()=>{st[g]=val;draw();}},lab);
-      const other=Vw[st.s+'_'+(st.q==='q'?'run':'q')];
+  // what one PR costs: one measure per chart (run time OR queue time, never mixed); switch merged PRs / all PRs
+  function costChart(Vw,unit,what,head,note){if(!Vw||!Vw.merged)return null;const st={s:'merged'},box=el('div',{class:'r11-cost'});
+    const draw=()=>{const v=Vw[st.s];
+      const btn=(val,lab)=>el('button',{type:'button',class:'r11-sw'+(st.s===val?' on':''),'aria-pressed':String(st.s===val),onclick:()=>{st.s=val;draw();}},lab);
       box.replaceChildren(el('div',{class:'r11-sws'},
-          el('span',{class:'r11-swg',role:'group','aria-label':T('Which PRs','PR nào')},btn('s','merged',T('Merged PRs (until merge)','PR đã merge (tới khi merge)')),btn('s','all',T('All PRs','Mọi PR'))),
-          qtxt.q?el('span',{class:'r11-swg',role:'group','aria-label':T('Queued time','Thời gian chờ queue')},btn('q','run',T('Run time only','Chỉ thời gian chạy')),btn('q','q',T('Run + queued time','Chạy + thời gian chờ queue'))):null),
-        el('div',{class:'r11-qnote'+(st.q==='q'?' on':'')},el('b',{},st.q==='q'?T('Queued time INCLUDED','CÓ tính thời gian chờ queue'):T('Queued time NOT included','KHÔNG tính thời gian chờ queue')),' · ',L(qtxt[st.q]),
-          qtxt.q&&other&&other.stats.p90!=null?el('span',{class:'meta'},' · '+T(`other view: p90 ${fmt(other.stats.p90)} ${unit}`,`cách xem kia: p90 ${fmt(other.stats.p90)} ${unit}`)):null),
-        histChart(v.hist,unit,`${what} · ${st.s==='merged'?T('PRs merged in the window','PR merge trong khung'):T('all PRs with a build in the window','mọi PR có build trong khung')} · ${st.q==='q'?T('run + queued','chạy + chờ queue'):T('run time only','chỉ thời gian chạy')}`));};
+          el('span',{class:'r11-swg',role:'group','aria-label':T('Which PRs','PR nào')},btn('merged',T('Merged PRs (until merge)','PR đã merge (tới khi merge)')),btn('all',T('All PRs','Mọi PR')))),
+        el('div',{class:'r11-qnote'},el('b',{},L(head)),' · ',L(note),
+          v.stats.p50!=null?el('span',{class:'meta'},' · '+T(`median ${fmt(v.stats.p50)} · p90 ${fmt(v.stats.p90)} ${unit} · total ${fmt(v.total)} ${unit} over ${fmt(v.prs)} PRs`,`trung vị ${fmt(v.stats.p50)} · p90 ${fmt(v.stats.p90)} ${unit} · tổng ${fmt(v.total)} ${unit} trên ${fmt(v.prs)} PR`)):null),
+        histChart(v.hist,unit,`${what} · ${st.s==='merged'?T('PRs merged in the window','PR merge trong khung'):T('all PRs with a build in the window','mọi PR có build trong khung')}`));};
     draw();return box;}
   // retries that never pass: stacked columns by number of tries (passed in the end / never passed)
   function triesChart(N){const bins=N.bins,W_=1000,H=210,ml=40,mr=8,mt=12,mb=30,iw=W_-ml-mr,ih=H-mt-mb,band=iw/bins.length,bw=Math.min(70,band*0.5);
@@ -649,8 +660,10 @@ JS = r"""
       `Khung cố định ${W} (UTC, theo lúc tạo build). Build PR trên Buildkite của hai check GPU bắt buộc: ${fmt(MP.builds)} build MP và ${fmt(U.builds)} build unit test cho ${fmt(G.prs)} PR.`));
     s.append(el('div',{class:'ops-kpis'},
       tile(G.gpu_h,'GPU-h',T('PR GPU time, 30 days','GPU của PR, 30 ngày'),T(`${fmt(G.gpu_h_day)} GPU-h per day · MP + unit`,`${fmt(G.gpu_h_day)} GPU-giờ mỗi ngày · MP + unit`)),
-      ctile((G.views||{}).merged_run?G.views.merged_run.stats:G.gpu_pr,'GPU-h',T('GPU per merged PR, until merge','GPU mỗi PR đã merge, tới khi merge'),
-        (G.views||{}).merged_q?T(`queued time not included · with queued: p90 ${fmt(G.views.merged_q.stats.p90)} GPU-h`,`không tính chờ queue · có tính: p90 ${fmt(G.views.merged_q.stats.p90)} GPU-h`):null),
+      ctile((G.views||{}).merged?G.views.merged.stats:G.gpu_pr,'GPU-h',T('GPU per merged PR, until merge','GPU mỗi PR đã merge, tới khi merge'),
+        T('run time only','chỉ thời gian chạy')),
+      (G.wait_views||{}).merged?ctile(G.wait_views.merged.stats,'h',T('Queue time per merged PR, until merge','Thời gian chờ queue mỗi PR đã merge, tới khi merge'),
+        T('wall-clock hours with a job waiting for an agent','số giờ thật có job đang chờ agent')):null,
       tile(G.cancel_gpu_h,'GPU-h',T('Cancelled jobs','Job bị huỷ'),T('not counted as retries','không tính là retry'))));
     const P=[MP,U],row=(lab,fn)=>el('tr',{},el('td',{},lab),...P.map(p=>el('td',{class:'r'},fn(p))));
     const pr=o=>o&&o.p50!=null?`${fmt(o.p50)} · p90 ${fmt(o.p90)}`:'—';
@@ -666,11 +679,15 @@ JS = r"""
       row(T('First-try job failure rate','Tỉ lệ job fail lần đầu'),p=>p.first_fail_pct==null?'—':p.first_fail_pct+'%')]));
     s.append(el('h3',{style:'margin-top:14px'},T('PR GPU-hours per day','GPU-giờ của PR theo ngày')),dailyChart(G.series,'GPU-h',T('first try','lần chạy đầu'),T('retried attempts','lần chạy bị retry')));
     s.append(el('h3',{style:'margin-top:14px'},T('What one PR costs until it merges','Một PR tốn bao nhiêu tới khi merge')),
-      costChart(G.views,'GPU-h',T('GPU-hours per PR','GPU-giờ mỗi PR'),{run:[`job run time × GPUs the job asks for; the wait for a free agent is left out`,`thời gian job chạy × số GPU job yêu cầu; thời gian chờ agent trống không tính`],
-        q:[`+ the wait for a free agent (job runnable → started, Buildkite "Waited") × GPUs of the job; ${fmt(G.queue_h)} GPU-h over all PRs`,`+ thời gian chờ agent trống (job sẵn sàng → bắt đầu, "Waited" trên Buildkite) × số GPU của job; ${fmt(G.queue_h)} GPU-h trên mọi PR`]}),
+      el('h4',{},T('a · Run time (GPU used)','a · Thời gian chạy (GPU đã dùng)')),
+      costChart(G.views,'GPU-h',T('GPU-hours per PR, run time','GPU-giờ mỗi PR, thời gian chạy'),['Run time','Thời gian chạy'],
+        ['sum over every job of the PR of (finished_at − started_at) × GPUs the job asks for. Queue time is not in this chart.','tổng trên mọi job của PR: (finished_at − started_at) × số GPU job yêu cầu. Thời gian chờ queue không nằm trong biểu đồ này.']),
+      el('h4',{},T('b · Queue time (how long the PR waits for an agent)','b · Thời gian chờ queue (PR chờ agent bao lâu)')),
+      costChart(G.wait_views,'h',T('Hours per PR with a job waiting for an agent','Số giờ mỗi PR có job chờ agent'),['Queue time','Thời gian chờ queue'],
+        ['each job waits from runnable_at to started_at (Buildkite "Waited"). Jobs of one build, and the MP + unit builds of one push, wait at the same time, so the waits are merged as time intervals per PR, not added up: 20 jobs waiting the same 30 min count as 30 min. Wall-clock hours, no GPU factor (GPUs are not held while waiting).','mỗi job chờ từ runnable_at tới started_at ("Waited" trên Buildkite). Các job của một build, và build MP + unit của cùng một lần push, chờ cùng lúc, nên các khoảng chờ được gộp theo thời gian cho mỗi PR, không cộng dồn: 20 job cùng chờ 30 phút tính là 30 phút. Giờ thật, không nhân số GPU (GPU không bị giữ khi chờ).']),
       el('p',{class:'meta'},T('Counted: every job of the PR on the 2 required GPU checks, Buildkite k3-multiprocess-test and k3-unit-tests, all builds and retries. Not counted: other Buildkite pipelines (xpu-mp-test, amd-mp-test, k3-blend-test, …; not required checks) and GitHub Actions CPU jobs (see 2 · CPU baseline). Builds before the window start are not counted for PRs opened earlier.',
         'Có tính: mọi job của PR trên 2 check GPU bắt buộc, Buildkite k3-multiprocess-test và k3-unit-tests, mọi build và retry. Không tính: các pipeline Buildkite khác (xpu-mp-test, amd-mp-test, k3-blend-test, …; không phải check bắt buộc) và job CPU GitHub Actions (xem 2 · Baseline CPU). Build trước khi khung bắt đầu không được tính cho PR mở sớm hơn.')));
-    s.append(src('GPU-min = job execution minutes × GPUs the job asks for (pod spec in pipeline.yml). The queued view adds the agent wait × the same GPUs, as if the GPUs were held while waiting: use it for "how long a PR is stuck", the run-only view for "how much GPU it used". Median (p50) = half the values are at or below; p90 = 9 in 10 are at or below. Not averages: a few very costly PRs would pull an average up.','GPU-phút = số phút job chạy × số GPU job yêu cầu (pod spec trong pipeline.yml). Cách xem có queue cộng thêm thời gian chờ agent × cùng số GPU, như thể GPU bị giữ khi chờ: dùng để xem "PR bị kẹt bao lâu"; cách xem chỉ chạy để xem "dùng bao nhiêu GPU". Trung vị (p50) = một nửa giá trị bằng hoặc thấp hơn; p90 = 9 trên 10 bằng hoặc thấp hơn. Không phải trung bình: vài PR rất tốn sẽ kéo trung bình lên.'));}
+    s.append(src('GPU-min = job execution minutes × GPUs the job asks for (pod spec in pipeline.yml). Queue time = wall-clock time the PR had at least one job between runnable_at and started_at (Buildkite job API timestamps, not log text); overlapping waits count once. Chart a answers "how much GPU it used", chart b "how long the PR waits for CI agents". Median (p50) = half the values are at or below; p90 = 9 in 10 are at or below. Not averages: a few very costly PRs would pull an average up.','GPU-phút = số phút job chạy × số GPU job yêu cầu (pod spec trong pipeline.yml). Thời gian chờ queue = thời gian thật PR có ít nhất một job nằm giữa runnable_at và started_at (timestamp job từ API Buildkite, không phải text log); các khoảng chờ chồng nhau chỉ tính một lần. Biểu đồ a trả lời "dùng bao nhiêu GPU", biểu đồ b "PR chờ agent CI bao lâu". Trung vị (p50) = một nửa giá trị bằng hoặc thấp hơn; p90 = 9 trên 10 bằng hoặc thấp hơn. Không phải trung bình: vài PR rất tốn sẽ kéo trung bình lên.'));}
 
   // ================= 2 · CPU baseline
   function rCpu(){const s=sec('cpu');if(!s)return;const C=D.cpu;
@@ -679,7 +696,7 @@ JS = r"""
       `Cùng khung ${W}. Job GitHub Actions trên commit của PR (một job = một runner CPU): ${fmt(C.jobs)} lần chạy job trong ${fmt(C.runs)} workflow run cho ${fmt(C.prs)} PR. Bỏ các job bị skip.`));
     s.append(el('div',{class:'ops-kpis'},
       tile(C.job_h,'job-h',T('CPU time, 30 days','CPU, 30 ngày'),T(`${fmt(C.job_h_day)} job-h per day`,`${fmt(C.job_h_day)} giờ job mỗi ngày`)),
-      ctile((C.views||{}).merged_run?C.views.merged_run.stats:C.job_pr,'job-h',T('CPU per merged PR, until merge','CPU mỗi PR đã merge, tới khi merge'),
+      ctile((C.views||{}).merged?C.views.merged.stats:C.job_pr,'job-h',T('CPU per merged PR, until merge','CPU mỗi PR đã merge, tới khi merge'),
         T('queued time not included (GitHub does not give it for old runs)','không tính thời gian chờ queue (GitHub không trả số này cho run cũ)')),
       mtile(C.runs_pr,'',T('Workflow runs per PR','Workflow run mỗi PR')),
       mtile(C.pushes_pr,'',T('Pushes per PR','Push mỗi PR')),
@@ -693,7 +710,7 @@ JS = r"""
       tableView([['Workflow'],[T('Job-h','Giờ job'),'r'],['%','r'],[T('Runs','Run'),'r'],[T('Jobs','Job'),'r'],[T('Run time, min (median · p90)','Chạy, phút (trung vị · p90)'),'r'],[T('Start delay, min (median · p90)','Trễ bắt đầu, phút (trung vị · p90)'),'r'],[T('Re-run jobs','Job chạy lại'),'r']],
         C.workflows.map(w=>[w.name,fmt(w.job_h),w.share+'%',fmt(w.runs),fmt(w.jobs),`${h1(w.exec.p50)} · p90 ${h1(w.exec.p90)}`,`${h1(w.delay.p50)} · p90 ${h1(w.delay.p90)}`,w.rerun])));
     s.append(el('h3',{style:'margin-top:14px'},T('What one PR costs in CPU until it merges','Một PR tốn bao nhiêu CPU tới khi merge')),
-      costChart(C.views,'job-h',T('CPU job-hours per PR (GitHub Actions jobs on the PR commits)','Giờ job CPU mỗi PR (job GitHub Actions trên commit của PR)'),{run:['job start → job end on the runner. There is no "with queued" view for CPU: GitHub does not give the runner queue time of old runs, and the start delay it does give also holds the wait for earlier jobs of the same workflow run (adding it up would count the same wait many times)','job bắt đầu → job xong trên runner. CPU không có cách xem "có queue": GitHub không trả thời gian chờ runner của run cũ, và độ trễ bắt đầu mà GitHub trả còn gồm thời gian chờ các job trước trong cùng workflow run (cộng lại sẽ tính một lần chờ nhiều lần)'],q:null}));
+      costChart(C.views,'job-h',T('CPU job-hours per PR (GitHub Actions jobs on the PR commits)','Giờ job CPU mỗi PR (job GitHub Actions trên commit của PR)'),['Run time','Thời gian chạy'],['job start → job end on the runner. There is no "with queued" view for CPU: GitHub does not give the runner queue time of old runs, and the start delay it does give also holds the wait for earlier jobs of the same workflow run (adding it up would count the same wait many times)','job bắt đầu → job xong trên runner. CPU không có cách xem "có queue": GitHub không trả thời gian chờ runner của run cũ, và độ trễ bắt đầu mà GitHub trả còn gồm thời gian chờ các job trước trong cùng workflow run (cộng lại sẽ tính một lần chờ nhiều lần)']));
     s.append(src('job-min = job start → job end on a GitHub-hosted runner. Start delay = job start − workflow run creation: it holds the runner queue AND the wait for earlier jobs of the same workflow; GitHub does not expose the pure runner queue for old runs, so the queue is reported as unavailable. Re-run attempt = an earlier attempt of the same job in the same workflow run.',
       'job-phút = job bắt đầu → job xong trên runner của GitHub. Độ trễ bắt đầu = lúc job bắt đầu − lúc tạo workflow run: gồm cả chờ runner VÀ chờ các job trước trong cùng workflow; GitHub không trả thời gian chờ runner thuần cho run cũ, nên queue được ghi là không có. Lần chạy lại = lần chạy trước của cùng job trong cùng workflow run.'));}
 
