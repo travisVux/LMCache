@@ -205,7 +205,7 @@ GPU coverage does not run in GitHub Actions. It runs on Buildkite — unit tests
 runner plus the vLLM integration suite — and posts its own `buildkite/...` check, so read
 that one too rather than only the green Actions checks.
 
-PR CI runs in two layers:
+GitHub Actions CI runs in two layers:
 
 1. **Draft.** Only **Test** runs, on Python 3.12, so you can iterate quickly. Each push
    cancels the previous in-flight run.
@@ -215,9 +215,8 @@ PR CI runs in two layers:
    ticked runs every entry. **Code Quality** runs first, and **Test** / **CPU device**
    start only after it passes. Converting the PR back to draft cancels the in-flight runs.
 
-The GPU unit tests (`buildkite/k3-unit-tests`) do not start on every push. They start when
-a reviewer adds the `ci-ready` label or comments `/ci run` on the PR, and again when
-auto-merge adds `full`. The check is required, so a PR cannot merge before it has run.
+The Buildkite pipelines are not part of these layers: they keep their own triggers and
+run on draft PRs as well.
 
 If a check fails, open its log from the **Checks** tab on the PR, reproduce and fix it
 locally, and push again. Every push re-runs the checks and cancels the previous in-flight

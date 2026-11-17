@@ -86,7 +86,7 @@ Not all tests should run on every PR. The general pattern:
 
 | Test weight | When to trigger | Example filter condition |
 |-------------|----------------|------------------------|
-| Unit (1 GPU, ~25–35 min) | Reviewer-approved PRs (`ci-ready` label or `/ci run` comment) | `build.pull_request.labels includes "ci-ready" \|\| build.pull_request.labels includes "full"` |
+| Lightweight (1 GPU, <20 min) | Every PR | `build.pull_request.id != null` |
 | Heavy (multi-GPU, >30 min) | Labeled PRs only | `build.pull_request.labels includes "full"` |
 
 Post-merge `dev` builds are intentionally excluded. PR jobs merge the latest
