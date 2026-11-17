@@ -3,6 +3,9 @@ name: Code Quality
 on:
   workflow_call:
   pull_request:
+    # ready_for_review: draft PRs skip test.yml / cpu_device.yml, so they
+    # must start when the PR leaves draft.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 # Cancel older in-flight runs on the same PR / branch.
 concurrency:
@@ -68,3 +71,31 @@ jobs:
         with:
           extra_args: --all-files
 
+  # Fast gate: the CPU test workflows start only after pre-commit passes,
+  # so a lint / type error fails in about two minutes without spending the
+  # CPU-test and vLLM-on-CPU runners. They run as reusable workflows from
+  # here (not a needs: across workflows, which GitHub does not support)
+  # and keep their own path filters and draft checks.
+  test:
+    name: Test
+    needs: pre-commit
+    if: >-
+      github.event_name == 'pull_request' &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/test.yml
+
+  cpu-device:
+    name: CPU device
+    needs: pre-commit
+    if: >-
+      github.event_name == 'pull_request' &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/cpu_device.yml
+    secrets:
+      hf_token: ${{ secrets.HF_TOKEN }}

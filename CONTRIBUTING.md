@@ -194,8 +194,8 @@ operator-only changes from everything else, so a docs-only PR still runs most of
 |---|---|---|
 | **DCO** | every PR | every commit carries a `Signed-off-by` trailer |
 | **Code Quality** | every PR outside `operator/` | `pre-commit run --all-files` — ruff, ruff-format, isort, mypy, codespell, clang-format, and the repo's local hooks (SPDX headers, banned APIs) |
-| **Test** | PRs to `dev` and `release-**` outside `operator/` | CPU-only unit tests, `pytest -m "not (cuda or musa or xpu or npu or neuron)"`, on Python 3.12; 3.11, 3.13 and 3.14 run in **PR Full Build** |
-| **CPU device** | every PR outside `operator/` | server benchmarks and vLLM end-to-end tests on CPU, on `ubuntu-22.04` and `macos-latest` |
+| **Test** | PRs to `dev` and `release-**` outside `operator/`, after **Code Quality** passes | CPU-only unit tests, `pytest -m "not (cuda or musa or xpu or npu or neuron)"`, on Python 3.12; 3.11, 3.13 and 3.14 run in **PR Full Build** |
+| **CPU device** | PRs to `dev` and `release-**` outside `operator/`, after **Code Quality** passes | server benchmarks and vLLM end-to-end tests on CPU, on `ubuntu-22.04` and `macos-latest` |
 | **CodeQL** | PRs to `dev` | static analysis of the Python code and the Actions workflows |
 | **Operator CI** | PRs touching `operator/` | the Go operator's own build and test suite |
 | **actionlint** | PRs touching `.github/workflows/` | workflow-file linting |

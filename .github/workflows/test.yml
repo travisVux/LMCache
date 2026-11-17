@@ -11,11 +11,7 @@ on:
         type: boolean
         default: false
   workflow_dispatch:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    branches:
-      - "dev"
-      - "release-**"
+  # PR runs are started by code_quality_checks.yml after pre-commit passes.
 
 env:
   LC_ALL: en_US.UTF-8
