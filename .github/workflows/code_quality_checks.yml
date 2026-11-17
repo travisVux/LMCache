@@ -1,8 +1,17 @@
 name: Code Quality
 
+# PR CI runs in tiered layers:
+#   Draft    test.yml on Python 3.12 only.
+#   Ready    L1: pre-commit first, then
+#            L2: test.yml (Python versions) + cpu_device.yml (OSes) from PR
+#                template's "CI scope" checklist (none ticked / full = all),
+#            L3: trigger Buildkite k3-unit-tests (1-GPU) after L2 passes.
+# converted_to_draft starts a run that does nothing, so the concurrency group
+# below cancels the in-flight ready-for-review run.
 on:
   workflow_call:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
 
 # Cancel older in-flight runs on the same PR / branch.
 concurrency:
@@ -15,6 +24,7 @@ permissions:
 jobs:
   pre-commit:
     name: Check code quality
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -68,3 +78,128 @@ jobs:
         with:
           extra_args: --all-files
 
+  scope:
+    name: Resolve CI scope
+    if: >-
+      github.event_name == 'pull_request' &&
+      !github.event.pull_request.draft &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
+    runs-on: ubuntu-24.04
+    outputs:
+      python_versions: ${{ steps.scope.outputs.python_versions }}
+      cpu_os: ${{ steps.scope.outputs.cpu_os }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout scope script
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: .github/scripts/pr-ci-scope.sh
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Read the CI scope checklist
+        id: scope
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: bash .github/scripts/pr-ci-scope.sh
+
+  # Reusable workflows called from here, since GitHub has no needs: across
+  # workflows. Drafts skip pre-commit and scope, so the draft leg needs
+  # !cancelled() to run past those skipped jobs; it passes an empty
+  # python_versions and test.yml falls back to 3.12.
+  test:
+    name: Test
+    needs: [pre-commit, scope]
+    if: >-
+      !cancelled() &&
+      github.event_name == 'pull_request' &&
+      github.event.action != 'converted_to_draft' &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-')) &&
+      (github.event.pull_request.draft ||
+        (needs.pre-commit.result == 'success' && needs.scope.result == 'success'))
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/test.yml
+    with:
+      python_versions: ${{ needs.scope.outputs.python_versions }}
+
+  cpu-device:
+    name: CPU device
+    needs: [pre-commit, scope]
+    if: >-
+      !cancelled() &&
+      github.event_name == 'pull_request' &&
+      !github.event.pull_request.draft &&
+      github.event.action != 'converted_to_draft' &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-')) &&
+      needs.pre-commit.result == 'success' &&
+      needs.scope.result == 'success'
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/cpu_device.yml
+    with:
+      os: ${{ needs.scope.outputs.cpu_os }}
+    secrets:
+      hf_token: ${{ secrets.HF_TOKEN }}
+
+  k3-unit-trigger:
+    name: "Layer 3: Trigger k3-unit-tests [1-GPU]"
+    needs: [test, cpu-device]
+    if: >-
+      !cancelled() &&
+      github.event_name == 'pull_request' &&
+      !github.event.pull_request.draft &&
+      github.event.action != 'converted_to_draft' &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-')) &&
+      needs.test.result == 'success' &&
+      needs.cpu-device.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Trigger Buildkite k3-unit-tests
+        env:
+          BUILDKITE_API_TOKEN: ${{ secrets.BUILDKITE_API_TOKEN }}
+          BUILDKITE_ORG: ${{ vars.BUILDKITE_ORG || 'lmcache' }}
+          BUILDKITE_UNIT_PIPELINE: ${{ vars.BUILDKITE_UNIT_PIPELINE || 'k3-unit-tests' }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: |
+          if [ -z "${BUILDKITE_API_TOKEN}" ]; then
+            echo "::notice::BUILDKITE_API_TOKEN secret not set; skipping automatic k3-unit-tests trigger (expected on forks)."
+            exit 0
+          fi
+          curl --fail-with-body -sS -X POST \
+            "https://api.buildkite.com/v2/organizations/${BUILDKITE_ORG}/pipelines/${BUILDKITE_UNIT_PIPELINE}/builds" \
+            -H "Authorization: Bearer ${BUILDKITE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg commit "${HEAD_SHA}" \
+              --arg branch "${HEAD_BRANCH}" \
+              --arg msg "PR #${PR_NUMBER} Layer 3 k3-unit-tests (after L2 pass)" \
+              --arg pr "${PR_NUMBER}" \
+              --arg base "${BASE_BRANCH}" \
+              '{
+                commit: $commit,
+                branch: $branch,
+                message: $msg,
+                pull_request_id: $pr,
+                pull_request_base_branch: $base
+              }')"
