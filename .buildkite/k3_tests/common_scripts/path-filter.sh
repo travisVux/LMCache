@@ -329,3 +329,48 @@ should_skip_ci() {
     echo "path-filter: no relevant files changed for ${pipeline_kind} → SKIP" >&2
     return 0
 }
+
+# Returns 0 if any changed file is a shared CI/build dependency that must
+# trigger all affected tiers (including heavy multiprocess on PRs).
+has_shared_ci_dependency_change() {
+    local changed_files f
+    if ! changed_files=$(_path_filter_get_changed_files); then
+        return 0
+    fi
+    while IFS= read -r f; do
+        [[ -z "$f" ]] && continue
+        case "$f" in
+            .buildkite/k3_tests/*|.buildkite/k3_harness/*|pyproject.toml|setup.py|requirements/*|Dockerfile*|docker/*)
+                return 0
+                ;;
+        esac
+    done <<< "$changed_files"
+    return 1
+}
+
+# Returns 0 if the heavy multiprocess pipeline should be skipped on an ordinary PR.
+should_skip_multiprocess_heavy() {
+    local pipeline_file="${1:-}"
+    [[ "${pipeline_file}" == *k3_tests/multiprocess/pipeline.yml ]] || return 1
+
+    if [[ -z "${BUILDKITE_PULL_REQUEST:-}" || "${BUILDKITE_PULL_REQUEST:-}" == "false" ]]; then
+        return 1
+    fi
+    if [[ "${BUILDKITE_SOURCE:-}" == "schedule" ]]; then
+        return 1
+    fi
+    if [[ "${VERIFY_AND_PIN_VLLM:-}" == "true" || "${VERIFY_AND_PIN_SGLANG:-}" == "true" ]]; then
+        return 1
+    fi
+    # 1-env-flag rollback to restore heavy multiprocess on every PR.
+    if [[ "${MP_FULL_ON_PR:-false}" == "true" ]]; then
+        return 1
+    fi
+    if [[ ",${BUILDKITE_PULL_REQUEST_LABELS:-}," == *",force-ci,"* || ",${BUILDKITE_PULL_REQUEST_LABELS:-}," == *",mp-full,"* ]]; then
+        return 1
+    fi
+    if has_shared_ci_dependency_change; then
+        return 1
+    fi
+    return 0
+}
