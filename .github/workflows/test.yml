@@ -2,6 +2,14 @@ name: Test
 
 on:
   workflow_call:
+    inputs:
+      python_versions:
+        description: >-
+          JSON array of Python versions for the CPU unit tests, e.g.
+          '["3.12", "3.14"]'. Empty keeps the default: 3.12 on draft PRs,
+          every supported version otherwise.
+        type: string
+        default: ""
   workflow_dispatch:
   # PR runs are started by code_quality_checks.yml: on drafts directly, and
   # after pre-commit once the PR is ready for review.
@@ -35,15 +43,19 @@ jobs:
       token_drop: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.token_drop == 'true' }}
       python_versions: ${{ steps.python.outputs.versions }}
     steps:
-      # Draft PR pushes run one representative Python; ready-for-review,
-      # push, release and dispatch runs cover every version. Inside a
-      # reusable workflow, github.event is the caller's event.
+      # Draft PR pushes run one representative Python; ready-for-review PRs
+      # pass the versions their author picked. Push, release and dispatch
+      # runs cover every version. Inside a reusable workflow, github.event is
+      # the caller's event.
       - name: Select Python versions
         id: python
         env:
+          SELECTED: ${{ inputs.python_versions }}
           DRAFT: ${{ github.event.pull_request.draft == true }}
         run: |
-          if [[ "$DRAFT" == "true" ]]; then
+          if [[ -n "$SELECTED" ]]; then
+            versions=$SELECTED
+          elif [[ "$DRAFT" == "true" ]]; then
             versions='["3.12"]'
           else
             versions='["3.11", "3.12", "3.13", "3.14"]'

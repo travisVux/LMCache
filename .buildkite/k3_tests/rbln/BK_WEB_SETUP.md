@@ -3,9 +3,8 @@
 **Steps editor**: paste contents of `buildkite-pipeline.yml`.
 
 **GitHub trigger settings**:
-- Filter: `(build.pull_request.labels includes "rbln" || build.pull_request.labels includes "full") && build.pull_request.draft != true`
+- Filter: `build.pull_request.labels includes "rbln" || build.pull_request.labels includes "full"`
 - Rebuild on PR label change: Yes
-- Build pull requests when they become ready for review: Yes
 - Skip queued / cancel running branch builds: Yes
 
 **Cluster prerequisites**: `rbln-queue` is served by agent-stack-k8s on the

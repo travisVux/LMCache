@@ -44,9 +44,8 @@ Optional debugging overrides:
 
 ## GitHub trigger settings
 
-- Filter: `(build.pull_request.labels includes "musa" || build.pull_request.labels includes "full") && build.pull_request.draft != true`
+- Filter: `build.pull_request.labels includes "musa" || build.pull_request.labels includes "full"`
 - Rebuild on PR label change: Yes
-- Build pull requests when they become ready for review: Yes
 - Skip queued / cancel running branch builds: Yes
 
 ### Trigger strategy

@@ -2,43 +2,30 @@
 # Resolve the CI scope a PR author picked in the "CI scope" checklist of
 # .github/PULL_REQUEST_TEMPLATE.md.
 #
-# Inputs (env):
-#   PR_BODY    PR description. Untrusted: only matched as data, never evaluated.
-#   PR_LABELS  JSON array of the PR's current label names.
+# Input (env):
+#   PR_BODY  PR description. Untrusted: only matched as data, never evaluated.
 #
-# Outputs (appended to $GITHUB_OUTPUT):
-#   test=true|false   run test.yml (CPU unit tests, every Python version)
-#   cpu=true|false    run cpu_device.yml
-#   labels=<list>     space-separated labels that start the Buildkite lanes
+# Outputs (appended to $GITHUB_OUTPUT), JSON arrays:
+#   python_versions  Python versions for test.yml
+#   cpu_os           runner OSes for cpu_device.yml
 #
-# No box checked, or a `full` label already on the PR, selects everything;
-# the Buildkite lanes then start through the single `full` label.
+# A group with no box ticked selects every entry of that group.
 set -euo pipefail
 
+ALL_PYTHON='["3.11","3.12","3.13","3.14"]'
+ALL_CPU_OS='["ubuntu-22.04","macos-latest"]'
+
 checked=$(printf '%s\n' "${PR_BODY}" | tr -d '\r' \
-  | sed -nE 's/^[[:space:]]*[-*] \[[xX]\] `(test|cpu|cuda|mp|amd|xpu|musa|maca|rbln)`.*/\1/p' \
+  | sed -nE 's/^[[:space:]]*[-*] \[[xX]\] `(py3\.1[1-4]|ubuntu-22\.04|macos-latest)`.*/\1/p' \
   | sort -u)
 
-if [[ -z "${checked}" ]] || jq -e 'any(.[]; . == "full")' <<<"${PR_LABELS}" >/dev/null; then
-  test=true
-  cpu=true
-  labels=full
-else
-  test=false
-  cpu=false
-  labels=""
-  for lane in ${checked}; do
-    case "${lane}" in
-      test) test=true ;;
-      cpu) cpu=true ;;
-      cuda) labels+="${labels:+ }ci-ready" ;;
-      *) labels+="${labels:+ }${lane}" ;;
-    esac
-  done
-fi
+python_versions=$(printf '%s\n' "${checked}" | sed -n 's/^py//p' | jq -Rnc '[inputs]')
+cpu_os=$(printf '%s\n' "${checked}" | sed '/^py/d' | jq -Rnc '[inputs | select(length > 0)]')
+
+[[ "${python_versions}" == "[]" ]] && python_versions=${ALL_PYTHON}
+[[ "${cpu_os}" == "[]" ]] && cpu_os=${ALL_CPU_OS}
 
 {
-  echo "test=${test}"
-  echo "cpu=${cpu}"
-  echo "labels=${labels}"
+  echo "python_versions=${python_versions}"
+  echo "cpu_os=${cpu_os}"
 } | tee -a "${GITHUB_OUTPUT}"

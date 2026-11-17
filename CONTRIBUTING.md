@@ -194,8 +194,8 @@ operator-only changes from everything else, so a docs-only PR still runs most of
 |---|---|---|
 | **DCO** | every PR | every commit carries a `Signed-off-by` trailer |
 | **Code Quality** | ready-for-review PRs outside `operator/` | `pre-commit run --all-files` — ruff, ruff-format, isort, mypy, codespell, clang-format, and the repo's local hooks (SPDX headers, banned APIs) |
-| **Test** | PRs to `dev` and `release-**` outside `operator/`: drafts on Python 3.12; ready-for-review PRs that selected `test`, after **Code Quality** passes, on Python 3.11–3.14 | CPU-only unit tests, `pytest -m "not (cuda or musa or xpu or npu or neuron)"` |
-| **CPU device** | ready-for-review PRs to `dev` and `release-**` outside `operator/` that selected `cpu`, after **Code Quality** passes | server benchmarks and vLLM end-to-end tests on CPU, on `ubuntu-22.04` and `macos-latest` |
+| **Test** | PRs to `dev` and `release-**` outside `operator/`: drafts on Python 3.12; ready-for-review PRs after **Code Quality** passes, on the selected Python versions (default 3.11–3.14) | CPU-only unit tests, `pytest -m "not (cuda or musa or xpu or npu or neuron)"` |
+| **CPU device** | ready-for-review PRs to `dev` and `release-**` outside `operator/`, after **Code Quality** passes, on the selected OSes (default both) | server benchmarks and vLLM end-to-end tests on CPU, on `ubuntu-22.04` and `macos-latest` |
 | **CodeQL** | PRs to `dev` | static analysis of the Python code and the Actions workflows |
 | **Operator CI** | PRs touching `operator/` | the Go operator's own build and test suite |
 | **actionlint** | PRs touching `.github/workflows/` | workflow-file linting |
@@ -209,17 +209,15 @@ PR CI runs in two layers:
 
 1. **Draft.** Only **Test** runs, on Python 3.12, so you can iterate quickly. Each push
    cancels the previous in-flight run.
-2. **Ready for review.** Before you click **Ready for review**, tick the checks you need in
-   the **CI scope** checklist of the PR description: `test`, `cpu`, and the Buildkite lanes
-   `cuda`, `mp`, `amd`, `xpu`, `musa`, `maca`, `rbln`. Leave every box unchecked to run the
-   full suite. **Code Quality** runs first, and the selected **Test** / **CPU device**
-   workflows start only after it passes. The Buildkite lanes start at once on a
-   maintainer's PR; on other PRs a maintainer starts them by commenting `/ci run`, because
-   they run your code on self-hosted hardware. Converting the PR back to draft cancels the
-   in-flight runs, Buildkite builds included.
+2. **Ready for review.** Before you click **Ready for review**, tick in the **CI scope**
+   checklist of the PR description the Python versions for **Test** (`py3.11`–`py3.14`)
+   and the OSes for **CPU device** (`ubuntu-22.04`, `macos-latest`). A group with nothing
+   ticked runs every entry. **Code Quality** runs first, and **Test** / **CPU device**
+   start only after it passes. Converting the PR back to draft cancels the in-flight runs.
 
-`buildkite/k3-unit-tests` is a required check, so a PR cannot merge before `cuda` (or
-`full`, which auto-merge adds) has run.
+The GPU unit tests (`buildkite/k3-unit-tests`) do not start on every push. They start when
+a reviewer adds the `ci-ready` label or comments `/ci run` on the PR, and again when
+auto-merge adds `full`. The check is required, so a PR cannot merge before it has run.
 
 If a check fails, open its log from the **Checks** tab on the PR, reproduce and fix it
 locally, and push again. Every push re-runs the checks and cancels the previous in-flight

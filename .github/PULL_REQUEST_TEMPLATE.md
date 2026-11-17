@@ -21,20 +21,21 @@ zip one file. -->
 
 **CI scope after "Ready for review"**:
 <!-- While the PR is a draft, CI runs only the CPU unit tests on Python 3.12.
-Clicking "Ready for review" runs Code Quality first, then the checks ticked below.
-Leave every box unchecked to run the full suite. Converting the PR back to draft
-cancels the in-flight runs. Buildkite lanes start right away for maintainers'
-PRs; for other PRs a maintainer starts them with a `/ci run` comment. -->
+Clicking "Ready for review" runs Code Quality first, then the CPU unit tests and
+CPU device tests on the entries ticked below. A group with nothing ticked runs
+every entry. Converting the PR back to draft cancels the in-flight runs. -->
 
-- [ ] `test` — CPU unit tests on Python 3.11–3.14
-- [ ] `cpu` — CPU device tests: server benchmark and vLLM end-to-end on Ubuntu and macOS
-- [ ] `cuda` — 1-GPU unit tests (`buildkite/k3-unit-tests`)
-- [ ] `mp` — multiprocess integration tests on Buildkite
-- [ ] `amd` — AMD ROCm tests on Buildkite
-- [ ] `xpu` — Intel XPU tests on Buildkite
-- [ ] `musa` — Moore Threads MUSA tests on Buildkite
-- [ ] `maca` — MetaX MACA tests on Buildkite
-- [ ] `rbln` — Rebellions RBLN tests on Buildkite
+CPU unit tests (**Test**), Python versions:
+
+- [ ] `py3.11`
+- [ ] `py3.12`
+- [ ] `py3.13`
+- [ ] `py3.14`
+
+CPU device tests (**CPU device**), runner OS:
+
+- [ ] `ubuntu-22.04` — also runs the gRPC request-transport legs
+- [ ] `macos-latest`
 
 <details>
 <summary>Before marking ready for review</summary>

@@ -1,10 +1,10 @@
 name: CI run command
 
-# A `/ci run` comment from a maintainer starts the Buildkite lanes the PR
-# author ticked in the "CI scope" checklist of the PR template (`full` when
-# none is ticked) by adding their labels. pr_ci_scope.yml adds them on its own
-# only for maintainers' PRs, since the lanes run PR code on self-hosted
-# hardware; for other PRs this comment is the maintainer's approval.
+# A `/ci run` comment from a maintainer adds the `ci-ready` label. The
+# Buildkite k3-unit-tests pipeline runs only on PRs labeled `ci-ready` or
+# `full` (see .buildkite/k3_tests/unit/BK_WEB_SETUP.md), so the 1-GPU suite
+# does not start on every pre-review push. Contributors without write access
+# cannot add labels themselves; this gives reviewers a one-line way to do it.
 
 on:
   issue_comment:
@@ -13,46 +13,24 @@ on:
 permissions: {}
 
 jobs:
-  add-lane-labels:
-    # Only the default branch's scope script is checked out; no PR code runs
-    # here and the PR body is read as data.
+  add-ci-ready-label:
+    # No checkout and no PR code runs here: the job only calls the labels API.
     if: >-
       github.event.issue.pull_request &&
       startsWith(github.event.comment.body, '/ci run') &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
       pull-requests: write
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
-          disable-sudo-and-containers: true
           egress-policy: audit
 
-      - name: Checkout scope script
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          sparse-checkout: .github/scripts/pr-ci-scope.sh
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
-      - name: Read the CI scope checklist
-        id: scope
-        env:
-          PR_BODY: ${{ github.event.issue.body }}
-          PR_LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
-        run: bash .github/scripts/pr-ci-scope.sh
-
-      - name: Add the lane labels
-        if: steps.scope.outputs.labels != ''
+      - name: Add ci-ready label
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.issue.number }}
-          LABELS: ${{ steps.scope.outputs.labels }}
-        run: |
-          args=()
-          for label in ${LABELS}; do args+=(-f "labels[]=${label}"); done
-          gh api "repos/${REPO}/issues/${PR_NUMBER}/labels" "${args[@]}" > /dev/null
+        run: gh api "repos/${REPO}/issues/${PR_NUMBER}/labels" -f "labels[]=ci-ready"
