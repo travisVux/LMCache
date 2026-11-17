@@ -7,8 +7,9 @@ name: PR Full Build
 # auto-merge is enabled on a code-change PR, so this acts as a pre-merge sanity
 # check that wheels still build.
 #
-# No tests, no code-quality checks, no publishing — those are covered by
-# test.yml / code_quality_checks.yml (per-PR) and publish.yml (on merge).
+# The only tests here are the CPU unit-test Python versions that pre-review
+# runs of test.yml skip. No code-quality checks, no publishing — those are
+# covered by code_quality_checks.yml (per-PR) and publish.yml (on merge).
 
 on:
     pull_request:
@@ -65,6 +66,20 @@ jobs:
             github.event.pull_request.draft != true
         uses: ./.github/workflows/build_rocm_artifacts.yml
         secrets: inherit
+
+    # Pre-review PR runs of test.yml cover Python 3.12 only; the other
+    # supported versions run here once, before merge.
+    test-deferred-python:
+        name: Test deferred Python versions
+        if: >-
+            contains(github.event.pull_request.labels.*.name, 'full') &&
+            github.event.pull_request.draft != true
+        permissions:
+            contents: read
+            pull-requests: read
+        uses: ./.github/workflows/test.yml
+        with:
+            deferred_python: true
 
     build-rocm-torch210:
         name: Build ROCm torch 2.10
