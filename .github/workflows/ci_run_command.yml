@@ -1,0 +1,36 @@
+name: CI run command
+
+# A `/ci run` comment from a maintainer adds the `ci-ready` label. The
+# Buildkite k3-unit-tests pipeline runs only on PRs labeled `ci-ready` or
+# `full` (see .buildkite/k3_tests/unit/BK_WEB_SETUP.md), so the 1-GPU suite
+# does not start on every pre-review push. Contributors without write access
+# cannot add labels themselves; this gives reviewers a one-line way to do it.
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  add-ci-ready-label:
+    # No checkout and no PR code runs here: the job only calls the labels API.
+    if: >-
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/ci run') &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
+      - name: Add ci-ready label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: gh api "repos/${REPO}/issues/${PR_NUMBER}/labels" -f "labels[]=ci-ready"
