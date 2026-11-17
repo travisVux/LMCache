@@ -3,8 +3,9 @@
 **Steps editor**: paste the contents of `buildkite-pipeline.yml`.
 
 **GitHub trigger settings**:
-- Filter: `build.pull_request.labels includes "amd" || build.pull_request.labels includes "full"`
+- Filter: `(build.pull_request.labels includes "amd" || build.pull_request.labels includes "full") && build.pull_request.draft != true`
 - Rebuild on PR label change: Yes
+- Build pull requests when they become ready for review: Yes
 - Skip queued / cancel running branch builds: Yes
 
 This pipeline runs the bare-metal ROCm unit-test flow while making PR admission

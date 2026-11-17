@@ -193,24 +193,33 @@ operator-only changes from everything else, so a docs-only PR still runs most of
 | Check | Runs on | Covers |
 |---|---|---|
 | **DCO** | every PR | every commit carries a `Signed-off-by` trailer |
-| **Code Quality** | every PR outside `operator/` | `pre-commit run --all-files` — ruff, ruff-format, isort, mypy, codespell, clang-format, and the repo's local hooks (SPDX headers, banned APIs) |
-| **Test** | PRs to `dev` and `release-**` outside `operator/`, after **Code Quality** passes | CPU-only unit tests, `pytest -m "not (cuda or musa or xpu or npu or neuron)"`, on Python 3.12; 3.11, 3.13 and 3.14 run in **PR Full Build** |
-| **CPU device** | PRs to `dev` and `release-**` outside `operator/`, after **Code Quality** passes | server benchmarks and vLLM end-to-end tests on CPU, on `ubuntu-22.04` and `macos-latest` |
+| **Code Quality** | ready-for-review PRs outside `operator/` | `pre-commit run --all-files` — ruff, ruff-format, isort, mypy, codespell, clang-format, and the repo's local hooks (SPDX headers, banned APIs) |
+| **Test** | PRs to `dev` and `release-**` outside `operator/`: drafts on Python 3.12; ready-for-review PRs that selected `test`, after **Code Quality** passes, on Python 3.11–3.14 | CPU-only unit tests, `pytest -m "not (cuda or musa or xpu or npu or neuron)"` |
+| **CPU device** | ready-for-review PRs to `dev` and `release-**` outside `operator/` that selected `cpu`, after **Code Quality** passes | server benchmarks and vLLM end-to-end tests on CPU, on `ubuntu-22.04` and `macos-latest` |
 | **CodeQL** | PRs to `dev` | static analysis of the Python code and the Actions workflows |
 | **Operator CI** | PRs touching `operator/` | the Go operator's own build and test suite |
 | **actionlint** | PRs touching `.github/workflows/` | workflow-file linting |
-| **PR Full Build** | PRs carrying the `full` label | builds the sdist and the CUDA and CLI wheels, and runs the CPU unit tests on the Python versions that **Test** skips on PRs. The label is applied automatically when auto-merge is enabled on a PR, so it is normally a maintainer's doing rather than something you add |
+| **PR Full Build** | PRs carrying the `full` label | builds the sdist and the CUDA and CLI wheels. The label is applied automatically when auto-merge is enabled on a PR, so it is normally a maintainer's doing rather than something you add |
 
 GPU coverage does not run in GitHub Actions. It runs on Buildkite — unit tests on a GPU
 runner plus the vLLM integration suite — and posts its own `buildkite/...` check, so read
 that one too rather than only the green Actions checks.
 
-The GPU unit tests (`buildkite/k3-unit-tests`) do not start on every push. They start when
-a reviewer adds the `ci-ready` label or comments `/ci run` on the PR, and again when
-auto-merge adds `full`. The check is required, so a PR cannot merge before it has run.
+PR CI runs in two layers:
 
-All of this runs on draft PRs as well, so you can open a draft and let CI tell you what is
-broken before you ask anyone to look.
+1. **Draft.** Only **Test** runs, on Python 3.12, so you can iterate quickly. Each push
+   cancels the previous in-flight run.
+2. **Ready for review.** Before you click **Ready for review**, tick the checks you need in
+   the **CI scope** checklist of the PR description: `test`, `cpu`, and the Buildkite lanes
+   `cuda`, `mp`, `amd`, `xpu`, `musa`, `maca`, `rbln`. Leave every box unchecked to run the
+   full suite. **Code Quality** runs first, and the selected **Test** / **CPU device**
+   workflows start only after it passes. The Buildkite lanes start at once on a
+   maintainer's PR; on other PRs a maintainer starts them by commenting `/ci run`, because
+   they run your code on self-hosted hardware. Converting the PR back to draft cancels the
+   in-flight runs, Buildkite builds included.
+
+`buildkite/k3-unit-tests` is a required check, so a PR cannot merge before `cuda` (or
+`full`, which auto-merge adds) has run.
 
 If a check fails, open its log from the **Checks** tab on the PR, reproduce and fix it
 locally, and push again. Every push re-runs the checks and cancels the previous in-flight

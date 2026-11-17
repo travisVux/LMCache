@@ -1,11 +1,15 @@
 name: Code Quality
 
+# PR CI runs in two layers:
+#   Draft    test.yml on Python 3.12 only.
+#   Ready    pre-commit first, then the test.yml / cpu_device.yml scope the
+#            author ticked in the PR template (none ticked = both).
+# converted_to_draft starts a run that does nothing, so the concurrency group
+# below cancels the in-flight ready-for-review run.
 on:
   workflow_call:
   pull_request:
-    # ready_for_review: draft PRs skip test.yml / cpu_device.yml, so they
-    # must start when the PR leaves draft.
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
 
 # Cancel older in-flight runs on the same PR / branch.
 concurrency:
@@ -18,6 +22,7 @@ permissions:
 jobs:
   pre-commit:
     name: Check code quality
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -71,17 +76,50 @@ jobs:
         with:
           extra_args: --all-files
 
-  # Fast gate: the CPU test workflows start only after pre-commit passes,
-  # so a lint / type error fails in about two minutes without spending the
-  # CPU-test and vLLM-on-CPU runners. They run as reusable workflows from
-  # here (not a needs: across workflows, which GitHub does not support)
-  # and keep their own path filters and draft checks.
-  test:
-    name: Test
-    needs: pre-commit
+  scope:
+    name: Resolve CI scope
     if: >-
       github.event_name == 'pull_request' &&
+      !github.event.pull_request.draft &&
       (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
+    runs-on: ubuntu-24.04
+    outputs:
+      test: ${{ steps.scope.outputs.test }}
+      cpu: ${{ steps.scope.outputs.cpu }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout scope script
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: .github/scripts/pr-ci-scope.sh
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Read the CI scope checklist
+        id: scope
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: bash .github/scripts/pr-ci-scope.sh
+
+  # Reusable workflows called from here, since GitHub has no needs: across
+  # workflows. Drafts skip pre-commit and scope, so the draft leg needs
+  # !cancelled() to run past those skipped jobs.
+  test:
+    name: Test
+    needs: [pre-commit, scope]
+    if: >-
+      !cancelled() &&
+      github.event_name == 'pull_request' &&
+      github.event.action != 'converted_to_draft' &&
+      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-')) &&
+      (github.event.pull_request.draft ||
+        (needs.pre-commit.result == 'success' && needs.scope.outputs.test == 'true'))
     permissions:
       contents: read
       pull-requests: read
@@ -89,10 +127,8 @@ jobs:
 
   cpu-device:
     name: CPU device
-    needs: pre-commit
-    if: >-
-      github.event_name == 'pull_request' &&
-      (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
+    needs: [pre-commit, scope]
+    if: needs.scope.outputs.cpu == 'true'
     permissions:
       contents: read
       pull-requests: read

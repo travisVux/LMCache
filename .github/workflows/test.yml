@@ -2,16 +2,9 @@ name: Test
 
 on:
   workflow_call:
-    inputs:
-      deferred_python:
-        description: >-
-          Run only the CPU unit-test legs that pre-review PR runs skip
-          (every supported Python except 3.12) and none of the other jobs.
-          pr_full_build.yml sets this once the PR carries the `full` label.
-        type: boolean
-        default: false
   workflow_dispatch:
-  # PR runs are started by code_quality_checks.yml after pre-commit passes.
+  # PR runs are started by code_quality_checks.yml: on drafts directly, and
+  # after pre-commit once the PR is ready for review.
 
 env:
   LC_ALL: en_US.UTF-8
@@ -31,7 +24,6 @@ permissions:
 
 jobs:
   changes:
-    if: github.event.pull_request.draft != true
     name: Detect changes
     runs-on: ubuntu-24.04
     permissions:
@@ -43,19 +35,15 @@ jobs:
       token_drop: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.token_drop == 'true' }}
       python_versions: ${{ steps.python.outputs.versions }}
     steps:
-      # Pre-review PR pushes run one representative Python; the other
-      # versions run once, in pr_full_build.yml, after auto-merge adds the
-      # `full` label. Push / release / dispatch runs keep every version.
-      # Inside a reusable workflow, github.event_name is the caller's event.
+      # Draft PR pushes run one representative Python; ready-for-review,
+      # push, release and dispatch runs cover every version. Inside a
+      # reusable workflow, github.event is the caller's event.
       - name: Select Python versions
         id: python
         env:
-          DEFERRED: ${{ inputs.deferred_python == true }}
-          EVENT: ${{ github.event_name }}
+          DRAFT: ${{ github.event.pull_request.draft == true }}
         run: |
-          if [[ "$DEFERRED" == "true" ]]; then
-            versions='["3.11", "3.13", "3.14"]'
-          elif [[ "$EVENT" == "pull_request" ]]; then
+          if [[ "$DRAFT" == "true" ]]; then
             versions='["3.12"]'
           else
             versions='["3.11", "3.12", "3.13", "3.14"]'
@@ -158,7 +146,7 @@ jobs:
 
   hf3fs-native-tests:
     needs: changes
-    if: needs.changes.outputs.hf3fs_native == 'true' && !inputs.deferred_python
+    if: needs.changes.outputs.hf3fs_native == 'true'
     name: HF3FS connector native tests
     runs-on: ubuntu-24.04
 
@@ -180,7 +168,7 @@ jobs:
 
   token-drop-vllm-0251:
     needs: changes
-    if: needs.changes.outputs.token_drop == 'true' && !inputs.deferred_python
+    if: needs.changes.outputs.token_drop == 'true'
     name: "Token-dropping tests (vLLM 0.25.1)"
     runs-on: ubuntu-24.04
     steps:
@@ -235,7 +223,7 @@ jobs:
 
   rust-unit-tests:
     needs: changes
-    if: needs.changes.outputs.raw_block == 'true' && !inputs.deferred_python
+    if: needs.changes.outputs.raw_block == 'true'
     name: Rust unit tests
     runs-on: ubuntu-24.04
 
@@ -261,7 +249,7 @@ jobs:
 
   raw-block-tests:
     needs: changes
-    if: needs.changes.outputs.raw_block == 'true' && !inputs.deferred_python
+    if: needs.changes.outputs.raw_block == 'true'
     name: raw-block temp-file tests
     runs-on: ubuntu-24.04
     env:
@@ -314,7 +302,7 @@ jobs:
 
   grpc-native-tests:
     needs: changes
-    if: needs.changes.outputs.lmcache == 'true' && !inputs.deferred_python
+    if: needs.changes.outputs.lmcache == 'true'
     name: gRPC native server tests
     runs-on: ubuntu-latest
     env:

@@ -1,0 +1,121 @@
+name: PR CI scope
+
+# Starts and stops the Buildkite lanes of the two-layer PR CI (see
+# code_quality_checks.yml for the GitHub-hosted side):
+#   ready_for_review    (or opened as non-draft)
+#                       add the labels for the lanes ticked in the PR
+#                       template's "CI scope" checklist (none ticked = `full`).
+#                       Maintainers' PRs get them at once; for other PRs a
+#                       maintainer starts them with `/ci run`
+#                       (ci_run_command.yml), because the lanes run PR code
+#                       on self-hosted hardware.
+#   converted_to_draft  cancel this PR's scheduled and running Buildkite builds.
+#
+# pull_request_target is needed to label fork PRs and to read the Buildkite
+# token. Only the base branch's scope script is checked out; PR code never
+# runs here and the PR body is read as data.
+
+on:
+  pull_request_target:
+    branches:
+      - dev
+      - "release-**"
+    types: [opened, ready_for_review, converted_to_draft]
+
+permissions: {}
+
+jobs:
+  start-buildkite-lanes:
+    name: Start requested Buildkite lanes
+    if: github.event.action != 'converted_to_draft' && !github.event.pull_request.draft
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout scope script from the base branch
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: .github/scripts/pr-ci-scope.sh
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Read the CI scope checklist
+        id: scope
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: bash .github/scripts/pr-ci-scope.sh
+
+      - name: Add the lane labels
+        if: >-
+          steps.scope.outputs.labels != '' &&
+          contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          LABELS: ${{ steps.scope.outputs.labels }}
+        run: |
+          args=()
+          for label in ${LABELS}; do args+=(-f "labels[]=${label}"); done
+          gh api "repos/${REPO}/issues/${PR_NUMBER}/labels" "${args[@]}" > /dev/null
+
+      - name: Ask a maintainer to start the lanes
+        if: >-
+          steps.scope.outputs.labels != '' &&
+          !contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          LABELS: ${{ steps.scope.outputs.labels }}
+        run: |
+          gh pr comment "${PR_NUMBER}" --repo "${REPO}" --body \
+            "Requested Buildkite lanes: \`${LABELS}\`. A maintainer can start them by commenting \`/ci run\`."
+
+  cancel-buildkite-builds:
+    name: Cancel Buildkite builds
+    if: github.event.action == 'converted_to_draft'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Cancel this PR's scheduled and running builds
+        env:
+          BUILDKITE_API_TOKEN: ${{ secrets.BUILD_KITE_API_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # Forks of the repository run this workflow without the secret.
+          if [[ -z "${BUILDKITE_API_TOKEN}" ]]; then
+            echo "::notice::BUILD_KITE_API_TOKEN is not set; no Buildkite builds to cancel."
+            exit 0
+          fi
+          api=https://api.buildkite.com/v2/organizations/lmcache
+          auth=(-H "Authorization: Bearer ${BUILDKITE_API_TOKEN}")
+          # Matching on the PR number as well keeps a dev-branch build of
+          # the same commit running.
+          curl -fsSL -g -G "${auth[@]}" "${api}/builds" \
+              --data-urlencode "commit=${HEAD_SHA}" \
+              --data-urlencode "state[]=scheduled" \
+              --data-urlencode "state[]=running" \
+              --data-urlencode "per_page=100" \
+            | jq -r --arg pr "${PR_NUMBER}" \
+                '.[] | select(.pull_request.id == $pr) | "\(.pipeline.slug) \(.number)"' \
+            | while read -r pipeline number; do
+                curl -fsS -X PUT "${auth[@]}" -o /dev/null \
+                  "${api}/pipelines/${pipeline}/builds/${number}/cancel"
+                echo "Cancelled ${pipeline} #${number}"
+              done

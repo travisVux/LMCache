@@ -86,8 +86,15 @@ Not all tests should run on every PR. The general pattern:
 
 | Test weight | When to trigger | Example filter condition |
 |-------------|----------------|------------------------|
-| Unit (1 GPU, ~25–35 min) | Reviewer-approved PRs (`ci-ready` label or `/ci run` comment) | `build.pull_request.labels includes "ci-ready" \|\| build.pull_request.labels includes "full"` |
-| Heavy (multi-GPU, >30 min) | Labeled PRs only | `build.pull_request.labels includes "full"` |
+| Unit (1 GPU, ~25–35 min) | Ready-for-review PRs that selected `cuda` (`ci-ready` label) or `full` | `(build.pull_request.labels includes "ci-ready" \|\| build.pull_request.labels includes "full") && build.pull_request.draft != true` |
+| Heavy (multi-GPU, >30 min) | Labeled PRs only | `build.pull_request.labels includes "full" && build.pull_request.draft != true` |
+
+Lane labels come from the "CI scope" checklist in `.github/PULL_REQUEST_TEMPLATE.md`
+when the PR is marked ready for review (`.github/workflows/pr_ci_scope.yml`), or
+from a maintainer's `/ci run` comment for PRs from non-maintainers. The labels stay
+on the PR when it goes back to draft, so every label-triggered pipeline needs the
+`build.pull_request.draft != true` clause, and **"Build pull requests when they
+become ready for review"** set to `Yes` to start again on the next ready.
 
 Post-merge `dev` builds are intentionally excluded. PR jobs merge the latest
 target branch before expanding their test pipelines, so running the same
