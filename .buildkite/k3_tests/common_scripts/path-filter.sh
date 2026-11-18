@@ -385,3 +385,22 @@ heavy_deferred_to_smoke_trigger() {
     [[ "${BUILDKITE_SOURCE:-}" == "webhook" ]] || return 1
     [[ ",${BUILDKITE_PULL_REQUEST_LABELS:-}," == *",force-ci,"* ]]
 }
+
+# Returns 0 if the PR diff touches SGLang integration, tests, or CI scripts,
+# so PR-smoke selects SGLang instead of the default vLLM smoke pipeline.
+has_sglang_change() {
+    local changed_files f
+    [[ -n "${BUILDKITE_PULL_REQUEST:-}" && "${BUILDKITE_PULL_REQUEST}" != "false" ]] || return 1
+    if ! changed_files=$(_path_filter_get_changed_files); then
+        return 1
+    fi
+    while IFS= read -r f; do
+        [[ -z "$f" ]] && continue
+        case "$f" in
+            lmcache/integration/sglang/*|lmcache/v1/common/kv_format/detectors/sglang.py|tests/v1/*sglang*|.buildkite/k3_tests/multiprocess/scripts/engines/sglang.sh|.buildkite/k3_tests/multiprocess/scripts/workloads/sglang/*|.buildkite/k3_harness/*sglang*|docker/Dockerfile.sglang)
+                return 0
+                ;;
+        esac
+    done <<< "$changed_files"
+    return 1
+}

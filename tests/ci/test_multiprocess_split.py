@@ -412,3 +412,114 @@ bash "{(scripts_dir / "upload-pipeline.sh").as_posix()}" "{pipeline_rel}"
     proc = subprocess.run([bash, "-c", script], env=env, check=False)
     assert proc.returncode == 0
     assert marker.exists() is expected_uploaded
+
+
+SGLANG_SMOKE_PIPELINE_PATH = MP_DIR / "smoke-sglang-pipeline.yml"
+
+
+def test_smoke_sglang_pipeline_only_contains_0_or_1_gpu() -> None:
+    """smoke-sglang-pipeline.yml must stay 0/1-GPU and cover SGLang + CPU E2E."""
+    smoke = yaml.safe_load(SGLANG_SMOKE_PIPELINE_PATH.read_text(encoding="utf-8"))
+    steps = _collect_steps(smoke)
+    command_steps = [s for s in steps if "command" in s]
+    assert len(command_steps) == 4
+
+    trigger_steps = [s for s in steps if "trigger" in s]
+    assert len(trigger_steps) == 1
+    assert trigger_steps[0]["trigger"] == "k3-multiprocess-test"
+    assert "force-ci" in str(trigger_steps[0].get("if", ""))
+
+    text = SGLANG_SMOKE_PIPELINE_PATH.read_text(encoding="utf-8")
+    assert '"nvidia.com/gpu": "2"' not in text
+    assert '"nvidia.com/gpu": "4"' not in text
+    assert 'INFERENCE_ENGINE: "sglang"' in text
+
+
+@pytest.mark.parametrize(
+    ("changed_files", "expected_pipeline"),
+    [
+        (
+            ["lmcache/integration/sglang/unified_kv_adapter.py"],
+            ".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml",
+        ),
+        (
+            ["lmcache/v1/common/kv_format/detectors/sglang.py"],
+            ".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml",
+        ),
+        (
+            ["tests/v1/test_unified_sglang_kv_adapter.py"],
+            ".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml",
+        ),
+        (
+            ["lmcache/v1/cache_engine.py"],
+            ".buildkite/k3_tests/multiprocess/smoke-pipeline.yml",
+        ),
+    ],
+)
+def test_upload_pipeline_auto_selects_sglang_or_vllm_smoke(
+    tmp_path: Path,
+    changed_files: list[str],
+    expected_pipeline: str,
+) -> None:
+    """PR-smoke selects SGLang when PR diffs touch SGLang files, else vLLM."""
+    bash = _find_bash()
+    if bash is None:
+        pytest.skip("Git Bash / bash not available")
+    assert bash is not None
+
+    scripts_dir = tmp_path / "common_scripts"
+    scripts_dir.mkdir(parents=True)
+    for src in (
+        UPLOAD_SCRIPT,
+        PATH_FILTER_SCRIPT,
+        UPLOAD_SCRIPT.parent / "helpers.sh",
+    ):
+        (scripts_dir / src.name).write_text(
+            src.read_text(encoding="utf-8").replace("\r\n", "\n"),
+            encoding="utf-8",
+        )
+
+    uploaded_file = tmp_path / "uploaded_pipeline.txt"
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_agent = fake_bin / "buildkite-agent"
+    fake_agent.write_text(
+        "#!/usr/bin/env bash\n"
+        'if [[ "${1:-}" == "pipeline" && "${2:-}" == "upload" ]]; then\n'
+        f'  printf "%s" "${{3:-}}" > "{uploaded_file.as_posix()}"\n'
+        "fi\n"
+        "exit 0\n",
+        encoding="utf-8",
+    )
+    fake_agent.chmod(0o755)
+    diff_out = "\\n".join(changed_files) + "\\n"
+    fake_git = fake_bin / "git"
+    fake_git.write_text(
+        "#!/usr/bin/env bash\n"
+        'if [[ "${1:-}" == "diff" ]]; then\n'
+        f'  printf "{diff_out}"\n'
+        "fi\n"
+        "exit 0\n",
+        encoding="utf-8",
+    )
+    fake_git.chmod(0o755)
+
+    fake_bin_str = fake_bin.as_posix()
+    smoke_rel = ".buildkite/k3_tests/multiprocess/smoke-pipeline.yml"
+    script = f"""
+FB=$(cygpath -u "{fake_bin_str}" 2>/dev/null || printf '%s' "{fake_bin_str}")
+export PATH="$FB:$PATH"
+bash "{(scripts_dir / "upload-pipeline.sh").as_posix()}" "{smoke_rel}"
+"""
+    env = os.environ.copy()
+    env.update(
+        {
+            "BUILDKITE_PULL_REQUEST": "42",
+            "BUILDKITE_PULL_REQUEST_LABELS": "full",
+            "BUILDKITE_SOURCE": "webhook",
+            "BUILDKITE_PULL_REQUEST_BASE_BRANCH": "dev",
+        }
+    )
+    proc = subprocess.run([bash, "-c", script], env=env, check=False)
+    assert proc.returncode == 0
+    assert uploaded_file.read_text(encoding="utf-8") == expected_pipeline

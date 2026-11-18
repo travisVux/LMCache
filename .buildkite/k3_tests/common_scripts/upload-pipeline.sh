@@ -120,5 +120,10 @@ if [[ "${PIPELINE_FILE}" == */rbln/pipeline.yml ]]; then
     export RBLN_SERVE_IMAGE="${PINNED_RBLN_IMAGE}"
 fi
 
+if [[ "${PIPELINE_FILE}" == *k3_tests/multiprocess/smoke-pipeline.yml ]] && has_sglang_change; then
+    PIPELINE_FILE=".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml"
+    echo "+++ :magnifying_glass: SGLang integration files changed; selecting ${PIPELINE_FILE}"
+fi
+
 echo "--- :pipeline: Uploading ${PIPELINE_FILE}"
 exec buildkite-agent pipeline upload "${PIPELINE_FILE}"
