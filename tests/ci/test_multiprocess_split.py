@@ -414,54 +414,76 @@ bash "{(scripts_dir / "upload-pipeline.sh").as_posix()}" "{pipeline_rel}"
     assert marker.exists() is expected_uploaded
 
 
-SGLANG_SMOKE_PIPELINE_PATH = MP_DIR / "smoke-sglang-pipeline.yml"
+SGLANG_SMOKE_STEPS_PATH = MP_DIR / "smoke-sglang-steps.yml"
+VLLM_SMOKE_REL = ".buildkite/k3_tests/multiprocess/smoke-pipeline.yml"
+SGLANG_SMOKE_REL = ".buildkite/k3_tests/multiprocess/smoke-sglang-steps.yml"
 
 
-def test_smoke_sglang_pipeline_only_contains_0_or_1_gpu() -> None:
-    """smoke-sglang-pipeline.yml must stay 0/1-GPU and cover SGLang + CPU E2E."""
-    smoke = yaml.safe_load(SGLANG_SMOKE_PIPELINE_PATH.read_text(encoding="utf-8"))
-    steps = _collect_steps(smoke)
+def test_smoke_sglang_steps_are_sglang_only_gpu_addon() -> None:
+    """smoke-sglang-steps.yml adds only 1-GPU SGLang jobs on top of vLLM smoke.
+
+    CPU E2E, the force-ci wait and the heavy trigger belong to
+    smoke-pipeline.yml; repeating them here would run CPU E2E twice and
+    trigger heavy twice on a force-ci SGLang PR.
+    """
+    doc = yaml.safe_load(SGLANG_SMOKE_STEPS_PATH.read_text(encoding="utf-8"))
+    steps = _collect_steps(doc)
+    assert all("trigger" not in s and "wait" not in s for s in steps)
+
     command_steps = [s for s in steps if "command" in s]
-    assert len(command_steps) == 4
+    assert len(command_steps) == 3
+    assert {s["env"]["INFERENCE_ENGINE"] for s in command_steps} == {"sglang"}
+    commands = " ".join(str(s["command"]) for s in command_steps)
+    for expected in (
+        "run.sh lm_eval",
+        "run.sh restart_recovery",
+        "run.sh http_api",
+    ):
+        assert expected in commands
 
-    trigger_steps = [s for s in steps if "trigger" in s]
-    assert len(trigger_steps) == 1
-    assert trigger_steps[0]["trigger"] == "k3-multiprocess-test"
-    assert "force-ci" in str(trigger_steps[0].get("if", ""))
-
-    text = SGLANG_SMOKE_PIPELINE_PATH.read_text(encoding="utf-8")
+    text = SGLANG_SMOKE_STEPS_PATH.read_text(encoding="utf-8")
     assert '"nvidia.com/gpu": "2"' not in text
     assert '"nvidia.com/gpu": "4"' not in text
-    assert 'INFERENCE_ENGINE: "sglang"' in text
+    assert "run-cpu-e2e-validation.sh" not in text
 
 
 @pytest.mark.parametrize(
-    ("changed_files", "expected_pipeline"),
+    ("changed_files", "expected_uploads"),
     [
+        # SGLang diffs keep vLLM smoke; the SGLang add-on is uploaded second
+        # so Buildkite inserts it before smoke-pipeline.yml's force-ci wait.
         (
             ["lmcache/integration/sglang/unified_kv_adapter.py"],
-            ".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml",
+            [VLLM_SMOKE_REL, SGLANG_SMOKE_REL],
         ),
         (
             ["lmcache/v1/common/kv_format/detectors/sglang.py"],
-            ".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml",
+            [VLLM_SMOKE_REL, SGLANG_SMOKE_REL],
         ),
         (
             ["tests/v1/test_unified_sglang_kv_adapter.py"],
-            ".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml",
+            [VLLM_SMOKE_REL, SGLANG_SMOKE_REL],
+        ),
+        # Mixed SGLang + core diff must still run every vLLM smoke job.
+        (
+            [
+                "lmcache/integration/sglang/unified_kv_adapter.py",
+                "lmcache/v1/cache_engine.py",
+            ],
+            [VLLM_SMOKE_REL, SGLANG_SMOKE_REL],
         ),
         (
             ["lmcache/v1/cache_engine.py"],
-            ".buildkite/k3_tests/multiprocess/smoke-pipeline.yml",
+            [VLLM_SMOKE_REL],
         ),
     ],
 )
-def test_upload_pipeline_auto_selects_sglang_or_vllm_smoke(
+def test_upload_pipeline_adds_sglang_smoke_on_top_of_vllm(
     tmp_path: Path,
     changed_files: list[str],
-    expected_pipeline: str,
+    expected_uploads: list[str],
 ) -> None:
-    """PR-smoke selects SGLang when PR diffs touch SGLang files, else vLLM."""
+    """PR-smoke always uploads vLLM smoke; SGLang diffs add the SGLang jobs."""
     bash = _find_bash()
     if bash is None:
         pytest.skip("Git Bash / bash not available")
@@ -479,14 +501,14 @@ def test_upload_pipeline_auto_selects_sglang_or_vllm_smoke(
             encoding="utf-8",
         )
 
-    uploaded_file = tmp_path / "uploaded_pipeline.txt"
+    uploads_log = tmp_path / "uploads.txt"
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     fake_agent = fake_bin / "buildkite-agent"
     fake_agent.write_text(
         "#!/usr/bin/env bash\n"
         'if [[ "${1:-}" == "pipeline" && "${2:-}" == "upload" ]]; then\n'
-        f'  printf "%s" "${{3:-}}" > "{uploaded_file.as_posix()}"\n'
+        f'  printf "%s\\n" "${{3:-}}" >> "{uploads_log.as_posix()}"\n'
         "fi\n"
         "exit 0\n",
         encoding="utf-8",
@@ -505,11 +527,10 @@ def test_upload_pipeline_auto_selects_sglang_or_vllm_smoke(
     fake_git.chmod(0o755)
 
     fake_bin_str = fake_bin.as_posix()
-    smoke_rel = ".buildkite/k3_tests/multiprocess/smoke-pipeline.yml"
     script = f"""
 FB=$(cygpath -u "{fake_bin_str}" 2>/dev/null || printf '%s' "{fake_bin_str}")
 export PATH="$FB:$PATH"
-bash "{(scripts_dir / "upload-pipeline.sh").as_posix()}" "{smoke_rel}"
+bash "{(scripts_dir / "upload-pipeline.sh").as_posix()}" "{VLLM_SMOKE_REL}"
 """
     env = os.environ.copy()
     env.update(
@@ -522,4 +543,5 @@ bash "{(scripts_dir / "upload-pipeline.sh").as_posix()}" "{smoke_rel}"
     )
     proc = subprocess.run([bash, "-c", script], env=env, check=False)
     assert proc.returncode == 0
-    assert uploaded_file.read_text(encoding="utf-8") == expected_pipeline
+    uploads = uploads_log.read_text(encoding="utf-8").splitlines()
+    assert uploads == expected_uploads

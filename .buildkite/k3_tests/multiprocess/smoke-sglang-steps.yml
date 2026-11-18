@@ -1,0 +1,72 @@
+# PR-smoke SGLang add-on (follow-up to LM-1131):
+# upload-pipeline.sh uploads these steps IN ADDITION to smoke-pipeline.yml
+# (vLLM) when a PR diff touches SGLang integration, test, or CI files.
+# Keep this file to SGLang-only GPU jobs: smoke-pipeline.yml owns the CPU E2E
+# jobs, the force-ci wait, and the heavy trigger.
+
+x-flaky-retry: &flaky-retry
+  automatic:
+    - exit_status: -1
+      limit: 2
+    - exit_status: "*"
+      limit: 2
+
+x-pod-1gpu: &pod-1gpu
+  containers:
+    - name: container-0
+      image: lmcache/ci-base:latest
+      imagePullPolicy: Never
+      resources: { limits: { "nvidia.com/gpu": "1" } }
+      volumeMounts:
+        - { name: hf-cache, mountPath: /root/.cache/huggingface }
+        - { name: dshm, mountPath: /dev/shm }
+  volumes:
+    - { name: hf-cache, hostPath: { path: /data/huggingface, type: DirectoryOrCreate } }
+    - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 1Gi } }
+
+x-pod-1gpu-dshm: &pod-1gpu-dshm
+  containers:
+    - name: container-0
+      image: lmcache/ci-base:latest
+      imagePullPolicy: Never
+      resources: { limits: { "nvidia.com/gpu": "1" } }
+      volumeMounts:
+        - { name: hf-cache, mountPath: /root/.cache/huggingface }
+        - { name: dshm, mountPath: /dev/shm }
+  volumes:
+    - { name: hf-cache, hostPath: { path: /data/huggingface, type: DirectoryOrCreate } }
+    - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 128Gi } }
+
+steps:
+  - group: ":zap: Multiprocess PR-Smoke SGLang (1-GPU)"
+    steps:
+      - label: ":zap: sglang / lm_eval_lmcache_driven / zmq"
+        command: .buildkite/k3_tests/multiprocess/run.sh lm_eval
+        env:
+          INFERENCE_ENGINE: "sglang"
+          LMCACHE_REQUEST_TRANSPORT: "zmq"
+        timeout_in_minutes: 30
+        retry: *flaky-retry
+        agents: { queue: "k8s" }
+        plugins: [{ kubernetes: { podSpec: *pod-1gpu-dshm } }]
+        artifact_paths: ["*.log"]
+
+      - label: ":zap: sglang / restart_recovery / zmq"
+        command: .buildkite/k3_tests/multiprocess/run.sh restart_recovery
+        env:
+          INFERENCE_ENGINE: "sglang"
+          LMCACHE_REQUEST_TRANSPORT: "zmq"
+        timeout_in_minutes: 30
+        agents: { queue: "k8s" }
+        plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
+        artifact_paths: ["*.log"]
+
+      - label: ":zap: sglang / http_api / zmq"
+        command: .buildkite/k3_tests/multiprocess/run.sh http_api
+        env:
+          INFERENCE_ENGINE: "sglang"
+          LMCACHE_REQUEST_TRANSPORT: "zmq"
+        timeout_in_minutes: 30
+        agents: { queue: "k8s" }
+        plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
+        artifact_paths: ["*.log"]

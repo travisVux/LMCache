@@ -8,7 +8,8 @@ schema_version: 1
 tiers:
   pr-smoke:
     pipeline: .buildkite/k3_tests/multiprocess/smoke-pipeline.yml
-    description: Independent 0/1-GPU representative smoke checks reporting commit status without waiting for heavy 2/4-GPU jobs.
+    sglang_addon: .buildkite/k3_tests/multiprocess/smoke-sglang-steps.yml
+    description: Independent 0/1-GPU representative smoke checks reporting commit status without waiting for heavy 2/4-GPU jobs. PRs that change SGLang files also get the sglang_addon jobs (lm_eval, restart_recovery, http_api) on top of the vLLM jobs.
   heavy:
     pipeline: .buildkite/k3_tests/multiprocess/pipeline.yml
     description: Multi-GPU, Kimi, DSV4, full engine/transport matrices, and nightly canary pin jobs.
@@ -39,7 +40,7 @@ workloads:
     gpu_requirement: 1-GPU
     tier: pr-smoke
     trigger: pr (lmcache/** or shared CI deps)
-    coverage_objective: Verify multiprocess HTTP API endpoints on representative vLLM + ZMQ (SGLang variant stays in heavy).
+    coverage_objective: Verify multiprocess HTTP API endpoints on representative vLLM + ZMQ (SGLang variant added by sglang_addon on SGLang PRs; full matrix in heavy).
     acceptance_check: vllm / http_api / zmq passes in smoke-pipeline.yml.
 
   - workload: restart_recovery

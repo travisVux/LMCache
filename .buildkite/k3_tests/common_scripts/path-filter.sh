@@ -387,11 +387,12 @@ heavy_deferred_to_smoke_trigger() {
 }
 
 # Returns 0 if the PR diff touches SGLang integration, tests, or CI scripts,
-# so PR-smoke selects SGLang instead of the default vLLM smoke pipeline.
+# so PR-smoke adds the SGLang smoke jobs on top of the vLLM smoke jobs.
 has_sglang_change() {
     local changed_files f
     [[ -n "${BUILDKITE_PULL_REQUEST:-}" && "${BUILDKITE_PULL_REQUEST}" != "false" ]] || return 1
     if ! changed_files=$(_path_filter_get_changed_files); then
+        echo "path-filter: could not list changed files; PR-smoke runs vLLM only (no SGLang add-on)" >&2
         return 1
     fi
     while IFS= read -r f; do

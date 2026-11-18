@@ -120,9 +120,19 @@ if [[ "${PIPELINE_FILE}" == */rbln/pipeline.yml ]]; then
     export RBLN_SERVE_IMAGE="${PINNED_RBLN_IMAGE}"
 fi
 
+# PR-smoke always runs the vLLM smoke. When the PR touches SGLang files, the
+# SGLang smoke jobs are added on top of it; they never replace vLLM coverage.
+#
+# Order matters: Buildkite inserts each upload right after the uploading job,
+# so a later upload lands EARLIER in the build. Upload smoke-pipeline.yml first
+# and the SGLang add-on second, so the SGLang jobs sit before the force-ci
+# `wait` and heavy only starts after both smoke sets pass.
 if [[ "${PIPELINE_FILE}" == *k3_tests/multiprocess/smoke-pipeline.yml ]] && has_sglang_change; then
-    PIPELINE_FILE=".buildkite/k3_tests/multiprocess/smoke-sglang-pipeline.yml"
-    echo "+++ :magnifying_glass: SGLang integration files changed; selecting ${PIPELINE_FILE}"
+    sglang_smoke_steps="$(dirname "${PIPELINE_FILE}")/smoke-sglang-steps.yml"
+    echo "--- :pipeline: Uploading ${PIPELINE_FILE}"
+    buildkite-agent pipeline upload "${PIPELINE_FILE}"
+    echo "+++ :magnifying_glass: SGLang files changed; adding ${sglang_smoke_steps}"
+    exec buildkite-agent pipeline upload "${sglang_smoke_steps}"
 fi
 
 echo "--- :pipeline: Uploading ${PIPELINE_FILE}"

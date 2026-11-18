@@ -42,9 +42,19 @@ restores heavy on every labeled PR.
 
 Heavy still runs on scheduled builds and on vLLM / SGLang pin verification.
 
-PR-smoke runs vLLM only. Every SGLang multiprocess workload is in heavy, so a
-PR exercises SGLang only with `mp-full`, `force-ci` or a shared CI file change;
-otherwise SGLang regressions surface in the `dev` builds after merge.
+PR-smoke always runs the vLLM smoke jobs (`smoke-pipeline.yml`). When the PR
+changes SGLang files, `upload-pipeline.sh` also uploads `smoke-sglang-steps.yml`
+(SGLang `lm_eval`, `restart_recovery`, `http_api` on 1 GPU). The SGLang jobs are
+added, never swapped in, so a PR that touches SGLang and core code still runs
+every vLLM smoke job.
+
+| PR changes | PR-smoke jobs |
+|---|---|
+| no SGLang files | vLLM smoke + CPU E2E |
+| any of `lmcache/integration/sglang/`, `lmcache/v1/common/kv_format/detectors/sglang.py`, `tests/v1/*sglang*`, `scripts/engines/sglang.sh`, `scripts/workloads/sglang/`, `.buildkite/k3_harness/*sglang*`, `docker/Dockerfile.sglang` | vLLM smoke + CPU E2E + SGLang smoke |
+
+With `force-ci`, heavy starts only after both the vLLM and SGLang smoke jobs
+pass. The other SGLang workloads (2-GPU, Kimi, DSV4, gRPC) stay in heavy.
 
 > Builds whose only changes are docs/`*.md`/`LICENSE`/`.github/**` auto-pass
 > via the [path filter](../README.md#path-based-skip-auto-pass-on-docs-only-changes).
