@@ -108,7 +108,7 @@ def cancel_github_actions(
     cancelled: list[dict[str, Any]] = []
     seen_ids: set[int] = set()
 
-    for status in ("in_progress", "queued"):
+    for status in ("in_progress", "queued", "pending", "waiting", "requested"):
         qs = urllib.parse.urlencode(
             {"head_sha": commit_sha, "status": status, "per_page": 100}
         )
@@ -121,6 +121,7 @@ def cancel_github_actions(
                 errors.append(msg)
             continue
 
+        normalized_branch = head_branch.split(":", 1)[-1] if head_branch else None
         for run in data.get("workflow_runs") or []:
             run_id = run.get("id")
             if not run_id or run_id in seen_ids:
@@ -129,13 +130,13 @@ def cancel_github_actions(
 
             if current_run_id and str(run_id) == str(current_run_id):
                 continue
-            if run.get("event") not in {"pull_request", "pull_request_target"}:
+            if run.get("event") != "pull_request":
                 continue
             if head_repo:
                 run_head_repo = (run.get("head_repository") or {}).get("full_name")
                 if run_head_repo != head_repo:
                     continue
-            if head_branch and run.get("head_branch") != head_branch:
+            if normalized_branch and run.get("head_branch") != normalized_branch:
                 continue
 
             name = run.get("name") or str(run_id)
@@ -231,7 +232,7 @@ def _repo_from_env(default: str = "LMCache/LMCache") -> str:
         return gh_repo
     bk_repo = os.environ.get("BUILDKITE_REPO", "").strip()
     if bk_repo:
-        m = re.search(r"github\.com[:/]([^/]+/[^/.]+?)(?:\.git)?$", bk_repo)
+        m = re.search(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$", bk_repo)
         if m:
             return m.group(1)
     return default

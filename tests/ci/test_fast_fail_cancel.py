@@ -406,8 +406,41 @@ def test_repo_from_env_and_write_summary(
     monkeypatch.setenv("BUILDKITE_REPO", "https://github.com/travisVux/LMCache.git")
     assert ffc._repo_from_env() == "travisVux/LMCache"
 
-    monkeypatch.setenv("BUILDKITE_REPO", "git@github.com:LMCache/LMCache.git")
-    assert ffc._repo_from_env() == "LMCache/LMCache"
+    monkeypatch.setenv("BUILDKITE_REPO", "git@github.com:LMCache/lmcache.v2.git")
+    assert ffc._repo_from_env() == "LMCache/lmcache.v2"
+
+    # Fork Buildkite branch prefix "owner:branch" matches GHA head_branch "branch"
+    with patch.object(
+        ffc,
+        "_http_request",
+        side_effect=[
+            (
+                200,
+                {
+                    "workflow_runs": [
+                        {
+                            "id": 77,
+                            "name": "Code Quality",
+                            "event": "pull_request",
+                            "head_branch": "feat-fork",
+                        }
+                    ]
+                },
+            ),
+            (200, {"workflow_runs": []}),
+            (200, {"workflow_runs": []}),
+            (200, {"workflow_runs": []}),
+            (200, {"workflow_runs": []}),
+            (202, {}),
+        ],
+    ):
+        res = ffc.cancel_github_actions(
+            commit_sha="abc12345",
+            repo="LMCache/LMCache",
+            token="gh-tok",
+            head_branch="alice:feat-fork",
+        )
+    assert [r["id"] for r in res] == [77]
 
     summary_file = tmp_path / "summary.md"
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary_file))

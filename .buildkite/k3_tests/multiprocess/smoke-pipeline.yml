@@ -137,8 +137,8 @@ steps:
                   - { name: hf-cache, hostPath: { path: /data/huggingface, type: DirectoryOrCreate } }
                   - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 4Gi } }
 
-  - wait:
-      continue_on_failure: true
+  - wait: ~
+    continue_on_failure: true
     if: build.pull_request.id != null
 
   - label: ":skull: Fast fail: cancel sibling CI"

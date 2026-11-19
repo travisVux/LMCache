@@ -82,6 +82,10 @@ def test_smoke_pipeline_only_contains_0_or_1_gpu_pr_smoke() -> None:
         if "command" in s and "fast_fail_cancel.py" not in str(s.get("command", ""))
     ]
     assert len(command_steps) == 6
+    wait_steps = [s for s in smoke["steps"] if isinstance(s, dict) and "wait" in s]
+    assert len(wait_steps) == 1
+    assert wait_steps[0]["wait"] is None
+    assert wait_steps[0]["continue_on_failure"] is True
 
     trigger_steps = [s for s in steps if "trigger" in s]
     assert len(trigger_steps) == 0
