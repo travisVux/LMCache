@@ -136,3 +136,42 @@ steps:
                 volumes:
                   - { name: hf-cache, hostPath: { path: /data/huggingface, type: DirectoryOrCreate } }
                   - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 4Gi } }
+
+  - wait:
+      continue_on_failure: true
+    if: build.pull_request.id != null
+
+  - label: ":skull: Fast fail: cancel sibling CI"
+    soft_fail: true
+    if: build.pull_request.id != null
+    command: |
+      python3 .buildkite/scripts/fast_fail_cancel.py \
+        --commit "$${BUILDKITE_COMMIT}" \
+        --pr-number "$${BUILDKITE_PULL_REQUEST}" \
+        --current-build-id "$${BUILDKITE_BUILD_ID}" \
+        --current-build-number "$${BUILDKITE_BUILD_NUMBER}" \
+        --current-pipeline "$${BUILDKITE_PIPELINE_SLUG}" \
+        --only-if-build-failing \
+        --reason "Required pipeline k3-multiprocess-smoke failed (build $${BUILDKITE_BUILD_NUMBER})"
+    timeout_in_minutes: 5
+    agents: { queue: "k8s" }
+    plugins:
+      - kubernetes:
+          podSpec:
+            containers:
+              - name: container-0
+                image: lmcache/ci-base:latest
+                imagePullPolicy: Never
+                env:
+                  - name: GITHUB_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: buildkite-git-creds
+                        key: GITHUB_TOKEN
+                        optional: true
+                  - name: BUILDKITE_API_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: buildkite-git-creds
+                        key: BUILDKITE_API_TOKEN
+                        optional: true

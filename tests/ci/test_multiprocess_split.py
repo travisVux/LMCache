@@ -76,7 +76,11 @@ def test_smoke_pipeline_only_contains_0_or_1_gpu_pr_smoke() -> None:
     """smoke-pipeline.yml must stay fast (0/1-GPU) and independent of heavy."""
     smoke = yaml.safe_load(SMOKE_PIPELINE_PATH.read_text(encoding="utf-8"))
     steps = _collect_steps(smoke)
-    command_steps = [s for s in steps if "command" in s]
+    command_steps = [
+        s
+        for s in steps
+        if "command" in s and "fast_fail_cancel.py" not in str(s.get("command", ""))
+    ]
     assert len(command_steps) == 6
 
     trigger_steps = [s for s in steps if "trigger" in s]

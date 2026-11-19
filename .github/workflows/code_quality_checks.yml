@@ -146,26 +146,55 @@ jobs:
     secrets:
       hf_token: ${{ secrets.HF_TOKEN }}
 
-  # When the CPU unit tests fail, cancel this run so the CPU device legs free
-  # their runners. Not the other way round: CPU device failures are often lost
-  # runners that cpu_device_rerun.yml reruns, which needs the rest of the run
-  # intact. PRs from forks get a read-only token, so they skip this.
+  # When a required job (pre-commit or test) fails, cancel sibling GHA runs,
+  # Buildkite PR builds, and this run (to free CPU device runners).
+  # CPU device failures are excluded because cpu_device_rerun.yml reruns them.
+  # PRs from forks get a read-only token and no secrets, so they skip this.
   stop-cpu-device-on-test-failure:
-    name: Stop CPU device (Test failed)
-    needs: test
+    name: Fast fail (cancel sibling CI on required failure)
+    needs: [pre-commit, test]
     if: >-
-      failure() &&
+      always() &&
+      (needs.pre-commit.result == 'failure' || needs.test.result == 'failure') &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     permissions:
       actions: write
+      contents: read
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
+
+      - name: Checkout fast_fail_cancel.py
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: .buildkite/scripts/fast_fail_cancel.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Cancel sibling GHA runs and Buildkite PR builds
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BUILDKITE_API_TOKEN: ${{ secrets.BUILD_KITE_API_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 .buildkite/scripts/fast_fail_cancel.py \
+            --commit "${HEAD_SHA}" \
+            --pr-number "${PR_NUMBER}" \
+            --repo "${REPO}" \
+            --head-repo "${HEAD_REPO}" \
+            --head-branch "${HEAD_BRANCH}" \
+            --current-run-id "${RUN_ID}" \
+            --reason "Required workflow 'Code Quality' failed (run ${RUN_ID})" || true
 
       - name: Cancel this run
         env:

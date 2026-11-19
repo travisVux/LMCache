@@ -370,23 +370,22 @@ def test_http_request_retries_rate_limit_and_5xx() -> None:
     assert calls == 2
 
 
-def test_fast_fail_workflow_yaml_structure() -> None:
-    """ci_fast_fail_cancel.yml uses workflow_run + status and excludes CPU Device."""
-    wf_path = REPO_ROOT / ".github" / "workflows" / "ci_fast_fail_cancel.yml"
-    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
-    # PyYAML parses bare `on:` as boolean True
-    triggers = wf.get("on", wf.get(True))
-    assert "workflow_run" in triggers
-    assert "status" in triggers
-    assert wf["permissions"] == {
-        "actions": "write",
-        "contents": "read",
-        "pull-requests": "read",
-    }
-    jobs = wf["jobs"]
-    assert "cancel-on-code-quality-failure" in jobs
-    assert "cancel-on-buildkite-required-failure" in jobs
-    gate_step = jobs["cancel-on-code-quality-failure"]["steps"][1]
-    assert "Check code quality" in gate_step["run"]
-    assert "Test / " in gate_step["run"]
-    assert "CPU Device" not in gate_step["run"]
+def test_fast_fail_embedded_in_code_quality_and_buildkite_yaml() -> None:
+    """Fast-fail lives inside code_quality_checks.yml and required Buildkite YAML."""
+    cq_path = REPO_ROOT / ".github" / "workflows" / "code_quality_checks.yml"
+    cq = yaml.safe_load(cq_path.read_text(encoding="utf-8"))
+    ff_job = cq["jobs"]["stop-cpu-device-on-test-failure"]
+    assert set(ff_job["needs"]) == {"pre-commit", "test"}
+    assert "needs.pre-commit.result == 'failure'" in ff_job["if"]
+    assert "needs.test.result == 'failure'" in ff_job["if"]
+    assert "cpu-device" not in ff_job["if"]
+    assert ff_job["permissions"] == {"actions": "write", "contents": "read"}
+    step_names = [s.get("name", "") for s in ff_job["steps"]]
+    assert "Cancel sibling GHA runs and Buildkite PR builds" in step_names
+
+    unit_path = REPO_ROOT / ".buildkite" / "k3_tests" / "unit" / "pipeline.yml"
+    unit = yaml.safe_load(unit_path.read_text(encoding="utf-8"))
+    ff_step = unit["steps"][-1]
+    assert ff_step["soft_fail"] is True
+    assert "$${outcome}" in ff_step["command"]
+    assert "hard_failed" in ff_step["command"]
