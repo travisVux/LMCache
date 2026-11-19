@@ -5,13 +5,17 @@
 from __future__ import annotations
 
 # Standard
+from email.message import Message
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 import importlib.util
+import urllib.error
 
 # Third Party
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_PATH = REPO_ROOT / ".buildkite" / "scripts" / "fast_fail_cancel.py"
@@ -200,3 +204,189 @@ def test_protected_branch_and_missing_tokens_graceful(
     ):
         assert ffc.main() == 0
     mock_http.assert_not_called()
+
+
+def test_cancel_github_actions_filters_head_repo_and_branch() -> None:
+    """Stacked/duplicate-SHA PRs on other branches or repos are not cancelled."""
+    runs = {
+        "workflow_runs": [
+            {
+                "id": 21,
+                "name": "PR Full Build",
+                "event": "pull_request",
+                "head_repository": {"full_name": "alice/LMCache"},
+                "head_branch": "feat-a",
+            },
+            {
+                "id": 22,
+                "name": "PR Full Build",
+                "event": "pull_request",
+                "head_repository": {"full_name": "bob/LMCache"},
+                "head_branch": "feat-a",
+            },
+            {
+                "id": 23,
+                "name": "PR Full Build",
+                "event": "pull_request",
+                "head_repository": {"full_name": "alice/LMCache"},
+                "head_branch": "feat-b",
+            },
+        ]
+    }
+    post_urls: list[str] = []
+
+    def fake_http(
+        url: str,
+        method: str = "GET",
+        **_kwargs: Any,
+    ) -> tuple[int, Any]:
+        if method == "GET":
+            return 200, (runs if "in_progress" in url else {"workflow_runs": []})
+        post_urls.append(url)
+        return 202, {}
+
+    with patch.object(ffc, "_http_request", side_effect=fake_http):
+        res = ffc.cancel_github_actions(
+            commit_sha="abc12345",
+            repo="LMCache/LMCache",
+            token="gh-tok",
+            head_repo="alice/LMCache",
+            head_branch="feat-a",
+        )
+
+    assert [r["id"] for r in res] == [21]
+    assert post_urls == [
+        "https://api.github.com/repos/LMCache/LMCache/actions/runs/21/cancel"
+    ]
+
+
+def test_cancel_buildkite_lists_only_scheduled_and_running() -> None:
+    """Only scheduled and running states are queried so failing builds keep logs."""
+    seen_urls: list[str] = []
+
+    def fake_http(url: str, **_kwargs: Any) -> tuple[int, Any]:
+        seen_urls.append(url)
+        return 200, []
+
+    with patch.object(ffc, "_http_request", side_effect=fake_http):
+        ffc.cancel_buildkite_builds(
+            commit_sha="abc12345",
+            pr_number="42",
+            org="lmcache",
+            token="bk-tok",
+        )
+
+    assert len(seen_urls) == 1
+    assert "state%5B%5D=scheduled" in seen_urls[0]
+    assert "state%5B%5D=running" in seen_urls[0]
+    assert "failing" not in seen_urls[0]
+
+
+def test_main_runs_gha_without_pr_number_and_returns_1_on_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """GHA cancellation still runs without PR number; failed cancels return 1."""
+    monkeypatch.delenv("BUILDKITE_API_TOKEN", raising=False)
+    monkeypatch.setenv("GITHUB_TOKEN", "gh-tok")
+
+    def fake_http(
+        url: str,
+        method: str = "GET",
+        **_kwargs: Any,
+    ) -> tuple[int, Any]:
+        if method == "GET" and "in_progress" in url:
+            return 200, {
+                "workflow_runs": [{"id": 99, "name": "CodeQL", "event": "pull_request"}]
+            }
+        if method == "GET":
+            return 200, {"workflow_runs": []}
+        return 500, {"message": "server error"}
+
+    with (
+        patch.object(ffc, "_http_request", side_effect=fake_http),
+        patch.object(
+            ffc.sys,
+            "argv",
+            [
+                "fast_fail_cancel.py",
+                "--commit",
+                "abc12345",
+                "--repo",
+                "LMCache/LMCache",
+            ],
+        ),
+    ):
+        rc = ffc.main()
+
+    assert rc == 1
+
+
+def test_http_request_retries_rate_limit_and_5xx() -> None:
+    """_http_request retries HTTP 429/403 rate-limit/5xx before succeeding."""
+
+    class FakeResp:
+        def __init__(self, code: int, payload: bytes) -> None:
+            self._code = code
+            self._payload = payload
+
+        def __enter__(self) -> FakeResp:
+            return self
+
+        def __exit__(self, *_args: Any) -> None:
+            return None
+
+        def getcode(self) -> int:
+            return self._code
+
+        def read(self) -> bytes:
+            return self._payload
+
+    hdrs = Message()
+    hdrs["Retry-After"] = "0"
+    rate_err = urllib.error.HTTPError(
+        "https://api.github.com/test",
+        403,
+        "Forbidden",
+        hdrs,
+        BytesIO(b"API rate limit exceeded"),
+    )
+    calls = 0
+
+    def fake_urlopen(_req: Any, timeout: int = 20) -> FakeResp:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise rate_err
+        return FakeResp(200, b'{"ok": true}')
+
+    with (
+        patch.object(ffc.urllib.request, "urlopen", side_effect=fake_urlopen),
+        patch.object(ffc.time, "sleep"),
+    ):
+        code, data = ffc._http_request("https://api.github.com/test", retries=2)
+
+    assert code == 200
+    assert data == {"ok": True}
+    assert calls == 2
+
+
+def test_fast_fail_workflow_yaml_structure() -> None:
+    """ci_fast_fail_cancel.yml uses workflow_run + status and excludes CPU Device."""
+    wf_path = REPO_ROOT / ".github" / "workflows" / "ci_fast_fail_cancel.yml"
+    wf = yaml.safe_load(wf_path.read_text(encoding="utf-8"))
+    # PyYAML parses bare `on:` as boolean True
+    triggers = wf.get("on", wf.get(True))
+    assert "workflow_run" in triggers
+    assert "status" in triggers
+    assert wf["permissions"] == {
+        "actions": "write",
+        "contents": "read",
+        "pull-requests": "read",
+    }
+    jobs = wf["jobs"]
+    assert "cancel-on-code-quality-failure" in jobs
+    assert "cancel-on-buildkite-required-failure" in jobs
+    gate_step = jobs["cancel-on-code-quality-failure"]["steps"][1]
+    assert "Check code quality" in gate_step["run"]
+    assert "Test / " in gate_step["run"]
+    assert "CPU Device" not in gate_step["run"]

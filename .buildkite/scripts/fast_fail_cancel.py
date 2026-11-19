@@ -51,7 +51,18 @@ def _http_request(
                 except json.JSONDecodeError:
                     return resp.getcode(), text
         except urllib.error.HTTPError as e:
-            return e.code, e.read().decode("utf-8", errors="replace")
+            body = e.read().decode("utf-8", errors="replace")
+            is_rate_limit = e.code == 403 and "rate limit" in body.lower()
+            if e.code in (429, 500, 502, 503, 504) or is_rate_limit:
+                if attempt < retries - 1:
+                    retry_after = e.headers.get("Retry-After") if e.headers else None
+                    try:
+                        delay = float(retry_after) if retry_after else float(2**attempt)
+                    except ValueError:
+                        delay = float(2**attempt)
+                    time.sleep(delay)
+                    continue
+            return e.code, body
         except Exception as e:  # noqa: BLE001
             last_err = str(e)
             if attempt < retries - 1:
@@ -83,8 +94,11 @@ def cancel_github_actions(
     repo: str,
     token: str,
     current_run_id: str | None = None,
+    head_repo: str | None = None,
+    head_branch: str | None = None,
     dry_run: bool = False,
     reason: str = "",
+    errors: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Cancel queued or in-progress PR GitHub Actions runs for commit_sha."""
     cancelled: list[dict[str, Any]] = []
@@ -97,7 +111,10 @@ def cancel_github_actions(
         url = f"https://api.github.com/repos/{repo}/actions/runs?{qs}"
         code, data = _http_request(url, token=token, auth_prefix="token ")
         if code != 200 or not isinstance(data, dict):
-            print(f"[WARN] Failed to list GHA runs ({status}, HTTP {code})")
+            msg = f"Failed to list GHA runs ({status}, HTTP {code})"
+            print(f"[WARN] {msg}")
+            if errors is not None:
+                errors.append(msg)
             continue
 
         for run in data.get("workflow_runs") or []:
@@ -109,6 +126,12 @@ def cancel_github_actions(
             if current_run_id and str(run_id) == str(current_run_id):
                 continue
             if run.get("event") not in {"pull_request", "pull_request_target"}:
+                continue
+            if head_repo:
+                run_head_repo = (run.get("head_repository") or {}).get("full_name")
+                if run_head_repo != head_repo:
+                    continue
+            if head_branch and run.get("head_branch") != head_branch:
                 continue
 
             name = run.get("name") or str(run_id)
@@ -124,8 +147,13 @@ def cancel_github_actions(
             if c_code in (202, 200):
                 print(f"Cancelled GHA run {run_id} ({name})")
                 cancelled.append({"id": run_id, "name": name})
+            elif c_code == 409:
+                print(f"GHA run {run_id} ({name}) already completed (HTTP 409)")
             else:
-                print(f"[WARN] Failed to cancel GHA run {run_id} (HTTP {c_code})")
+                msg = f"Failed to cancel GHA run {run_id} (HTTP {c_code})"
+                print(f"[WARN] {msg}")
+                if errors is not None:
+                    errors.append(msg)
     return cancelled
 
 
@@ -137,14 +165,14 @@ def cancel_buildkite_builds(
     current_build_id: str | None = None,
     dry_run: bool = False,
     reason: str = "",
+    errors: list[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Cancel scheduled, running, or failing Buildkite PR builds for commit_sha."""
+    """Cancel scheduled or running Buildkite PR builds for commit_sha."""
     cancelled: list[dict[str, Any]] = []
     params = [
         ("commit", commit_sha),
         ("state[]", "scheduled"),
         ("state[]", "running"),
-        ("state[]", "failing"),
         ("per_page", "100"),
     ]
     url = (
@@ -153,7 +181,10 @@ def cancel_buildkite_builds(
     )
     code, builds = _http_request(url, token=token)
     if code != 200 or not isinstance(builds, list):
-        print(f"[WARN] Failed to list Buildkite builds (HTTP {code})")
+        msg = f"Failed to list Buildkite builds (HTTP {code})"
+        print(f"[WARN] {msg}")
+        if errors is not None:
+            errors.append(msg)
         return cancelled
 
     for b in builds:
@@ -179,11 +210,13 @@ def cancel_buildkite_builds(
         if c_code in (200, 202):
             print(f"Cancelled Buildkite {pipeline} #{number}")
             cancelled.append({"pipeline": pipeline, "number": number})
+        elif c_code == 422:
+            print(f"Buildkite {pipeline} #{number} already finished (HTTP 422)")
         else:
-            print(
-                f"[WARN] Failed to cancel Buildkite {pipeline} #{number} "
-                f"(HTTP {c_code})"
-            )
+            msg = f"Failed to cancel Buildkite {pipeline} #{number} (HTTP {c_code})"
+            print(f"[WARN] {msg}")
+            if errors is not None:
+                errors.append(msg)
     return cancelled
 
 
@@ -194,6 +227,8 @@ def main() -> int:
     ap.add_argument("--commit", required=True)
     ap.add_argument("--pr-number", default=os.environ.get("BUILDKITE_PULL_REQUEST", ""))
     ap.add_argument("--branch", default=os.environ.get("BUILDKITE_BRANCH", ""))
+    ap.add_argument("--head-repo", default="")
+    ap.add_argument("--head-branch", default="")
     ap.add_argument("--org", default="lmcache")
     ap.add_argument("--repo", default="LMCache/LMCache")
     ap.add_argument("--current-build-id", default=os.environ.get("BUILDKITE_BUILD_ID"))
@@ -209,9 +244,6 @@ def main() -> int:
     ap.add_argument("--reason", default="Required CI pipeline failed")
     args = ap.parse_args()
 
-    if not args.pr_number or args.pr_number == "false":
-        print("Not a PR build; skipping fast-fail cancellation.")
-        return 0
     if args.branch in PROTECTED_BRANCHES:
         print(f"Protected branch '{args.branch}'; skipping fast-fail cancellation.")
         return 0
@@ -232,7 +264,9 @@ def main() -> int:
             print("Current Buildkite build is not failing; no cancellation needed.")
             return 0
 
-    if bk_token:
+    errors: list[str] = []
+    has_pr = bool(args.pr_number and args.pr_number != "false")
+    if bk_token and has_pr:
         cancel_buildkite_builds(
             commit_sha=args.commit,
             pr_number=args.pr_number,
@@ -241,7 +275,10 @@ def main() -> int:
             current_build_id=args.current_build_id,
             dry_run=args.dry_run,
             reason=args.reason,
+            errors=errors,
         )
+    elif not has_pr:
+        print("No PR number provided; skipping Buildkite cancellation.")
     else:
         print("[WARN] BUILDKITE_API_TOKEN not set; skipping Buildkite cancellation.")
 
@@ -251,13 +288,16 @@ def main() -> int:
             repo=args.repo,
             token=gh_token,
             current_run_id=args.current_run_id,
+            head_repo=args.head_repo or None,
+            head_branch=args.head_branch or None,
             dry_run=args.dry_run,
             reason=args.reason,
+            errors=errors,
         )
     else:
         print("[WARN] GITHUB_TOKEN not set; skipping GitHub Actions cancellation.")
 
-    return 0
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":
