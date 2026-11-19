@@ -194,6 +194,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         retry: *vllm-bench-retry
         agents: { queue: "k8s" }
         plugins:
@@ -219,6 +220,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         retry: *flaky-retry
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-2gpu } }]
@@ -231,6 +233,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         retry: *flaky-retry
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-2gpu } }]
@@ -246,6 +249,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-2gpu } }]
         artifact_paths: ["*.log"]
@@ -257,6 +261,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-2gpu } }]
         artifact_paths: ["*.log"]
@@ -271,6 +276,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-2gpu } }]
         artifact_paths: ["*.log"]
@@ -289,6 +295,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 60
+        cancel_on_build_failing: true
         retry: *flaky-retry
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-2gpu } }]
@@ -322,6 +329,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         retry: *flaky-retry
         agents: { queue: "k8s" }
         plugins:
@@ -364,6 +372,7 @@ steps:
             request_transport:
               - "zmq"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         env:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
@@ -391,6 +400,7 @@ steps:
               - "1"
         # Two rungs (~15 min of client time) plus two model loads.
         timeout_in_minutes: 45
+        cancel_on_build_failing: true
         env:
           LMCACHE_REQUEST_TRANSPORT: "zmq"
           ASYNC_SCHEDULING: "{{matrix.async_scheduling}}"
@@ -416,6 +426,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
         artifact_paths: ["*.log"]
@@ -427,6 +438,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
         artifact_paths: ["*.log"]
@@ -438,6 +450,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
         artifact_paths: ["*.log"]
@@ -452,6 +465,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
         artifact_paths: ["*.log"]
@@ -463,6 +477,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins: [{ kubernetes: { podSpec: *pod-1gpu } }]
         artifact_paths: ["*.log"]
@@ -474,6 +489,7 @@ steps:
           INFERENCE_ENGINE: "{{matrix.inference_engine}}"
           LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins:
           - kubernetes:
@@ -522,6 +538,7 @@ steps:
               - "zmq"
         env: { LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}" }
         timeout_in_minutes: 30
+        cancel_on_build_failing: true
         agents: { queue: "k8s" }
         plugins:
           - kubernetes:
@@ -560,6 +577,7 @@ steps:
       INFERENCE_ENGINE: "{{matrix.inference_engine}}"
       LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
     timeout_in_minutes: 30
+    cancel_on_build_failing: true
     retry: *vllm-bench-retry
     agents: { queue: "k8s" }
     plugins:
@@ -601,6 +619,7 @@ steps:
       INFERENCE_ENGINE: "{{matrix.inference_engine}}"
       LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
     timeout_in_minutes: 30
+    cancel_on_build_failing: true
     retry: *flaky-retry
     agents: { queue: "k8s" }
     plugins:
@@ -657,3 +676,41 @@ steps:
                       secretKeyRef:
                         name: buildkite-git-creds
                         key: GITHUB_TOKEN
+
+  - wait:
+      continue_on_failure: true
+    if: build.pull_request.id != null
+
+  - label: ":skull: Fast fail: cancel sibling CI"
+    if: build.pull_request.id != null
+    command: |
+      python3 .buildkite/scripts/fast_fail_cancel.py \
+        --commit "$${BUILDKITE_COMMIT}" \
+        --pr-number "$${BUILDKITE_PULL_REQUEST}" \
+        --current-build-id "$${BUILDKITE_BUILD_ID}" \
+        --current-build-number "$${BUILDKITE_BUILD_NUMBER}" \
+        --current-pipeline "$${BUILDKITE_PIPELINE_SLUG}" \
+        --only-if-build-failing \
+        --reason "Required pipeline k3-multiprocess-test failed (build $${BUILDKITE_BUILD_NUMBER})"
+    timeout_in_minutes: 5
+    agents: { queue: "k8s" }
+    plugins:
+      - kubernetes:
+          podSpec:
+            containers:
+              - name: container-0
+                image: lmcache/ci-base:latest
+                imagePullPolicy: Never
+                env:
+                  - name: GITHUB_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: buildkite-git-creds
+                        key: GITHUB_TOKEN
+                        optional: true
+                  - name: BUILDKITE_API_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: buildkite-git-creds
+                        key: BUILDKITE_API_TOKEN
+                        optional: true

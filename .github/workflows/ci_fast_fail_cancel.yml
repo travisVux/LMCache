@@ -1,0 +1,60 @@
+name: Fast-Fail Cancel on Required CI Failure
+
+# Cancels in-flight sibling GitHub Actions runs and Buildkite PR builds for the
+# same PR commit when a required GitHub Actions workflow ("Code Quality") fails.
+# Uses workflow_run so fork PRs are also covered safely without checking out PR
+# code or exposing tokens to untrusted PR jobs.
+
+on:
+  workflow_run:
+    workflows: ["Code Quality"]
+    types: [completed]
+
+permissions:
+  actions: write
+
+jobs:
+  cancel-on-required-failure:
+    name: Cancel sibling PR CI on required failure
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout fast_fail_cancel.py
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: .buildkite/scripts/fast_fail_cancel.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Cancel sibling GHA runs and Buildkite PR builds
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILDKITE_API_TOKEN: ${{ secrets.BUILD_KITE_API_TOKEN }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          pr_num="${PR_NUMBER}"
+          if [[ -z "${pr_num}" ]]; then
+            pr_num="$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number // empty' || true)"
+          fi
+          if [[ -z "${pr_num}" ]]; then
+            echo "::notice::Could not resolve PR number for ${HEAD_SHA}; skipping."
+            exit 0
+          fi
+          python3 .buildkite/scripts/fast_fail_cancel.py \
+            --commit "${HEAD_SHA}" \
+            --pr-number "${pr_num}" \
+            --repo "${REPO}" \
+            --current-run-id "${RUN_ID}" \
+            --reason "Required workflow 'Code Quality' failed (run ${RUN_ID})"
