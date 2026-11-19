@@ -9,10 +9,14 @@ the same PR and head commit SHA, using only the Python standard library.
 from __future__ import annotations
 
 # Standard
+from pathlib import Path
 from typing import Any
 import argparse
 import json
 import os
+import re
+import shutil
+import subprocess
 import sys
 import time
 import urllib.error
@@ -220,6 +224,70 @@ def cancel_buildkite_builds(
     return cancelled
 
 
+def _repo_from_env(default: str = "LMCache/LMCache") -> str:
+    """Derive owner/repo from BUILDKITE_REPO or GITHUB_REPOSITORY if present."""
+    gh_repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
+    if gh_repo:
+        return gh_repo
+    bk_repo = os.environ.get("BUILDKITE_REPO", "").strip()
+    if bk_repo:
+        m = re.search(r"github\.com[:/]([^/]+/[^/.]+?)(?:\.git)?$", bk_repo)
+        if m:
+            return m.group(1)
+    return default
+
+
+def _write_summary(
+    bk_cancelled: list[dict[str, Any]],
+    gh_cancelled: list[dict[str, Any]],
+    reason: str,
+    dry_run: bool,
+) -> None:
+    """Emit a GHA step summary and/or Buildkite annotation for cancelled CI."""
+    if dry_run or (not bk_cancelled and not gh_cancelled):
+        return
+    lines = [
+        "### Fast-Fail Cancelled Sibling CI",
+        f"- **Reason:** {reason}",
+    ]
+    for b in bk_cancelled:
+        lines.append(f"- Buildkite `{b['pipeline']}` #{b['number']}")
+    for r in gh_cancelled:
+        lines.append(f"- GitHub Actions `{r['name']}` (run `{r['id']}`)")
+    lines.append(
+        "- *Note: If this was a flaky failure and you retry this job, "
+        "manually re-run the cancelled checks above.*"
+    )
+    body = "\n".join(lines) + "\n"
+
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY", "")
+    if summary_path:
+        try:
+            with Path(summary_path).open("a", encoding="utf-8") as fh:
+                fh.write(body)
+        except OSError as exc:
+            print(f"[WARN] Failed to write GITHUB_STEP_SUMMARY: {exc}")
+
+    if os.environ.get("BUILDKITE_BUILD_ID") and shutil.which("buildkite-agent"):
+        try:
+            subprocess.run(
+                [
+                    "buildkite-agent",
+                    "annotate",
+                    "--style",
+                    "warning",
+                    "--context",
+                    "fast-fail-cancel",
+                ],
+                input=body,
+                text=True,
+                check=False,
+                timeout=15,
+            )
+        except Exception as exc:  # noqa: BLE001
+            print(f"[WARN] Failed to post Buildkite annotation: {exc}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Cancel sibling PR CI runs/builds when a required check fails."
@@ -230,7 +298,7 @@ def main() -> int:
     ap.add_argument("--head-repo", default="")
     ap.add_argument("--head-branch", default="")
     ap.add_argument("--org", default="lmcache")
-    ap.add_argument("--repo", default="LMCache/LMCache")
+    ap.add_argument("--repo", default=_repo_from_env())
     ap.add_argument("--current-build-id", default=os.environ.get("BUILDKITE_BUILD_ID"))
     ap.add_argument(
         "--current-build-number", default=os.environ.get("BUILDKITE_BUILD_NUMBER")
@@ -265,9 +333,11 @@ def main() -> int:
             return 0
 
     errors: list[str] = []
+    bk_cancelled: list[dict[str, Any]] = []
+    gh_cancelled: list[dict[str, Any]] = []
     has_pr = bool(args.pr_number and args.pr_number != "false")
     if bk_token and has_pr:
-        cancel_buildkite_builds(
+        bk_cancelled = cancel_buildkite_builds(
             commit_sha=args.commit,
             pr_number=args.pr_number,
             org=args.org,
@@ -283,7 +353,7 @@ def main() -> int:
         print("[WARN] BUILDKITE_API_TOKEN not set; skipping Buildkite cancellation.")
 
     if gh_token:
-        cancel_github_actions(
+        gh_cancelled = cancel_github_actions(
             commit_sha=args.commit,
             repo=args.repo,
             token=gh_token,
@@ -297,6 +367,7 @@ def main() -> int:
     else:
         print("[WARN] GITHUB_TOKEN not set; skipping GitHub Actions cancellation.")
 
+    _write_summary(bk_cancelled, gh_cancelled, args.reason, args.dry_run)
     return 1 if errors else 0
 
 

@@ -376,16 +376,47 @@ def test_fast_fail_embedded_in_code_quality_and_buildkite_yaml() -> None:
     cq = yaml.safe_load(cq_path.read_text(encoding="utf-8"))
     ff_job = cq["jobs"]["stop-cpu-device-on-test-failure"]
     assert set(ff_job["needs"]) == {"pre-commit", "test"}
+    assert "!cancelled()" in ff_job["if"]
     assert "needs.pre-commit.result == 'failure'" in ff_job["if"]
     assert "needs.test.result == 'failure'" in ff_job["if"]
     assert "cpu-device" not in ff_job["if"]
     assert ff_job["permissions"] == {"actions": "write", "contents": "read"}
-    step_names = [s.get("name", "") for s in ff_job["steps"]]
-    assert "Cancel sibling GHA runs and Buildkite PR builds" in step_names
+    cancel_step = ff_job["steps"][2]
+    assert cancel_step["name"] == "Cancel sibling GHA runs and Buildkite PR builds"
+    assert cancel_step["continue-on-error"] is True
+    assert "|| true" not in cancel_step["run"]
+    self_cancel_step = ff_job["steps"][3]
+    assert self_cancel_step["if"] == "needs.test.result == 'failure'"
 
     unit_path = REPO_ROOT / ".buildkite" / "k3_tests" / "unit" / "pipeline.yml"
     unit = yaml.safe_load(unit_path.read_text(encoding="utf-8"))
+    assert unit["steps"][0]["retry"] == {"automatic": [{"exit_status": -1, "limit": 1}]}
     ff_step = unit["steps"][-1]
     assert ff_step["soft_fail"] is True
     assert "$${outcome}" in ff_step["command"]
     assert "hard_failed" in ff_step["command"]
+    assert "--head-branch" in ff_step["command"]
+
+
+def test_repo_from_env_and_write_summary(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """_repo_from_env parses BUILDKITE_REPO; _write_summary appends summary."""
+    monkeypatch.delenv("GITHUB_REPOSITORY", raising=False)
+    monkeypatch.setenv("BUILDKITE_REPO", "https://github.com/travisVux/LMCache.git")
+    assert ffc._repo_from_env() == "travisVux/LMCache"
+
+    monkeypatch.setenv("BUILDKITE_REPO", "git@github.com:LMCache/LMCache.git")
+    assert ffc._repo_from_env() == "LMCache/LMCache"
+
+    summary_file = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary_file))
+    ffc._write_summary(
+        bk_cancelled=[{"pipeline": "k3-multiprocess-smoke", "number": 7}],
+        gh_cancelled=[{"id": 99, "name": "CodeQL"}],
+        reason="Required test failed",
+        dry_run=False,
+    )
+    text = summary_file.read_text(encoding="utf-8")
+    assert "k3-multiprocess-smoke" in text
+    assert "CodeQL" in text

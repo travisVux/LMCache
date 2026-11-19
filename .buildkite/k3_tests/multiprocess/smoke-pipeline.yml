@@ -148,6 +148,7 @@ steps:
       python3 .buildkite/scripts/fast_fail_cancel.py \
         --commit "$${BUILDKITE_COMMIT}" \
         --pr-number "$${BUILDKITE_PULL_REQUEST}" \
+        --head-branch "$${BUILDKITE_BRANCH}" \
         --current-build-id "$${BUILDKITE_BUILD_ID}" \
         --current-build-number "$${BUILDKITE_BUILD_NUMBER}" \
         --current-pipeline "$${BUILDKITE_PIPELINE_SLUG}" \

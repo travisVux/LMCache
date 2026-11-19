@@ -154,7 +154,7 @@ jobs:
     name: Fast fail (cancel sibling CI on required failure)
     needs: [pre-commit, test]
     if: >-
-      always() &&
+      !cancelled() &&
       (needs.pre-commit.result == 'failure' || needs.test.result == 'failure') &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository
@@ -177,6 +177,7 @@ jobs:
           persist-credentials: false
 
       - name: Cancel sibling GHA runs and Buildkite PR builds
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
           BUILDKITE_API_TOKEN: ${{ secrets.BUILD_KITE_API_TOKEN }}
@@ -194,9 +195,10 @@ jobs:
             --head-repo "${HEAD_REPO}" \
             --head-branch "${HEAD_BRANCH}" \
             --current-run-id "${RUN_ID}" \
-            --reason "Required workflow 'Code Quality' failed (run ${RUN_ID})" || true
+            --reason "Required workflow 'Code Quality' failed (run ${RUN_ID})"
 
       - name: Cancel this run
+        if: needs.test.result == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
