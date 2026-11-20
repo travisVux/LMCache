@@ -1,0 +1,15 @@
+# Jobs the weekly full suite may skip at preflight without failing.
+#
+# One job label per line, without the leading emoji, exactly as Buildkite
+# shows it (for example "sglang / deadlock / zmq"). Text after "#" is a
+# comment; give the reason and the issue that will remove the entry.
+#
+# Every entry here is coverage the weekly run does NOT have. The verdict
+# still lists each skip in its summary, so keep this list short.
+
+# SGLang adapter blacklist (scripts/engines/sglang.sh), added by #6119.
+# These jobs ran and passed in the last full dev build before it (#6196).
+sglang / deadlock / zmq                                # needs unified-connector deadlock launch profile
+sglang / long_doc_qa_l2 / zmq                          # unified SGLang integration does not expose L2 yet
+sglang / lm_eval_preemption / lmcache_driven / zmq     # preemption hooks not exposed by unified SGLang
+sglang / lm_eval_preemption / engine_driven / zmq      # preemption hooks not exposed by unified SGLang

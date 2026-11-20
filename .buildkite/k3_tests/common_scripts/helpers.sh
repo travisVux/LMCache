@@ -57,6 +57,11 @@ should_skip_expensive_k3_pipeline() {
         return 1
     fi
 
+    if [[ "${WEEKLY_FULL:-}" == "true" ]]; then
+        echo "--- :calendar: WEEKLY_FULL=true; running ${pipeline_name} tests"
+        return 1
+    fi
+
     if pr_has_label "force-ci"; then
         echo "--- :label: PR has 'force-ci'; running ${pipeline_name} tests"
         return 1

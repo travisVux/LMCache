@@ -96,12 +96,20 @@ image uses Python 3.12 while SGLang currently publishes its nightly wheel for
 CPython 3.10. `SGLANG_INSTALL_SPEC` remains available for an explicit per-build
 override.
 
+## Weekly full suite
+
+A weekly scheduled build (`WEEKLY_FULL=true`) runs every step, adds the
+full-size DeepSeek-V4-Flash TP=4 correctness test (`dsv4_flash_tp`), and ends
+with a verdict step that fails the build when any required job failed, did
+not run, or was skipped. See [weekly/README.md](weekly/README.md).
+
 ## Directory layout
 
 ```text
 multiprocess/
 ├── pipeline.yml                 # Buildkite steps and pod resources
 ├── run.sh                       # Pod entry point and environment setup
+├── weekly/                      # Weekly full-suite verdict and allowed skips
 └── scripts/
     ├── engines/
     │   ├── README.md            # Adapter API details

@@ -72,6 +72,7 @@ Detection:
   (default `main`) using the merge-base.
 - Push builds diff `HEAD~1..HEAD`.
 - Scheduled builds (`BUILDKITE_SOURCE=schedule`) are never skipped.
+- Weekly full-suite builds (`WEEKLY_FULL=true`, also when started by hand) are never skipped; see [multiprocess/weekly](multiprocess/weekly/README.md).
 - If the script can't determine the changed files (shallow clone with no
   parent, missing base branch, etc.) it falls back to "do not skip".
 

@@ -89,6 +89,53 @@ x-pod-1gpu: &pod-1gpu
     - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 1Gi } }
 
 steps:
+  # Weekly full suite only (WEEKLY_FULL=true, see weekly/README.md). Per-PR
+  # builds keep the reduced 6-layer DSV4 check below; the weekly build also
+  # loads the real 160GB fp8 DeepSeek-V4-Flash weights with TP=4, as the
+  # suite did before #6143. Listed first so the 4-GPU pods are scheduled
+  # before the 2- and 1-GPU jobs take the nodes.
+  - group: ":calendar: Weekly full: DSV4 full-size (4-GPU)"
+    key: "weekly-dsv4-full"
+    if: build.env("WEEKLY_FULL") =~ /^true$/ && build.env("VERIFY_AND_PIN_VLLM") !~ /true/ && build.env("VERIFY_AND_PIN_SGLANG") !~ /true/
+    steps:
+      # L1 KV correctness for DeepSeek-V4-Flash (sparse-MLA + fp8, TP=4).
+      # Each engine-specific launcher exercises its native DSV4 KV layout,
+      # clears only the engine-local prefix cache, then verifies that LMCache
+      # serves byte-identical greedy output from the L1 CPU pool. The 160GB fp8
+      # TP-shard load (plus the weight download on a cold hf-cache node) needs
+      # the long timeout.
+      - label: ":compression: {{matrix.inference_engine}} / dsv4_flash_tp / {{matrix.request_transport}}"
+        command: .buildkite/k3_tests/multiprocess/run.sh dsv4_flash_tp
+        matrix: *common-matrix
+        env:
+          INFERENCE_ENGINE: "{{matrix.inference_engine}}"
+          LMCACHE_REQUEST_TRANSPORT: "{{matrix.request_transport}}"
+        timeout_in_minutes: 120
+        # Retry only lost agents. A failed correctness check must stay red
+        # in the weekly run instead of passing on a second attempt.
+        retry:
+          automatic:
+            - exit_status: -1
+              limit: 2
+        agents: { queue: "k8s" }
+        plugins:
+          - kubernetes:
+              podSpec:
+                containers:
+                  - name: container-0
+                    image: lmcache/ci-base:latest
+                    imagePullPolicy: Never
+                    resources: { limits: { "nvidia.com/gpu": "4" } }
+                    volumeMounts:
+                      - { name: hf-cache, mountPath: /root/.cache/huggingface }
+                      - { name: dshm, mountPath: /dev/shm }
+                volumes:
+                  - { name: hf-cache, hostPath: { path: /data/huggingface, type: DirectoryOrCreate } }
+                  # TP=4 NCCL + inference-engine shared memory; the 1Gi used
+                  # by the smaller pods is too tight for four ranks.
+                  - { name: dshm, emptyDir: { medium: Memory, sizeLimit: 8Gi } }
+        artifact_paths: ["*.log", "ci_results_*/dsv4_flash_tp/**/*"]
+
   - group: ":compression: DSV4 (1-GPU)"
     if: build.env("VERIFY_AND_PIN_VLLM") !~ /true/ && build.env("VERIFY_AND_PIN_SGLANG") !~ /true/
     steps:
@@ -542,6 +589,8 @@ steps:
         # we branch on {{matrix.mode}} inside the command to set the
         # per-mode env before invoking the shared runner script.
         command: |
+          # Weekly full suite: record the outcome for the verdict (no-op otherwise).
+          trap 'rc=$$?; bash .buildkite/k3_tests/multiprocess/weekly/record-result.sh "$$( [ $$rc -eq 0 ] && echo passed || echo failed )" "exit $$rc"' EXIT
           case "{{matrix.mode}}" in
             shm) ;;  # rely on script defaults (engine-driven + shm transport)
             inline) export LMCACHE_SHM_NAME="" ;;
@@ -693,3 +742,34 @@ steps:
                       secretKeyRef:
                         name: buildkite-git-creds
                         key: GITHUB_TOKEN
+
+  # Weekly full suite verdict (WEEKLY_FULL=true only). Runs after every job,
+  # including failed ones, and fails the build when any required job did not
+  # pass: failed, missing (never ran, timed out, agent lost) or skipped at
+  # preflight without an entry in weekly/allowed-skips.txt. It also writes
+  # weekly_verdict.json and the `weekly-verdict` build meta-data that the
+  # dashboard reads. See weekly/README.md.
+  - wait: ~
+    if: build.env("WEEKLY_FULL") =~ /^true$/
+    continue_on_failure: true
+
+  - label: ":scales: Weekly full verdict"
+    key: "weekly-verdict"
+    if: build.env("WEEKLY_FULL") =~ /^true$/
+    command: |
+      # ci-base ships pyyaml in /opt/venv (uv venv, no pip module), so use uv.
+      python3 -c 'import yaml' 2>/dev/null || uv pip install --quiet pyyaml
+      python3 .buildkite/k3_tests/multiprocess/weekly/verdict.py
+    timeout_in_minutes: 10
+    agents: { queue: "k8s" }
+    plugins:
+      - kubernetes:
+          podSpec:
+            containers:
+              - name: container-0
+                image: lmcache/ci-base:latest
+                imagePullPolicy: Never
+                resources:
+                  requests: { cpu: "1", memory: "2Gi" }
+                  limits: { cpu: "2", memory: "4Gi" }
+    artifact_paths: ["weekly_verdict.json", "weekly_verdict.md"]

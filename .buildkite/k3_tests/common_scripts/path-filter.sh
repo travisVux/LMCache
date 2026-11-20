@@ -273,6 +273,13 @@ should_skip_ci() {
         return 1
     fi
 
+    # Never skip the weekly full suite, also when it is started by hand
+    # (BUILDKITE_SOURCE=ui) and the newest commit only touches docs.
+    if [[ "${WEEKLY_FULL:-}" == "true" ]]; then
+        echo "path-filter: weekly full suite (WEEKLY_FULL=true) → not skipping" >&2
+        return 1
+    fi
+
     local changed_files
     if ! changed_files=$(_path_filter_get_changed_files); then
         echo "path-filter: could not determine changed files → not skipping" >&2

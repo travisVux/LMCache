@@ -33,6 +33,21 @@ case "${PIPELINE_FILE}" in
         ;;
 esac
 
+if [[ "${WEEKLY_FULL:-}" == "true" ]]; then
+    if [[ "${PIPELINE_FILE}" != *k3_tests/multiprocess/pipeline.yml ]]; then
+        echo "WEEKLY_FULL=true is only defined for the multiprocess pipeline" >&2
+        exit 1
+    fi
+    if [[ "${VERIFY_AND_PIN_VLLM:-}" == "true" || "${VERIFY_AND_PIN_SGLANG:-}" == "true" ]]; then
+        echo "WEEKLY_FULL=true cannot be combined with VERIFY_AND_PIN_*: those skip every test group" >&2
+        exit 1
+    fi
+    # Tag the build first, so the dashboard finds it even if it dies early.
+    if command -v buildkite-agent >/dev/null 2>&1; then
+        buildkite-agent meta-data set "weekly-full" "true" || true
+    fi
+fi
+
 if [[ -n "${expensive_pipeline_name}" ]] && \
     should_skip_expensive_k3_pipeline "${expensive_pipeline_name}"; then
     echo "+++ :fast_forward: Skipping ${expensive_pipeline_name} CI"

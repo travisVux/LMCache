@@ -36,6 +36,28 @@ fi
 source "$ENGINE_ADAPTER"
 source "${SCRIPT_DIR}/scripts/workload-discovery.sh"
 
+# Weekly full suite: record this job's outcome for the verdict step on every
+# exit path (pass, fail, preflight skip). No-op in PR and local builds.
+# Assumes the job runs in its own k8s pod (queue "k8s"): on timeout or cancel
+# the pod is torn down with all its processes, no record is written, and the
+# verdict counts the job as "missing" (= fail). On a shared bare-metal agent
+# a SIGTERM to run.sh would not reach run-single-test.sh in this mode.
+if [[ "${WEEKLY_FULL:-}" == "true" ]]; then
+    WEEKLY_RESULT_STATUS=""
+    WEEKLY_RESULT_REASON=""
+    weekly_record_result() {
+        local rc=$?
+        local result="${WEEKLY_RESULT_STATUS}"
+        if [[ -z "$result" ]]; then
+            if [[ "$rc" -eq 0 ]]; then result=passed; else result=failed; fi
+        fi
+        bash "${SCRIPT_DIR}/weekly/record-result.sh" "$result" \
+            "${WEEKLY_RESULT_REASON:-exit ${rc}}" || true
+        return "$rc"
+    }
+    trap weekly_record_result EXIT
+fi
+
 # Capability checks happen before installing the engine and test dependencies.
 # A shared Buildkite matrix can therefore include engines with different
 # feature sets without paying setup cost for unsupported combinations.
@@ -45,6 +67,10 @@ if resolve_engine_workload "$TEST_NAME" "${SCRIPT_DIR}/scripts" \
 else
     status=$?
     if [[ "$status" -eq "$WORKLOAD_UNSUPPORTED_STATUS" ]]; then
+        # The step stays green, but the weekly verdict sees the skip and
+        # fails unless the job is listed in weekly/allowed-skips.txt.
+        WEEKLY_RESULT_STATUS=skipped
+        WEEKLY_RESULT_REASON="unsupported by ${INFERENCE_ENGINE} adapter (preflight)"
         exit 0
     fi
     exit "$status"
@@ -64,4 +90,9 @@ fi
 find "${SCRIPT_DIR}/scripts" -type f -name '*.sh' -exec chmod +x {} +
 
 # ── Run the actual test logic ────────────────────────────────
+if [[ "${WEEKLY_FULL:-}" == "true" ]]; then
+    # No exec here: the EXIT trap above must run to record the outcome.
+    bash "${SCRIPT_DIR}/scripts/run-single-test.sh" "$TEST_NAME"
+    exit $?
+fi
 exec bash "${SCRIPT_DIR}/scripts/run-single-test.sh" "$TEST_NAME"
