@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-License-Identifier: Apache-2.0
 """Verdict for the weekly multiprocess full suite.
 
 The list of required jobs is computed from pipeline.yml itself: every
