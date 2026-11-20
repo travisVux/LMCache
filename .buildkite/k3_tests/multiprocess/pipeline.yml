@@ -693,7 +693,11 @@ steps:
           podSpec: *pod-1gpu
     artifact_paths: ["*.log", "verified_sglang_*.txt"]
 
-  - wait
+  # Not in weekly builds: a failed job before a plain wait stops everything
+  # after it, including the weekly verdict below. The pin steps it guards
+  # only exist in VERIFY_AND_PIN_* builds, which refuse WEEKLY_FULL.
+  - wait: ~
+    if: build.env("WEEKLY_FULL") !~ /^true$/
 
   - label: ":pushpin: Pin verified vLLM nightly"
     if: build.env("VERIFY_AND_PIN_VLLM") =~ /true/

@@ -87,6 +87,10 @@ before the Monday stand-up in both time zones.
 - Every job in a weekly build needs a unique label, and `parallelism > 1` is
   not supported: shards share one label, so one passing shard could hide a
   missing one. `verdict.py` stops with an error in both cases.
+- No plain `wait` may run in a weekly build: after a failure Buildkite stops
+  at a plain `wait`, so the verdict would never run. Use
+  `continue_on_failure: true` or an `if` that excludes `WEEKLY_FULL`.
+  `verdict.py` stops with an error otherwise.
 - Jobs must run in their own pod (queue `k8s`). On timeout or cancel the pod
   is removed with all its processes, the job writes no result, and the
   verdict counts it as missing.

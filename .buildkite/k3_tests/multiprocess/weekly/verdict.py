@@ -126,14 +126,25 @@ def required_jobs(pipeline_path: Path, env: dict[str, str]) -> list[str]:
     doc = yaml.safe_load(pipeline_path.read_text())
     labels: list[str] = []
 
+    weekly = env.get("WEEKLY_FULL") == "true"
+
     def visit(steps, parent_ok: bool):
         for step in steps or []:
             if not isinstance(step, dict):
-                continue  # "wait" shorthand
+                step = {step: None}  # shorthand, e.g. "wait"
             ok = parent_ok and eval_if(step.get("if"), env)
             if "group" in step:
                 visit(step.get("steps"), ok)
                 continue
+            plain_wait = "wait" in step and not step.get("continue_on_failure")
+            if weekly and ok and plain_wait:
+                # Buildkite stops at a plain wait after any failure, so the
+                # verdict step would never run in a failing week.
+                raise ValueError(
+                    "plain `wait` in a weekly build blocks the verdict on "
+                    "failure; add continue_on_failure or an `if` that "
+                    "excludes WEEKLY_FULL"
+                )
             if not ok or step.get("skip") or "command" not in step:
                 continue  # wait/block/trigger steps or excluded steps
             if step.get("key") == "weekly-verdict":
