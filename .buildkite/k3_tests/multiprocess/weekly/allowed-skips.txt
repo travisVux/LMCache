@@ -7,8 +7,9 @@
 # Every entry here is coverage the weekly run does NOT have. The verdict
 # still lists each skip in its summary, so keep this list short.
 
-# SGLang adapter blacklist (scripts/engines/sglang.sh), added by #6119.
-# These jobs ran and passed in the last full dev build before it (#6196).
+# SGLang adapter blacklist (ENGINE_COMMON_WORKLOAD_BLACKLIST in
+# scripts/engines/sglang.sh), present since the adapter was added (#5298).
+# These jobs have never run for SGLang; before this verdict they showed green.
 sglang / deadlock / zmq                                # needs unified-connector deadlock launch profile
 sglang / long_doc_qa_l2 / zmq                          # unified SGLang integration does not expose L2 yet
 sglang / lm_eval_preemption / lmcache_driven / zmq     # preemption hooks not exposed by unified SGLang
