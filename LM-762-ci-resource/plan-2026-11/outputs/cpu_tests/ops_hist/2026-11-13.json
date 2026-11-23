@@ -1,0 +1,198 @@
+{
+ "date": "2026-11-13",
+ "at": "2026-11-13T04:39:44Z",
+ "span_h": 24.0,
+ "rows": {
+  "PR Full Build": {
+   "total": 6892.9,
+   "cancelled": 742.3,
+   "failed": 14.1,
+   "rerun": 0.0
+  },
+  "Test": {
+   "total": 6216.9,
+   "cancelled": 2380.7,
+   "failed": 18.8,
+   "rerun": 0.0
+  },
+  "CPU Device Tests": {
+   "total": 6197.0,
+   "cancelled": 1041.2,
+   "failed": 114.1,
+   "rerun": 803.4
+  },
+  "k3-multiprocess-test": {
+   "total": 4772.4,
+   "cancelled": 43.5,
+   "failed": 30.7,
+   "rerun": 0.0
+  },
+  "xpu-mp-test": {
+   "total": 3830.4,
+   "cancelled": 3.7,
+   "failed": 5.7,
+   "rerun": 0.0
+  },
+  "Build and Publish to PyPI": {
+   "total": 3355.5,
+   "cancelled": 1620.0,
+   "failed": 31.0,
+   "rerun": 0.0
+  },
+  "Build and Deploy Online Documentation": {
+   "total": 2184.0,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "k3-unit-tests": {
+   "total": 1708.6,
+   "cancelled": 74.6,
+   "failed": 66.4,
+   "rerun": 0.0
+  },
+  "amd-mp-test": {
+   "total": 1209.6,
+   "cancelled": 16.4,
+   "failed": 15.2,
+   "rerun": 0.0
+  },
+  "k3-blend-test": {
+   "total": 523.5,
+   "cancelled": 0.0,
+   "failed": 242.8,
+   "rerun": 0.0
+  },
+  "unit-tests-xpu": {
+   "total": 491.2,
+   "cancelled": 0.1,
+   "failed": 7.6,
+   "rerun": 0.0
+  },
+  "Build nightly container image of latest code": {
+   "total": 388.2,
+   "cancelled": 0.0,
+   "failed": 22.7,
+   "rerun": 0.0
+  },
+  "Code Quality": {
+   "total": 376.7,
+   "cancelled": 240.9,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "CodeQL Advanced": {
+   "total": 296.2,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "rbln-mp-test": {
+   "total": 141.3,
+   "cancelled": 0.0,
+   "failed": 0.5,
+   "rerun": 0.0
+  },
+  "Build CPU Artifacts": {
+   "total": 21.1,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Build CLI Artifacts": {
+   "total": 21.0,
+   "cancelled": 13.5,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Scorecard supply-chain security": {
+   "total": 20.7,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "CPU Device Tests rerun": {
+   "total": 17.0,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Aerospike integration": {
+   "total": 10.5,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Operator: CI": {
+   "total": 5.5,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "k3-correctness-test": {
+   "total": 5.2,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Lint GitHub Actions workflows": {
+   "total": 4.4,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Operator: Nightly": {
+   "total": 3.6,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Close stale issues and PRs": {
+   "total": 1.9,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Label auto-merge PRs": {
+   "total": 1.8,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Operator: Release": {
+   "total": 0.0,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  },
+  "Build Client Artifacts": {
+   "total": 0.0,
+   "cancelled": 0.0,
+   "failed": 0.0,
+   "rerun": 0.0
+  }
+ },
+ "tot": {
+  "CPU_total": 26014.7,
+  "CPU_ok": 18562.6,
+  "CPU_failed": 200.7,
+  "CPU_cancelled": 6038.6,
+  "CPU_rerun": 803.4,
+  "GPU_total": 7009.7,
+  "GPU_ok": 6551.5,
+  "GPU_failed": 340.0,
+  "GPU_cancelled": 118.1,
+  "GPU_rerun": 0.0,
+  "Accel_total": 5672.5,
+  "Accel_ok": 5623.2,
+  "Accel_failed": 29.0,
+  "Accel_cancelled": 20.2,
+  "Accel_rerun": 0.0
+ },
+ "extras": {
+  "nightly_fail": 9,
+  "feat_tests_pct": 97.9,
+  "roadmap_uncovered": 1,
+  "green_wait": 42
+ }
+}

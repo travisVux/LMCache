@@ -1,0 +1,323 @@
+{
+ "build": "14829",
+ "job": "01a1b003-f6d6-44c7-8a16-94609e4567b9",
+ "job_wall_s": 1433,
+ "pytest_wall_s": 1299,
+ "setup_s": 134,
+ "tests_timed": 10707,
+ "buckets": {
+  "cpu_portable": {
+   "tests": 8981,
+   "seconds": 753,
+   "share_of_pytest": 0.5794
+  },
+  "skipped": {
+   "tests": 454,
+   "seconds": 7,
+   "share_of_pytest": 0.0055
+  },
+  "k3_only": {
+   "tests": 1267,
+   "seconds": 528,
+   "share_of_pytest": 0.4062
+  },
+  "failed": {
+   "tests": 5,
+   "seconds": 12,
+   "share_of_pytest": 0.0089
+  }
+ },
+ "top_files": {
+  "cpu_portable": [
+   [
+    "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py",
+    70
+   ],
+   [
+    "tests/v1/utils/test_frozen_dict.py",
+    47
+   ],
+   [
+    "tests/v1/multiprocess/test_mq.py",
+    44
+   ],
+   [
+    "tests/v1/distributed/test_multi_l1.py",
+    32
+   ],
+   [
+    "tests/v1/distributed/test_devdax_l1_allocator.py",
+    30
+   ],
+   [
+    "tests/inprocess/v1/storage_backend/test_valkey_connector.py",
+    27
+   ],
+   [
+    "tests/cli/commands/test_directed_registration.py",
+    24
+   ],
+   [
+    "tests/v1/distributed/test_native_connector_l2_adapter.py",
+    23
+   ],
+   [
+    "tests/v1/multiprocess/test_grpc_server_shutdown.py",
+    19
+   ],
+   [
+    "tests/v1/multiprocess/test_grpc_real_server.py",
+    14
+   ],
+   [
+    "tests/inprocess/v1/storage_backend/test_connector.py",
+    13
+   ],
+   [
+    "tests/cli/commands/trace/test_driver.py",
+    13
+   ]
+  ],
+  "skipped": [
+   [
+    "tests/inprocess/v1/storage_backend/shm_allocator/test_shm_allocator.py",
+    7
+   ],
+   [
+    "tests/v1/platform/devices/mlu/test_mlu_transfer.py",
+    0
+   ],
+   [
+    "tests/v1/test_mp_connector_autostart.py",
+    0
+   ],
+   [
+    "tests/v1/distributed/test_nixl_native_integration.py",
+    0
+   ],
+   [
+    "tests/inprocess/v1/storage_backend/test_gds_backend.py",
+    0
+   ],
+   [
+    "tests/inprocess/v1/storage_backend/test_rust_raw_block_backend.py",
+    0
+   ],
+   [
+    "tests/inprocess/v1/test_xpu_connector.py",
+    0
+   ],
+   [
+    "tests/inprocess/v1/lookup_client/test_lmcache_lookup_client.py",
+    0
+   ],
+   [
+    "tests/inprocess/v1/test_musa_connector.py",
+    0
+   ],
+   [
+    "tests/v1/distributed/test_hf3fs_l2_adapter.py",
+    0
+   ],
+   [
+    "tests/v1/distributed/raw_block/test_core.py",
+    0
+   ],
+   [
+    "tests/v1/test_vllm_dcp_support.py",
+    0
+   ]
+  ],
+  "k3_only": [
+   [
+    "tests/inprocess/v1/test_cache_engine.py",
+    96
+   ],
+   [
+    "tests/v1/test_mem_kernels.py",
+    53
+   ],
+   [
+    "tests/inprocess/benchmarks/test_benchmark.py",
+    40
+   ],
+   [
+    "tests/v1/distributed/test_distributed_storage_manager.py",
+    32
+   ],
+   [
+    "tests/inprocess/v1/test_gpu_connector.py",
+    28
+   ],
+   [
+    "tests/v1/multiprocess/test_futures.py",
+    24
+   ],
+   [
+    "tests/v1/multiprocess/test_cache_server.py",
+    22
+   ],
+   [
+    "tests/v1/distributed/test_prefetch_controller.py",
+    20
+   ],
+   [
+    "tests/v1/distributed/test_object_key_parallel.py",
+    18
+   ],
+   [
+    "tests/v1/multiprocess/test_sigterm_cleanup.py",
+    15
+   ],
+   [
+    "tests/v1/distributed/test_l1_manager.py",
+    15
+   ],
+   [
+    "tests/v1/distributed/serde/test_serde_e2e.py",
+    15
+   ]
+  ],
+  "failed": [
+   [
+    "tests/inprocess/v1/storage_backend/test_remote_mla_worker_id_as0.py",
+    10
+   ],
+   [
+    "tests/v1/multiprocess/test_grpc_transport.py",
+    1
+   ],
+   [
+    "tests/inprocess/v1/health_monitor/test_health_monitor_fallback_recovery.py",
+    0
+   ]
+  ]
+ },
+ "top_tests": [
+  [
+   "tests/v1/utils/test_frozen_dict.py::test_freeze_dict_can_sort_keys",
+   46.7,
+   "PASSED"
+  ],
+  [
+   "tests/inprocess/v1/test_gpu_connector.py::test_vllm_paged_connector_v2_to_gpu_bench",
+   27.0,
+   "PASSED"
+  ],
+  [
+   "tests/inprocess/v1/test_cache_engine.py::test_force_store_wait",
+   24.5,
+   "PASSED"
+  ],
+  [
+   "tests/inprocess/v1/storage_backend/test_remote_mla_worker_id_as0.py::test_remote_mla_worker_id_as0",
+   10.0,
+   "ERROR"
+  ],
+  [
+   "tests/v1/test_mem_kernels.py::test_multi_layer_kernel_use_mla[engine_kv_format0-576-8000]",
+   8.0,
+   "PASSED"
+  ],
+  [
+   "tests/v1/test_mem_kernels.py::test_multi_layer_kernel_use_mla[engine_kv_format0-66-8000]",
+   7.9,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_grpc_real_server.py::test_client_recovers_after_the_server_crashes[sync]",
+   7.2,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_grpc_real_server.py::test_client_recovers_after_the_server_crashes[aio]",
+   7.2,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/test_directed_registration.py::test_root_bare_and_unknown_list_every_choice",
+   6.2,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_client.py::test_business_callers_create_clients_through_factory",
+   6.0,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_grpc_server_shutdown.py::test_http_server_exits_on_ctrl_c",
+   5.8,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/test_directed_registration.py::test_nested_bench_quality_routes",
+   5.8,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_usage_telemetry_server.py::test_server_emits_usage_reports",
+   5.3,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_sigterm_cleanup.py::test_http_cli_signal_unlinks_shm_pool[sigint]",
+   5.2,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerLRUInvariant::test_pass2_zero_hits_when_pool_overflows[1000-950]",
+   5.2,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerLRUInvariant::test_pass2_zero_hits_when_pool_overflows[100-50]",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/v1/multiprocess/test_sigterm_cleanup.py::test_zmq_cli_sigterm_unlinks_shm_pool",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerLRUInvariant::test_pass2_zero_hits_when_pool_overflows[21-20]",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerWorkloadAccessOrder::test_pass1_is_sequential",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerWorkloadAccessOrder::test_pass2_matches_pass1",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerLRUInvariant::test_pass2_zero_hits_when_pool_overflows[40-38]",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerLRUInvariant::test_pass2_all_hits_when_pool_equals_tier",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerTwoPassOrdering::test_pass1_and_pass2_use_different_breakers",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerFullRun::test_full_run",
+   5.0,
+   "PASSED"
+  ],
+  [
+   "tests/cli/commands/bench/engine_bench/workloads/test_prefix_suffix_tuner.py::TestPrefixSuffixTunerLRUInvariant::test_pass2_all_hits_when_pool_fits_in_tier",
+   5.0,
+   "PASSED"
+  ]
+ ]
+}

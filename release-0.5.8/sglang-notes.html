@@ -1,0 +1,56 @@
+<section class="notes" lang="vi">
+  <div class="note">
+    <h2>Bối cảnh</h2>
+    <p>LMCache ghim <code>torch==2.14.0</code> trong <code>pyproject.toml</code>. Wheel trên PyPI được build với đúng torch này, nên phần code C++/CUDA của LMCache chỉ chắc chắn chạy được với torch 2.14.0.</p>
+    <p>Image <code>lmcache/sglang</code> = image chính thức <code>lmsysorg/sglang</code> + wheel LMCache cài thêm. Vì vậy CI phải chọn một bản SGLang <b>dùng cùng torch</b> với LMCache.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 1</span> Không có bản SGLang nào dùng đúng torch 2.14.0</h2>
+    <p>Bước "Resolve the newest SGLang release image" đi lùi từ bản SGLang mới nhất và tìm bản có torch <b>giống hệt</b> 2.14.0:</p>
+    <table>
+      <tr><th>SGLang</th><th>torch</th><th>Khớp 2.14.0?</th></tr>
+      <tr><td>v0.5.23, v0.5.22</td><td>2.14.1</td><td class="bad">không (lệch bản vá)</td></tr>
+      <tr><td>v0.5.21 → v0.5.18</td><td>2.13.0</td><td class="bad">không</td></tr>
+    </table>
+    <p>Không tìm được bản nào khớp, nên bước này báo lỗi. Các bước build image phía sau bị skip, và <b>không có image <code>lmcache/sglang:v0.5.8rc1</code></b>.</p>
+    <p class="muted">Lane vLLM thì OK: vLLM 0.33.0 dùng đúng torch 2.14.0, nên <code>lmcache/vllm-openai:v0.5.8rc1</code> có trên Docker Hub.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 2</span> Không thể đơn giản nâng lên 2.14.1</h2>
+    <p>Cách sửa "dễ" là đổi pin của LMCache sang <code>torch==2.14.1</code> cho khớp SGLang. Nhưng:</p>
+    <ul>
+      <li>Cùng <b>một pin</b> này được dùng cho cả wheel PyPI, image vLLM và image SGLang.</li>
+      <li>vLLM 0.33.0 bắt buộc <code>torch==2.14.0</code>.</li>
+      <li>Nâng lên 2.14.1 thì SGLang khớp nhưng <b>image vLLM lại hỏng</b>.</li>
+    </ul>
+    <p><b>Tóm lại:</b> một pin torch phải phục vụ 2 engine đang dùng 2 bản vá khác nhau. Không có giá trị nào khớp cả hai.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 1</span> Chấp nhận cùng major.minor (2.14.x)</h2>
+    <p>Branch <code>fix/sglang-torch-minor-match</code> (commit <code>7ae3da34</code>):</p>
+    <ul>
+      <li>Ưu tiên bản SGLang khớp đúng 2.14.0. Nếu không có, lấy bản mới nhất cùng <code>2.14.*</code>, tức là v0.5.23 (torch 2.14.1).</li>
+      <li>Dockerfile vẫn kiểm tra kỹ: cài LMCache không được làm đổi torch, code native của LMCache phải load được, connector SGLang phải import được. Nếu 2.14.0 và 2.14.1 không tương thích thì build vẫn báo lỗi, không ship image hỏng.</li>
+    </ul>
+    <p class="muted">Bản vá (2.14.0 → 2.14.1) thường giữ tương thích, nhưng không được đảm bảo. Các bước kiểm tra trên là lưới an toàn.</p>
+    <p class="warn">Trạng thái: mới push lên fork, <b>chưa có PR, chưa chạy CI</b>.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 2</span> Build LMCache ngay trên torch của SGLang</h2>
+    <p>Không cài wheel từ PyPI nữa, mà build LMCache từ source <b>bên trong</b> image SGLang, với torch của chính SGLang (2.14.1).</p>
+    <ul>
+      <li>Ưu: torch luôn khớp tuyệt đối, không phụ thuộc pin nào nữa.</li>
+      <li>Nhược: build lâu hơn, image cần thêm compiler CUDA, và wheel trong image khác wheel trên PyPI.</li>
+    </ul>
+    <p class="warn">Trạng thái: đề xuất, chưa làm.</p>
+  </div>
+
+  <div class="note">
+    <h2>Tóm tắt</h2>
+    <p><span class="sw s1"></span>Solution 1 nhỏ, sửa được ngay cho 0.5.8.<br><span class="sw s2"></span>Solution 2 bền hơn nhưng tốn công, nên cân nhắc cho bản sau.</p>
+  </div>
+</section>

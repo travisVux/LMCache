@@ -1,0 +1,233 @@
+{
+"3992": [
+"full",
+"skip expensive ci"
+],
+"4105": [
+"full",
+"dependencies",
+"github_actions",
+"stale"
+],
+"4549": [
+"full",
+"stale",
+"skip expensive ci"
+],
+"4697": [
+"full",
+"skip expensive ci"
+],
+"4812": [
+"full"
+],
+"4934": [
+"full",
+"skip expensive ci"
+],
+"5035": [
+"full",
+"skip expensive ci"
+],
+"5174": [
+"full"
+],
+"5556": [
+"full"
+],
+"5639": [
+"full",
+"skip expensive ci"
+],
+"5697": [
+"skip expensive ci"
+],
+"5713": [
+"full"
+],
+"5843": [
+"full"
+],
+"5865": [
+"full"
+],
+"5871": [
+"full"
+],
+"5902": [
+"full",
+"skip expensive ci"
+],
+"5931": [
+"full",
+"skip expensive ci"
+],
+"6002": [
+"full",
+"skip expensive ci"
+],
+"6054": [
+"full",
+"skip expensive ci"
+],
+"6125": [
+"full"
+],
+"6143": [
+"mp"
+],
+"6199": [
+"full"
+],
+"6231": [
+"full",
+"skip expensive ci"
+],
+"6234": [
+"full"
+],
+"6241": [
+"full",
+"skip expensive ci"
+],
+"6244": [
+"full",
+"ci-ready",
+"skip expensive ci"
+],
+"6252": [
+"full"
+],
+"6254": [
+"full"
+],
+"6256": [
+"full",
+"skip expensive ci"
+],
+"6258": [
+"full"
+],
+"6260": [
+"full",
+"skip expensive ci"
+],
+"6261": [
+"full",
+"skip expensive ci"
+],
+"6265": [
+"full"
+],
+"6266": [
+"full"
+],
+"6267": [
+"full"
+],
+"6269": [
+"full"
+],
+"6270": [
+"full",
+"skip expensive ci"
+],
+"6275": [
+"full"
+],
+"6278": [
+"full"
+],
+"6279": [
+"full",
+"skip expensive ci"
+],
+"6281": [
+"full",
+"xpu",
+"skip expensive ci"
+],
+"6282": [
+"full",
+"skip expensive ci"
+],
+"6283": [
+"full",
+"skip expensive ci"
+],
+"6286": [
+"full",
+"skip expensive ci"
+],
+"6294": [
+"full",
+"skip expensive ci"
+],
+"6302": [
+"full",
+"skip expensive ci"
+],
+"6303": [
+"full",
+"skip expensive ci"
+],
+"6306": [
+"full",
+"skip expensive ci"
+],
+"6318": [
+"full"
+],
+"6326": [
+"full",
+"xpu",
+"skip expensive ci"
+],
+"6331": [
+"full",
+"skip expensive ci"
+],
+"6343": [
+"full",
+"skip expensive ci"
+],
+"6350": [
+"full",
+"skip expensive ci"
+],
+"6358": [
+"full"
+],
+"6369": [
+"full"
+],
+"6377": [
+"full",
+"xpu",
+"skip expensive ci"
+],
+"6383": [
+"full",
+"skip expensive ci"
+],
+"6384": [
+"full",
+"skip expensive ci"
+],
+"6390": [
+"full",
+"skip expensive ci"
+],
+"6394": [
+"documentation",
+"full"
+],
+"6397": [
+"full",
+"skip expensive ci"
+],
+"6583": [
+"full",
+"skip expensive ci"
+]
+}

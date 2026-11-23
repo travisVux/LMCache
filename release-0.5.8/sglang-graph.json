@@ -1,0 +1,46 @@
+{
+  "mode": "flow",
+  "title": "v0.5.8rc1 image build: vLLM vs SGLang",
+  "subtitle": "One torch pin (2.14.0) feeds two engines. vLLM matches it. SGLang does not: 2 issues, 2 solutions.",
+  "footer": "Data: release run 43357734309 (2026-11-13) · SGLang pyproject.toml per tag · branch fix/sglang-torch-minor-match (7ae3da34)",
+  "nodes": [
+    {"id": "T",  "label": "TAG v0.5.8rc1", "shape": "pill"},
+    {"id": "P",  "label": "LMCache pin torch==2.14.0"},
+    {"id": "V",  "label": "vLLM 0.33.0 pins torch 2.14.0"},
+    {"id": "S",  "label": "SGLang v0.5.23/22 = 2.14.1, v0.5.21- = 2.13.0"},
+    {"id": "VM", "label": "exact 2.14.0?", "shape": "decision"},
+    {"id": "SM", "label": "exact 2.14.0?", "shape": "decision"},
+    {"id": "VI", "label": "vllm-openai:v0.5.8rc1 PUSHED", "shape": "pill"},
+    {"id": "I1", "label": "ISSUE 1: resolve exits, no sglang image", "semStroke": "#f43f5e"},
+    {"id": "I2", "label": "ISSUE 2: pin 2.14.1 breaks vLLM lane", "semStroke": "#f43f5e"},
+    {"id": "S1", "label": "SOLUTION 1: major.minor fallback to v0.5.23", "semStroke": "#22d3ee", "semDash": "6 3"},
+    {"id": "S2", "label": "SOLUTION 2: build lmcache on SGLang torch", "semStroke": "#22d3ee", "semDash": "6 3"},
+    {"id": "G",  "label": "native ops + connector load checks"},
+    {"id": "SI", "label": "sglang:v0.5.8rc1 PUSHED", "shape": "pill"}
+  ],
+  "edges": [
+    {"from": "T",  "to": "P",  "kind": "main"},
+    {"from": "P",  "to": "V",  "kind": "sync"},
+    {"from": "P",  "to": "S",  "kind": "sync"},
+    {"from": "V",  "to": "VM", "kind": "sync"},
+    {"from": "S",  "to": "SM", "kind": "sync"},
+    {"from": "VM", "to": "VI", "kind": "main", "label": "yes"},
+    {"from": "SM", "to": "I1", "kind": "main", "label": "no"},
+    {"from": "I1", "to": "I2", "kind": "async", "label": "bump pin?"},
+    {"from": "I1", "to": "S1", "kind": "sync"},
+    {"from": "I1", "to": "S2", "kind": "sync"},
+    {"from": "S1", "to": "G",  "kind": "sync"},
+    {"from": "S2", "to": "G",  "kind": "sync"},
+    {"from": "G",  "to": "SI", "kind": "main"}
+  ],
+  "journeys": [
+    {"color": "#34d399", "hops": [["T","P"],["P","V"],["V","VM"],["VM","VI"]]},
+    {"color": "#f43f5e", "hops": [["P","S"],["S","SM"],["SM","I1"],["I1","I2"]]},
+    {"color": "#22d3ee", "hops": [["I1","S1"],["S1","G"],["G","SI"]]},
+    {"color": "#22d3ee", "hops": [["I1","S2"],["S2","G"]]}
+  ],
+  "legendExtra": [
+    {"label": "issue (today)", "stroke": "#f43f5e"},
+    {"label": "solution (proposed)", "stroke": "#22d3ee", "dash": "6 3"}
+  ]
+}

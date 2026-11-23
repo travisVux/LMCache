@@ -1,0 +1,40 @@
+{
+  "mode": "flow",
+  "title": "MUSA wheel build: v0.5.7.post1 vs v0.5.8rc1",
+  "subtitle": "Same CI image, same broken torch_musa path. post1 never needs it. rc1 does (#5865): 2 issues, 2 solutions.",
+  "footer": "Data: release run 43357734309 job 131689267354 (2026-11-13) · dev publish runs 11-07..11-12 · branch fix/musa-wheel-build (6fe78159)",
+  "nodes": [
+    {"id": "T",   "label": "BUILD MUSA WHEEL", "shape": "pill"},
+    {"id": "IMG", "label": "CI image: torch 2.9.1, torch_musa path broken"},
+    {"id": "OLD", "label": "v0.5.7.post1: no #5865, C++ only"},
+    {"id": "NEW", "label": "v0.5.8rc1: #5865 imports torch_musa"},
+    {"id": "OK",  "label": "v0.5.7.post1-musa PUBLISHED", "shape": "pill"},
+    {"id": "D",   "label": "torch_musa loads?", "shape": "decision"},
+    {"id": "I1",  "label": "ISSUE 1: ModuleNotFoundError, no rc1 -musa wheel"},
+    {"id": "I2",  "label": "ISSUE 2: red on dev since 11-07, 0 PR checks"},
+    {"id": "S1",  "label": "SOLUTION 1: add /home/torch_musa to PYTHONPATH"},
+    {"id": "S2",  "label": "SOLUTION 2: MUSA build on PRs touching musa files"},
+    {"id": "G",   "label": "fail-fast: import torch_musa first"},
+    {"id": "E",   "label": "v0.5.8-musa PUBLISHED", "shape": "pill"}
+  ],
+  "edges": [
+    {"from": "T",   "to": "IMG", "kind": "main"},
+    {"from": "IMG", "to": "OLD", "kind": "sync"},
+    {"from": "IMG", "to": "NEW", "kind": "sync"},
+    {"from": "OLD", "to": "OK",  "kind": "main"},
+    {"from": "NEW", "to": "D",   "kind": "sync"},
+    {"from": "D",   "to": "I1",  "kind": "main", "label": "no"},
+    {"from": "I1",  "to": "I2",  "kind": "async", "label": "why so late?"},
+    {"from": "I1",  "to": "S1",  "kind": "sync"},
+    {"from": "I2",  "to": "S2",  "kind": "sync"},
+    {"from": "S1",  "to": "G",   "kind": "sync"},
+    {"from": "S2",  "to": "G",   "kind": "sync"},
+    {"from": "G",   "to": "E",   "kind": "main"}
+  ],
+  "journeys": [
+    {"color": "#34d399", "hops": [["T","IMG"],["IMG","OLD"],["OLD","OK"]]},
+    {"color": "#f43f5e", "hops": [["IMG","NEW"],["NEW","D"],["D","I1"],["I1","I2"]]},
+    {"color": "#22d3ee", "hops": [["I1","S1"],["S1","G"],["G","E"]]},
+    {"color": "#22d3ee", "hops": [["I2","S2"],["S2","G"]]}
+  ]
+}

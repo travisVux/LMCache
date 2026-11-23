@@ -1,0 +1,552 @@
+pr,build,label,workload,engine,exit,retried,infra_exit,rule_runs_it,classes
+3766,5481,:compression: vllm_bench,vllm_bench,,1,True,False,no,core
+3766,5481,:compression: long_doc_qa,long_doc_qa,,1,True,False,no,core
+3766,5481,:compression: long_doc_qa,long_doc_qa,,1,False,False,no,core
+3766,5481,:compression: long_doc_qa_l2,long_doc_qa_l2,,1,True,False,no,core
+3766,5481,:compression: long_doc_qa_l2,long_doc_qa_l2,,1,False,False,no,core
+3766,5481,:compression: deadlock,deadlock,,1,True,False,no,core
+3766,5481,:compression: deadlock,deadlock,,1,False,False,no,core
+3766,5481,:compression: p2p,p2p,,1,True,False,no,core
+3766,5481,:compression: p2p,p2p,,1,False,False,no,core
+3766,5481,:compression: hma_lm_eval_gemma4,hma_lm_eval_gemma4,,1,True,False,no,core
+3766,5481,:compression: hma_lm_eval_gemma4,hma_lm_eval_gemma4,,1,False,False,no,core
+3766,5481,:compression: restart_recovery,restart_recovery,,1,True,False,no,core
+3766,5481,:compression: restart_recovery,restart_recovery,,1,False,False,no,core
+3766,5481,:compression: cache_stats,cache_stats,,1,True,False,no,core
+3766,5481,:compression: cache_stats,cache_stats,,1,False,False,no,core
+3766,5481,:compression: gds_smoke_test,gds_smoke,,1,True,False,no,core
+3766,5481,:compression: gds_smoke_test,gds_smoke,,1,False,False,no,core
+3766,5481,:compression: cpu_e2e_validation (server-side copy),cpu_e2e_validation,,1,True,False,yes,core
+3766,5481,:compression: cpu_e2e_validation (server-side copy),cpu_e2e_validation,,1,False,False,yes,core
+3783,5658,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,core;tests_only
+3783,5658,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;tests_only
+3783,5658,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;tests_only
+3992,6370,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / long_doc_qa_l2 / zmq,long_doc_qa_l2,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / long_doc_qa_l2 / zmq,long_doc_qa_l2,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / deadlock / zmq,deadlock,sglang,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / mp_autostart_tp2 / zmq,mp_autostart_tp2,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / p2p / zmq,p2p,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,128,True,True,no,adapter;docs
+3992,6370,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,128,True,True,yes,adapter;docs
+3992,6370,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,128,True,True,yes,adapter;docs
+3992,6370,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,128,False,True,yes,adapter;docs
+3992,6370,:compression: vllm / lm_eval_engine_driven / zmq,lm_eval,vllm,128,True,True,yes,adapter;docs
+3992,6370,:compression: vllm / lm_eval_engine_driven / zmq,lm_eval,vllm,128,True,True,yes,adapter;docs
+3992,6370,:compression: vllm / lm_eval_engine_driven / zmq,lm_eval,vllm,128,False,True,yes,adapter;docs
+3992,6370,:compression: sglang / lm_eval_lmcache_driven / zmq,lm_eval,sglang,128,True,True,no,adapter;docs
+3992,6370,:compression: vllm / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,vllm,128,False,True,yes,adapter;docs
+3992,6370,:compression: sglang / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,sglang,128,False,True,no,adapter;docs
+3992,6370,:compression: sglang / lm_eval_preemption / engine_driven / zmq,lm_eval_preemption,sglang,128,False,True,no,adapter;docs
+3992,6370,:compression: preemption_correctness / async=0,preemption_correctness,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: preemption_correctness / async=1,preemption_correctness,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / restart_recovery / zmq,restart_recovery,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / restart_recovery / grpc,restart_recovery,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: sglang / restart_recovery / zmq,restart_recovery,sglang,128,False,True,no,adapter;docs
+3992,6370,:compression: sglang / restart_recovery / grpc,restart_recovery,sglang,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / cache_stats / zmq,cache_stats,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / lazy_offload / zmq,lazy_offload,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: sglang / http_api / zmq,http_api,sglang,128,False,True,no,adapter;docs
+3992,6370,:compression: vllm / gds_smoke / zmq,gds_smoke,vllm,128,False,True,no,adapter;docs
+3992,6370,:compression: cpu_e2e_validation (shm / zmq),cpu_e2e_validation,,128,False,True,yes,adapter;docs
+3992,6370,:compression: cpu_e2e_validation (inline / zmq),cpu_e2e_validation,,128,False,True,yes,adapter;docs
+3992,6370,:compression: cpu_e2e_validation (server_copy / zmq),cpu_e2e_validation,,128,False,True,yes,adapter;docs
+3992,6359,:compression: gds_smoke_test / zmq,gds_smoke,,2,False,True,no,adapter;docs
+4018,5466,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;kv_layout;other_platform;tests_only
+4018,5466,:compression: vllm / restart_recovery / zmq,restart_recovery,vllm,1,False,False,yes,adapter;core;kv_layout;other_platform;tests_only
+4018,5466,:compression: vllm / restart_recovery / grpc,restart_recovery,vllm,1,False,False,yes,adapter;core;kv_layout;other_platform;tests_only
+4018,5465,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;kv_layout;other_platform;tests_only
+4018,5465,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,1,True,False,yes,adapter;core;kv_layout;other_platform;tests_only
+4018,5465,:compression: vllm / lm_eval_engine_driven / zmq,lm_eval,vllm,1,True,False,yes,adapter;core;kv_layout;other_platform;tests_only
+4018,5465,:compression: vllm / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,vllm,1,False,False,yes,adapter;core;kv_layout;other_platform;tests_only
+4018,5465,:compression: vllm / restart_recovery / zmq,restart_recovery,vllm,128,False,True,yes,adapter;core;kv_layout;other_platform;tests_only
+4072,6322,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,proxy(layout_smoke),adapter;kv_layout;tests_only
+4410,6073,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5862,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5862,:electric_plug: kimi_linear_tp_engine_driven / shm,kimi_linear_tp_engine_driven,,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5857,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5843,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5843,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5843,:electric_plug: kimi_linear_tp_engine_driven / pickle,kimi_linear_tp_engine_driven,,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5843,:electric_plug: kimi_linear_tp_engine_driven / pickle,kimi_linear_tp_engine_driven,,1,True,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5843,:electric_plug: kimi_linear_tp_engine_driven / pickle,kimi_linear_tp_engine_driven,,1,False,False,no,adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5603,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,proxy(layout_smoke),adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5603,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,proxy(layout_smoke),adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4410,5603,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,proxy(layout_smoke),adapter;core;deps_ci;kernel;kv_layout;other_platform;tests_only
+4470,5750,:compression: gds_smoke_test,gds_smoke,,2,True,True,no,core;tests_only
+4470,5750,:compression: gds_smoke_test,gds_smoke,,2,False,True,no,core;tests_only
+4549,6361,:compression: gds_smoke_test,gds_smoke,,2,False,True,no,deps_ci
+4549,6361,:compression: cpu_e2e_validation (server_copy),cpu_e2e_validation,,1,False,False,no,deps_ci
+4776,5543,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel;kv_layout
+4776,5543,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel;kv_layout
+4812,6302,:compression: gds_smoke_test,gds_smoke,,2,True,True,no,core
+4812,6302,:compression: gds_smoke_test,gds_smoke,,2,False,True,no,core
+5078,5993,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+5078,5929,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5078,5929,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5078,5929,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,False,True,no,core;docs;tests_only
+5150,6091,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,6091,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,6091,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,6089,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,6089,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,6089,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,False,False,no,adapter;core;docs;kv_layout;tests_only
+5150,5882,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,5757,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,2,True,True,no,adapter;core;docs;kv_layout;tests_only
+5150,5757,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5150,5757,:compression: vllm / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,vllm,2,False,True,yes,adapter;core;docs;kv_layout;tests_only
+5150,5597,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+5157,5488,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;kernel;kv_layout;tests_only
+5167,6046,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,yes,core;deps_ci
+5222,5700,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5222,5700,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5260,5837,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;tests_only
+5289,6155,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,yes,deps_ci
+5289,6150,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci
+5322,5579,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;tests_only
+5341,5508,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5341,5508,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5341,5508,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,proxy(layout_smoke),core;docs;kernel;kv_layout;other_platform;tests_only
+5358,5453,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5358,5453,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,proxy(layout_smoke),core;docs;kernel;kv_layout;other_platform;tests_only
+5358,5453,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5383,5809,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5803,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5794,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5794,:compression: vllm / restart_recovery / zmq,restart_recovery,vllm,-1,True,True,yes,adapter;core;docs;tests_only
+5383,5760,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5760,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5760,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5759,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,adapter;core;docs;tests_only
+5383,5739,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5722,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5722,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5712,:compression: vllm / gds_smoke / zmq,gds_smoke,vllm,1,False,False,no,adapter;core;docs;tests_only
+5383,5669,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5636,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5636,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5636,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / mp_autostart_tp2 / zmq,mp_autostart_tp2,vllm,1,False,False,no,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,1,True,False,yes,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / lm_eval_engine_driven / zmq,lm_eval,vllm,1,True,False,yes,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,vllm,1,False,False,yes,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / lm_eval_preemption / engine_driven / zmq,lm_eval_preemption,vllm,1,False,False,yes,adapter;core;docs;tests_only
+5383,5634,:compression: preemption_correctness / async=0,preemption_correctness,vllm,1,False,False,no,adapter;core;docs;tests_only
+5383,5634,:compression: preemption_correctness / async=1,preemption_correctness,vllm,1,False,False,no,adapter;core;docs;tests_only
+5383,5634,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,False,False,no,adapter;core;docs;tests_only
+5383,5634,:compression: cpu_e2e_validation (shm / zmq),cpu_e2e_validation,,1,False,False,yes,adapter;core;docs;tests_only
+5383,5634,:compression: cpu_e2e_validation (pickle / zmq),cpu_e2e_validation,,1,False,False,yes,adapter;core;docs;tests_only
+5383,5634,:compression: cpu_e2e_validation (server_copy / zmq),cpu_e2e_validation,,1,False,False,yes,adapter;core;docs;tests_only
+5383,5628,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,no,adapter;core;docs;tests_only
+5383,5627,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,adapter;core;docs;tests_only
+5395,5959,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / long_doc_qa_l2 / zmq,long_doc_qa_l2,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / long_doc_qa_l2 / zmq,long_doc_qa_l2,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / long_doc_qa_l2 / zmq,long_doc_qa_l2,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / deadlock / zmq,deadlock,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_lmcache_driven / zmq,lm_eval,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_lmcache_driven / zmq,lm_eval,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_lmcache_driven / zmq,lm_eval,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_engine_driven / zmq,lm_eval,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_engine_driven / zmq,lm_eval,sglang,1,True,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_engine_driven / zmq,lm_eval,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / lm_eval_preemption / engine_driven / zmq,lm_eval_preemption,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / restart_recovery / zmq,restart_recovery,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / restart_recovery / grpc,restart_recovery,sglang,1,False,False,no,core;tests_only
+5395,5959,:compression: sglang / http_api / zmq,http_api,sglang,1,False,False,no,core;tests_only
+5413,5657,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs;tests_only
+5413,5657,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,deps_ci;docs;tests_only
+5413,5657,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,deps_ci;docs;tests_only
+5420,5604,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,deps_ci;docs;other_platform
+5438,5660,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,deps_ci;tests_only
+5449,5957,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;tests_only
+5449,5957,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;tests_only
+5449,5957,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,False,True,no,core;tests_only
+5449,5957,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;tests_only
+5458,6290,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+5464,5458,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,True,False,no,core;docs;tests_only
+5465,5457,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5468,5445,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;tests_only
+5468,5445,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;tests_only
+5489,5610,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5489,5610,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5489,5610,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5489,5594,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+5489,5589,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5489,5589,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5489,5582,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+5489,5582,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5489,5533,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5489,5533,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5519,5472,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,other_platform;tests_only
+5519,5472,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,True,False,no,other_platform;tests_only
+5524,5620,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;tests_only
+5524,5609,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;tests_only
+5524,5609,:compression: cpu_e2e_validation (shm / zmq),cpu_e2e_validation,,1,False,False,yes,adapter;tests_only
+5528,5485,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;docs;kernel;tests_only
+5532,5479,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,False,False,no,core;docs;tests_only
+5534,5705,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel;tests_only
+5536,5694,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,adapter;core;docs;tests_only
+5536,5694,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5536,5694,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5536,5653,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;docs;tests_only
+5536,5653,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5536,5653,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;docs;tests_only
+5536,5599,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5543,5510,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,deps_ci;docs;other_platform;tests_only
+5543,5510,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,yes,deps_ci;docs;other_platform;tests_only
+5543,5510,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,yes,deps_ci;docs;other_platform;tests_only
+5549,5503,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5549,5499,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5556,6328,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5556,6238,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5556,6183,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5556,6183,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5556,6183,:compression: vllm / mp_autostart_tp2 / zmq,mp_autostart_tp2,vllm,2,False,True,no,core;docs;tests_only
+5557,5531,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5557,5530,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,False,False,no,core;docs;tests_only
+5559,5884,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,core;deps_ci;docs;tests_only
+5559,5884,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,core;deps_ci;docs;tests_only
+5560,5501,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5560,5501,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5562,5511,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,kv_layout
+5562,5511,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kv_layout
+5565,5521,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel;other_platform;tests_only
+5590,5535,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,deps_ci;docs
+5590,5535,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,deps_ci;docs
+5606,5538,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs;other_platform
+5606,5538,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs;other_platform
+5610,5854,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;deps_ci;docs;kernel;other_platform;tests_only
+5611,5544,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter
+5614,5682,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;tests_only
+5618,5612,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,yes,core;deps_ci;tests_only
+5618,5606,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,True,False,yes,core;deps_ci;tests_only
+5618,5606,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,True,False,yes,core;deps_ci;tests_only
+5627,5790,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5633,5554,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5633,5554,:compression: vllm / fault_tolerance / zmq,fault_tolerance,vllm,1,True,False,no,core;docs;tests_only
+5637,6085,:compression: vllm / restart_recovery / zmq,restart_recovery,vllm,1,False,False,no,core;tests_only
+5644,5564,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kernel;other_platform;tests_only
+5652,6224,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;docs;tests_only
+5652,6179,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5652,6179,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;docs;tests_only
+5652,6179,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;docs;tests_only
+5652,6179,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,False,True,no,core;docs;tests_only
+5667,5691,:compression: sglang / deadlock / zmq,deadlock,sglang,128,True,True,no,docs;kernel;kv_layout;other_platform;tests_only
+5672,6105,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;kernel;kv_layout
+5672,6105,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;kernel;kv_layout
+5672,6105,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,proxy(layout_smoke),core;kernel;kv_layout
+5672,6105,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,proxy(layout_smoke),core;kernel;kv_layout
+5672,6105,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,False,True,proxy(layout_smoke),core;kernel;kv_layout
+5681,5596,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5681,5596,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,no,core;docs;tests_only
+5685,5639,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,deps_ci;docs
+5685,5639,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,no,deps_ci;docs
+5685,5619,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,deps_ci;docs
+5685,5619,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,deps_ci;docs
+5685,5619,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,deps_ci;docs
+5688,5917,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,docs;tests_only
+5688,5913,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,docs;tests_only
+5688,5893,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,docs;tests_only
+5693,5971,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel;tests_only
+5697,6032,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5697,6032,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5697,6032,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,False,True,no,core;docs;tests_only
+5697,6032,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5699,5720,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5720,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5703,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5686,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5686,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5652,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5652,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5652,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5652,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5652,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5699,5652,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;tests_only
+5702,5975,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;docs;kv_layout;tests_only
+5702,5961,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,proxy(layout_smoke),adapter;docs;kv_layout;tests_only
+5710,5698,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5711,6267,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5712,5701,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5733,5692,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,yes,core;deps_ci
+5733,5692,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,yes,core;deps_ci
+5733,5692,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,yes,core;deps_ci
+5733,5692,:compression: sglang / lm_eval_engine_driven / zmq,lm_eval,sglang,128,True,True,yes,core;deps_ci
+5733,5692,:compression: vllm / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,vllm,128,False,True,yes,core;deps_ci
+5733,5692,:compression: vllm / lm_eval_preemption / engine_driven / zmq,lm_eval_preemption,vllm,128,False,True,yes,core;deps_ci
+5733,5692,:compression: sglang / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,sglang,128,False,True,yes,core;deps_ci
+5748,5897,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5748,5897,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5748,5897,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kernel;kv_layout;other_platform;tests_only
+5756,5745,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5757,5740,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,no,core;docs;tests_only
+5779,6101,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5779,6101,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5791,5821,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;tests_only
+5791,5821,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;tests_only
+5791,5821,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;tests_only
+5793,5784,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;core;docs;tests_only
+5795,5834,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;docs;tests_only
+5795,5834,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;docs;tests_only
+5795,5834,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,no,core;docs;tests_only
+5795,5834,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5795,5834,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5799,5850,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5802,5820,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;docs;tests_only
+5802,5820,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;docs;tests_only
+5802,5820,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,no,core;docs;tests_only
+5808,5814,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;tests_only
+5808,5812,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;tests_only
+5808,5795,:compression: cpu_e2e_validation (server_copy / zmq),cpu_e2e_validation,,1,False,False,yes,core;tests_only
+5812,5783,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,1,True,False,yes,deps_ci;docs;other_platform
+5823,5819,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,adapter;tests_only
+5823,5819,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,adapter;tests_only
+5823,5819,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,no,adapter;tests_only
+5823,5819,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;tests_only
+5823,5819,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;tests_only
+5825,5829,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;tests_only
+5825,5829,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;tests_only
+5825,5829,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,no,core;tests_only
+5827,6106,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5829,5827,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,yes,deps_ci
+5830,5832,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,proxy(layout_smoke),core;docs;kv_layout;tests_only
+5830,5832,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,proxy(layout_smoke),core;docs;kv_layout;tests_only
+5830,5832,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,proxy(layout_smoke),core;docs;kv_layout;tests_only
+5830,5832,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;kv_layout;tests_only
+5831,5831,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,adapter;core;deps_ci;docs;other_platform;tests_only
+5831,5831,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,adapter;core;deps_ci;docs;other_platform;tests_only
+5831,5831,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,no,adapter;core;deps_ci;docs;other_platform;tests_only
+5831,5830,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,adapter;core;deps_ci;docs;other_platform;tests_only
+5855,5973,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel;tests_only
+5859,5861,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs
+5859,5861,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs
+5859,5858,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,yes,deps_ci;docs
+5862,6086,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs
+5862,6086,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,yes,deps_ci;docs
+5862,5912,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,yes,deps_ci;docs
+5862,5912,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,deps_ci;docs
+5862,5912,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,yes,deps_ci;docs
+5862,5876,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,yes,deps_ci;docs
+5862,5876,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,yes,deps_ci;docs
+5862,5876,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,False,False,yes,deps_ci;docs
+5874,5886,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;docs;tests_only
+5874,5886,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,no,core;docs;tests_only
+5874,5886,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,no,core;docs;tests_only
+5874,5878,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5874,5878,:compression: cpu_e2e_validation (shm / zmq),cpu_e2e_validation,,2,False,True,yes,core;docs;tests_only
+5878,6003,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+5881,6088,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5881,6060,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5881,6054,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5881,6054,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5881,6054,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5881,6054,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,False,True,no,core;docs;tests_only
+5881,6053,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5881,6053,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5881,6053,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,False,True,no,core;docs;tests_only
+5889,5994,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,core;docs;tests_only
+5889,5994,:compression: cpu_e2e_validation (inline / zmq),cpu_e2e_validation,,100,True,False,yes,core;docs;tests_only
+5889,5994,:compression: cpu_e2e_validation (server_copy / zmq),cpu_e2e_validation,,100,True,False,yes,core;docs;tests_only
+5889,5926,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5889,5926,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5889,5926,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,True,True,no,core;docs;tests_only
+5889,5926,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,2,False,True,no,core;docs;tests_only
+5889,5926,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5906,5921,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,core;tests_only
+5906,5921,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;tests_only
+5911,5924,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;tests_only
+5911,5924,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;tests_only
+5918,6006,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;other_platform;tests_only
+5919,6000,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,-1,True,True,no,core;docs;tests_only
+5922,6064,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5929,5977,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,docs;kernel;tests_only
+5935,5949,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core
+5940,6031,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;tests_only
+5943,6230,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+5952,6231,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+5954,6251,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,kernel
+5954,6198,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,proxy(layout_smoke),kernel
+5954,6198,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,proxy(layout_smoke),kernel
+5954,6186,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,kernel
+5955,5984,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;docs;kernel;kv_layout;tests_only
+5973,6048,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;other_platform;tests_only
+5973,6048,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;other_platform;tests_only
+5976,6063,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;tests_only
+5983,6149,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;tests_only
+5983,6149,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;tests_only
+5983,6149,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,False,True,no,core;tests_only
+5988,6194,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+5988,6174,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,core;docs;tests_only
+5988,6120,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core;docs;tests_only
+5988,6120,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core;docs;tests_only
+5994,6152,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,kernel;kv_layout;tests_only
+5998,6233,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;tests_only
+6001,6237,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,adapter;docs;tests_only
+6001,6237,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,adapter;docs;tests_only
+6001,6237,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,adapter;docs;tests_only
+6001,6237,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;docs;tests_only
+6001,6237,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;docs;tests_only
+6001,6237,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,False,False,no,adapter;docs;tests_only
+6001,6237,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,adapter;docs;tests_only
+6001,6237,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,adapter;docs;tests_only
+6001,6237,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,False,True,no,adapter;docs;tests_only
+6005,6315,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+6007,6098,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;deps_ci;docs;other_platform;tests_only
+6007,6097,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;deps_ci;docs;other_platform;tests_only
+6014,6075,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+6015,6177,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,core;docs;tests_only
+6015,6177,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+6015,6177,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;docs;tests_only
+6015,6171,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+6015,6171,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+6015,6171,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+6015,6171,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;docs;tests_only
+6015,6171,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;docs;tests_only
+6015,6171,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,False,True,no,core;docs;tests_only
+6023,6113,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;docs;kv_layout;other_platform;tests_only
+6031,6118,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core;deps_ci;docs;tests_only
+6031,6117,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,1,True,False,no,core;deps_ci;docs;tests_only
+6031,6117,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;deps_ci;docs;tests_only
+6031,6117,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,True,True,no,core;deps_ci;docs;tests_only
+6031,6117,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,2,False,True,no,core;deps_ci;docs;tests_only
+6043,6160,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,adapter;docs;kv_layout;other_platform;tests_only
+6048,6203,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,deps_ci;docs
+6050,6139,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,deps_ci;other_platform
+6050,6139,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,deps_ci;other_platform
+6050,6139,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,deps_ci;other_platform
+6056,6143,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,no,deps_ci
+6061,6234,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,255,True,True,no,core;deps_ci;docs;tests_only
+6062,6134,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,docs;kernel;tests_only
+6077,6189,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+6083,6153,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+6090,6199,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+6090,6199,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+6096,6172,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,deps_ci;other_platform
+6102,6229,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;deps_ci;docs;kv_layout;other_platform;tests_only
+6102,6229,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,yes,core;deps_ci;docs;kv_layout;other_platform;tests_only
+6102,6229,:compression: cpu_e2e_validation (shm / zmq),cpu_e2e_validation,,100,True,False,yes,core;deps_ci;docs;kv_layout;other_platform;tests_only
+6104,6294,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;tests_only
+6108,6264,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;tests_only
+6108,6264,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;tests_only
+6108,6264,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;tests_only
+6116,6181,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,core;tests_only
+6117,6269,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;docs;kv_layout;tests_only
+6117,6269,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kv_layout;tests_only
+6117,6268,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kv_layout;tests_only
+6117,6268,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,proxy(layout_smoke),core;docs;kv_layout;tests_only
+6117,6246,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;kv_layout;tests_only
+6117,6180,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,-1,True,True,proxy(layout_smoke),core;docs;kv_layout;tests_only
+6119,6320,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,no,core;docs;tests_only
+6124,6244,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+6124,6244,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+6124,6244,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,proxy(layout_smoke),adapter;core;docs;kv_layout;tests_only
+6124,6223,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+6124,6223,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+6124,6197,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+6124,6197,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,adapter;core;docs;kv_layout;tests_only
+6129,6241,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;docs;kv_layout;tests_only
+6129,6241,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;docs;kv_layout;tests_only
+6132,6213,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,deps_ci
+6132,6213,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,no,deps_ci
+6135,6235,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;other_platform;tests_only
+6135,6235,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,yes,adapter;core;deps_ci;docs;kv_layout;other_platform;tests_only
+6143,6257,:compression: vllm / hma_dsv4_correctness / zmq,hma_dsv4_correctness,vllm,1,True,False,yes,deps_ci
+6143,6257,:compression: vllm / hma_dsv4_correctness / zmq,hma_dsv4_correctness,vllm,1,True,False,yes,deps_ci
+6143,6257,:compression: vllm / hma_dsv4_correctness / zmq,hma_dsv4_correctness,vllm,1,False,False,yes,deps_ci
+6143,6256,:compression: vllm / hma_dsv4_correctness / zmq,hma_dsv4_correctness,vllm,1,True,False,yes,deps_ci
+6143,6253,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,yes,deps_ci
+6143,6253,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,yes,deps_ci
+6143,6253,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,False,False,yes,deps_ci
+6143,6227,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,1,True,False,yes,deps_ci
+6152,6265,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;tests_only
+6161,6262,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;tests_only
+6188,6309,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;docs;kv_layout
+6193,6307,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;tests_only
+6193,6307,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;tests_only
+6193,6307,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,no,core;tests_only
+6193,6307,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,no,core;tests_only
+6193,6283,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;tests_only
+6193,6283,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,core;tests_only
+6197,6343,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,kernel
+6197,6343,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,kernel
+6199,6347,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,core;docs;kv_layout;tests_only
+6208,6331,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+6208,6331,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,core;docs;tests_only
+6208,6331,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,core;docs;tests_only
+6228,6329,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,no,core;tests_only
+6234,6371,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,128,True,True,proxy(layout_smoke),kernel
+6234,6371,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,128,True,True,proxy(layout_smoke),kernel
+6234,6371,:compression: sglang / dsv4_flash_tp / zmq,dsv4_flash_tp,sglang,128,True,True,proxy(layout_smoke),kernel
+6234,6371,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,kernel
+6234,6371,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,kernel
+6234,6371,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,128,True,True,no,kernel
+6234,6371,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,128,True,True,no,kernel
+6234,6371,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,128,False,True,no,kernel
+6234,6371,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,128,True,True,no,kernel
+6234,6371,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,128,True,True,no,kernel
+6234,6371,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,128,False,True,no,kernel
+6234,6371,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,128,True,True,no,kernel
+6234,6371,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,128,True,True,no,kernel
+6234,6371,:compression: vllm / deadlock / zmq,deadlock,vllm,128,False,True,no,kernel
+6234,6371,:compression: sglang / deadlock / zmq,deadlock,sglang,128,False,True,no,kernel
+6234,6371,:compression: vllm / p2p / zmq,p2p,vllm,128,False,True,no,kernel
+6234,6371,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,128,True,True,proxy(layout_smoke),kernel
+6234,6371,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,128,True,True,proxy(layout_smoke),kernel
+6234,6371,:compression: vllm / kimi_linear_tp / zmq,kimi_linear_tp,vllm,128,False,True,proxy(layout_smoke),kernel
+6234,6371,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,128,True,True,proxy(layout_smoke),kernel
+6234,6371,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,128,True,True,yes,kernel
+6234,6371,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,128,True,True,yes,kernel
+6234,6371,:compression: vllm / lm_eval_lmcache_driven / zmq,lm_eval,vllm,128,False,True,yes,kernel
+6234,6371,:compression: sglang / lm_eval_lmcache_driven / zmq,lm_eval,sglang,128,True,True,no,kernel
+6234,6371,:compression: vllm / lm_eval_preemption / engine_driven / zmq,lm_eval_preemption,vllm,128,False,True,no,kernel
+6234,6371,:compression: sglang / lm_eval_preemption / lmcache_driven / zmq,lm_eval_preemption,sglang,128,False,True,no,kernel
+6234,6371,:compression: sglang / lm_eval_preemption / engine_driven / zmq,lm_eval_preemption,sglang,128,False,True,no,kernel
+6234,6371,:compression: preemption_correctness / async=0,preemption_correctness,vllm,128,False,True,no,kernel
+6234,6371,:compression: preemption_correctness / async=1,preemption_correctness,vllm,128,False,True,no,kernel
+6234,6371,:compression: vllm / restart_recovery / zmq,restart_recovery,vllm,128,False,True,no,kernel
+6234,6371,:compression: sglang / restart_recovery / zmq,restart_recovery,sglang,128,False,True,no,kernel
+6234,6371,:compression: sglang / restart_recovery / grpc,restart_recovery,sglang,128,False,True,no,kernel
+6234,6371,:compression: vllm / cache_stats / zmq,cache_stats,vllm,128,False,True,no,kernel
+6234,6371,:compression: vllm / lazy_offload / zmq,lazy_offload,vllm,128,False,True,no,kernel
+6234,6371,:compression: vllm / http_api / zmq,http_api,vllm,128,False,True,no,kernel
+6234,6371,:compression: sglang / http_api / zmq,http_api,sglang,128,False,True,no,kernel
+6234,6371,:compression: vllm / gds_smoke / zmq,gds_smoke,vllm,128,False,True,no,kernel
+6234,6371,:compression: cpu_e2e_validation (shm / zmq),cpu_e2e_validation,,128,False,True,no,kernel
+6234,6371,:compression: cpu_e2e_validation (inline / zmq),cpu_e2e_validation,,128,False,True,no,kernel
+6234,6371,:compression: cpu_e2e_validation (server_copy / zmq),cpu_e2e_validation,,128,False,True,no,kernel
+6234,6364,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,kernel
+6234,6360,:compression: sglang / kimi_linear_tp / zmq,kimi_linear_tp,sglang,1,True,False,proxy(layout_smoke),kernel
+6252,6332,:compression: sglang / long_doc_qa / zmq,long_doc_qa,sglang,1,True,False,no,adapter;core;kv_layout;tests_only
+6269,6374,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,docs;kernel;kv_layout;tests_only
+6269,6374,:compression: vllm / long_doc_qa / zmq,long_doc_qa,vllm,1,True,False,no,docs;kernel;kv_layout;tests_only
+6269,6374,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,docs;kernel;kv_layout;tests_only
+6269,6374,:compression: vllm / long_doc_qa_l2 / zmq,long_doc_qa_l2,vllm,1,True,False,no,docs;kernel;kv_layout;tests_only
+6269,6366,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,128,True,True,proxy(layout_smoke),docs;kernel;kv_layout;tests_only
+6269,6366,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,128,True,True,proxy(layout_smoke),docs;kernel;kv_layout;tests_only
+6269,6366,:compression: vllm / dsv4_flash_tp / zmq,dsv4_flash_tp,vllm,128,False,True,proxy(layout_smoke),docs;kernel;kv_layout;tests_only
+6269,6366,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,1,True,False,no,docs;kernel;kv_layout;tests_only
+6269,6366,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,docs;kernel;kv_layout;tests_only
+6269,6366,:compression: vllm / vllm_bench / zmq,vllm_bench,vllm,128,True,True,no,docs;kernel;kv_layout;tests_only
+6275,6378,:compression: vllm / vllm_bench / grpc,vllm_bench,vllm,1,True,False,no,adapter;core;kv_layout;tests_only

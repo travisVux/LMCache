@@ -1,0 +1,182 @@
+# P6 / R5 output — drop-in for the `profiles:` section of 05_acceptance_profile.draft.yaml.
+# Format follows the draft (model, kv_family, gpus, tp, criteria, tier, load_format, hf_overrides).
+# Extra keys used here (propose adding to schema): engine_args, env, checker, replaces, source, min_arch, cpu_ok.
+# All memory figures are estimates (weights only). "verify" = not yet run on CUDA CI.
+# Source commit: third_party/LMCache @ fcd50cea.
+
+profiles:
+  # ---------------- existing production profiles (unchanged, tier updated) ----------------
+  qwen3_14b:
+    model: Qwen/Qwen3-14B
+    kv_family: gqa
+    gpus: 1
+    tp: 1
+    overrides: { lm_eval_score_min: 0.80 }     # verify (P7)
+
+  dsv4_flash_tp4:
+    model: deepseek-ai/DeepSeek-V4-Flash
+    kv_family: sparse_mla_fp8
+    gpus: 4
+    tp: 4
+    criteria: [byte_identical_greedy]
+    tier: nightly                              # PR stand-in: dsv4_flash_dummy_4l
+    pr_when: { change_class: kv_layout, paths: [lmcache/integration/vllm/kv_cache_group*, lmcache/v1/kv_layer_groups.py, lmcache/integration/vllm/utils.py] }
+    source: .buildkite/k3_tests/multiprocess/scripts/workloads/vllm/dsv4-flash-tp.sh
+
+  kimi_linear_tp2:
+    model: moonshotai/Kimi-Linear-48B-A3B-Instruct
+    kv_family: hybrid_mla_linear
+    gpus: 2
+    tp: 2
+    criteria: [byte_identical_greedy]
+    tier: nightly                              # PR stand-in: kimi_linear_dummy_4l_tp2
+    pr_when: { change_class: kv_layout, paths: [lmcache/integration/vllm/utils.py, lmcache/integration/vllm/kv_cache_group_edits.py] }
+    source: .buildkite/k3_tests/multiprocess/scripts/workloads/vllm/kimi-linear-tp.sh
+
+  opt125m_cpu:
+    model: facebook/opt-125m
+    kv_family: mha
+    gpus: 0
+    criteria: [byte_identical_greedy]
+
+  # ---------------- NEW: small / dummy representatives (tier: pr, layout_smoke) ----------------
+  qwen3_0_6b:
+    model: Qwen/Qwen3-0.6B                     # same per-layer KV as Qwen3-14B: 8 KV heads x 128, bf16
+    kv_family: gqa
+    load_format: auto                          # real weights (1.2 GB)
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]
+    checker: hma_bit_correctness               # 3-stage APC-reference compare; needs a gqa workload name
+    tier: pr
+    est_gpu_mem_gb: 2
+    cpu_ok: true
+
+  mla_dsv2lite_dummy:
+    model: deepseek-ai/DeepSeek-V2-Lite-Chat   # MLA latent 512 + rope 64, bf16
+    kv_family: mla
+    load_format: dummy
+    hf_overrides: { num_hidden_layers: 2, n_routed_experts: 4, first_k_dense_replace: 0, num_experts_per_tok: 2 }
+    engine_args: [--trust-remote-code, --block-size, "64", --enforce-eager]
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]
+    checker: hma_bit_correctness
+    tier: pr
+    est_gpu_mem_gb: 2
+    cpu_ok: true                               # already in .github/workflows/cpu_device.yml:126-133
+    source: .github/workflows/cpu_device.yml
+
+  mla_fp8_dsv2lite_dummy:                      # optional: covers fp8_e4m3 KV on plain MLA
+    model: deepseek-ai/DeepSeek-V2-Lite-Chat
+    kv_family: mla_fp8
+    load_format: dummy
+    hf_overrides: { num_hidden_layers: 2, n_routed_experts: 4, first_k_dense_replace: 0, num_experts_per_tok: 2 }
+    engine_args: [--trust-remote-code, --block-size, "64", --kv-cache-dtype, fp8_e4m3]
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]
+    tier: label_mp
+    cpu_ok: false
+    source: .buildkite/configs/local_cpu_mla.yaml
+
+  dsv4_flash_dummy_4l:
+    model: deepseek-ai/DeepSeek-V4-Flash
+    kv_family: sparse_mla_fp8
+    load_format: dummy
+    hf_overrides: { num_hidden_layers: 4, num_nextn_predict_layers: 0, compress_ratios: [0, 0, 4, 128] }  # keeps SWA + C4 + C128
+    engine_args: [--kv-cache-dtype, fp8_ds_mla, --tokenizer-mode, deepseek_v4, --enable-expert-parallel, --trust-remote-code, --enforce-eager]
+    env:
+      CHUNK_SIZE: "256"
+      KV_CACHE_MEMORY_BYTES: "536870912"
+      MAX_MODEL_LEN: "2048"
+      MAX_NUM_SEQS: "1"
+      SEPARATE_OBJECT_GROUPS: "1"
+      VLLM_WORKER_EXTENSION_CLS: hma_bit_correctness.DeterministicWorker
+      VLLM_KV_LOAD_FAILURE_POLICY: fail
+    gpus: 1
+    tp: 1
+    min_arch: sm90                             # DeepGEMM: SM90 / SM100 / SM120
+    criteria: [byte_identical_greedy]
+    checker: hma_dsv4_correctness
+    tier: pr
+    replaces: dsv4_flash_tp4                    # on PR tier only
+    est_gpu_mem_gb: 17                         # 4 x ~3.2 GB fp4 experts + 2.1 GB embed/head + 0.5 GB KV
+    cpu_ok: false
+    source: .buildkite/k3_tests/xpu/multiprocess/pipeline.yml:222-247
+
+  kimi_linear_dummy_4l_tp2:
+    model: moonshotai/Kimi-Linear-48B-A3B-Instruct
+    kv_family: hybrid_mla_linear
+    load_format: dummy
+    hf_overrides:                               # keeps prod KDA dims (32 heads x 128) and MLA latent (512+64)
+      num_hidden_layers: 4
+      num_experts: 16                           # verify; KV shape does not depend on experts
+      linear_attn_config: { full_attn_layers: [4], kda_layers: [1, 2, 3], head_dim: 128, num_heads: 32, short_conv_kernel_size: 4 }
+    engine_args: [--trust-remote-code, --enforce-eager, --moe-backend, triton, --mamba-cache-mode, align, --no-enable-flashinfer-autotune]
+    env:
+      CHUNK_SIZE: "944"                         # = vLLM block size for prod per-layer dims (verify with 4 layers)
+      MAX_NUM_BATCHED_TOKENS: "1500"
+      SEPARATE_OBJECT_GROUPS: "1"
+    gpus: 2
+    tp: 2                                       # TP>=2 required: cross-rank KDA shard bug (utils.py::mla_only)
+    criteria: [byte_identical_greedy]
+    checker: hma_kda_mla_correctness
+    tier: pr
+    replaces: kimi_linear_tp2
+    est_gpu_mem_gb: 3
+    cpu_ok: false
+
+  kimi_linear_tiny_random:                      # fallback; proven on XPU; KDA dims differ from prod (8 x 32)
+    model: yujiepan/kimi-linear-tiny-random
+    kv_family: hybrid_mla_linear
+    load_format: auto
+    env: { VLLM_BLOCK_SIZE: "128", CHUNK_SIZE: "128", MAMBA_CACHE_MODE: align, VLLM_TRUST_REMOTE_CODE: "1" }
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]
+    checker: hma_kda_mla_correctness
+    tier: label_mp
+    source: .buildkite/k3_tests/xpu/multiprocess/pipeline.yml:135-169
+
+  gemma4_31b_dummy_6l:
+    model: google/gemma-4-31B-it                # SWA 16x256 + full 4x512 (K=V)
+    kv_family: swa_mixed_headdim
+    load_format: dummy
+    hf_overrides:                               # nested text_config override: verify vLLM applies it
+      text_config:
+        num_hidden_layers: 6
+        layer_types: [sliding_attention, sliding_attention, sliding_attention, sliding_attention, sliding_attention, full_attention]
+    env: { ATTENTION_BACKEND: auto, SEPARATE_OBJECT_GROUPS: "1" }
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]
+    checker: hma_swa_correctness
+    tier: pr
+    est_gpu_mem_gb: 10
+    cpu_ok: unknown                             # 31B not on vLLM CPU list; LMCache CPU multi-group unknown
+
+  gemma3_270m:
+    model: unsloth/gemma-3-270m-it              # SWA 512 + full, head_dim 256
+    kv_family: swa
+    load_format: auto
+    env: { CHUNK_SIZE: "64", VLLM_BLOCK_SIZE: "64", SEPARATE_OBJECT_GROUPS: "1", VLLM_MAX_LOGPROBS: "100" }
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]
+    checker: hma_swa_correctness
+    tier: pr
+    est_gpu_mem_gb: 1
+    source: .buildkite/k3_tests/xpu/multiprocess/pipeline.yml:171-200
+
+  qwen3_5_0_8b:
+    model: Qwen/Qwen3.5-0.8B                    # GDN + full attention
+    kv_family: hybrid_gdn
+    load_format: auto
+    env: { CHUNK_SIZE: "544", MAMBA_CACHE_MODE: align, MAX_NUM_BATCHED_TOKENS: "544", BATCH_INVARIANT: "0" }
+    gpus: 1
+    tp: 1
+    criteria: [byte_identical_greedy]           # compare logprobs at same prefix; GDN is not batch-invariant
+    tier: pr
+    est_gpu_mem_gb: 2
+    source: .buildkite/k3_tests/multiprocess/scripts/run-single-test.sh:84-101

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>LMCache PR to CI mindmap</title>
+<style>body{font-family:system-ui,sans-serif;margin:24px;background:#fafafa;color:#222}h1{font-size:22px}h2{font-size:17px;margin-top:36px;border-bottom:1px solid #ddd;padding-bottom:4px}pre.mermaid{background:#fff;border:1px solid #e3e3e3;border-radius:8px;padding:12px;overflow:auto}</style>
+</head><body>
+<h1>LMCache: PR &rarr; CI layers (Plan 2026-11)</h1>
+<p>Generated from 06_PR_TO_CI_MINDMAP.md. Numbers: 30 days, 2026-10-05 &rarr; 11-04 (outputs P1&ndash;P8).</p>
+<h2>1. Mindmap (whole picture)</h2>
+<pre class="mermaid">
+mindmap
+  root((PR to mergeable))
+    1 PR event
+      open or push
+      changed files
+      labels
+        full: auto-added to 95 of 100 PRs
+        mp
+        force-ci
+        skip expensive ci
+    2 Triggers
+      GitHub Actions
+        test.yml: CPU unit, py3.10-3.13
+        cpu_device.yml: server bench + CPU vLLM E2E
+      Buildkite
+        k3-multiprocess-test: label mp or full, or dev push
+        k3 unit, correctness, comprehensive, blend
+        nightly: pin canary, baseline upload
+    3 Classify by path
+      Today: all or nothing
+      Proposed classes
+        docs
+        tests_only
+        other_platform
+        core
+        adapter vLLM or SGLang
+        kernel
+        kv_layout
+        deps_ci
+    4 Test tiers
+      L0 lint
+      L1 unit tests on CPU
+      L2 engine-free server scenarios
+      CPU E2E: vLLM-CPU + opt-125m
+      L3 1-GPU real-engine smoke
+      layout smoke: small or dummy model
+      add-ons: restart, p2p, gds, preemption
+      Full: 4-GPU TP, dual engine, perf
+    5 Workloads
+      4-GPU: dsv4_flash_tp
+      2-GPU: vllm_bench, long_doc_qa, long_doc_qa_l2, kimi_linear_tp, p2p, deadlock, mp_autostart_tp2, preemption_correctness
+      1-GPU: lm_eval, lm_eval_preemption, restart_recovery, http_api, cache_stats, lazy_offload, gds_smoke, fault_tolerance
+      CPU: cpu_e2e_validation x3, server bench
+    6 Acceptance
+      byte-identical greedy
+      lm_eval drift 0.05 and SCORE_MIN
+      TTFT and throughput vs baseline
+      5-day worst baseline
+      ShareGPT diff
+      scenario verdict JSON - new
+    7 Verdict
+      real bug: 1 in 30 days, PR 5383
+      flake: retry passes 49-91 pct
+      infra: exit 128, pip 503, port busy
+      node 248 slow GPU group
+      no-op SGLang jobs: 2,099
+    8 Outcome
+      3,099 GPU-h per 30 days
+      518 GPU-min per build
+      87 min p50 build, 288 p90
+      queue 18.5 min p50
+</pre>
+<h2>2. Today: how a PR flows (all-or-nothing)</h2>
+<pre class="mermaid">
+flowchart LR
+  PR[PR push] --&gt; LBL{labels?}
+  LBL -- &quot;skip expensive ci&quot; --&gt; SKIP[MP skipped]
+  LBL -- &quot;mp / full (auto) / force-ci&quot; --&gt; PF{path-filter.sh}
+  LBL -- none --&gt; GHAONLY[GHA only]
+  PR --&gt; GHA[GHA: test.yml CPU unit + cpu_device.yml]
+  PF -- &quot;only docs / tests / other suite&quot; --&gt; SKIP
+  PF -- &quot;any code file&quot; --&gt; ALL[ALL ~35 MP jobs&lt;br/&gt;4-GPU + 2-GPU + 1-GPU + CPU]
+  ALL --&gt; Q[k8s GPU queue&lt;br/&gt;p50 18.5 min, 4-GPU 46 min]
+  Q --&gt; RUN[run.sh: setup + engine start&lt;br/&gt;~61% of GPU-min]
+  RUN --&gt; TEST[test body]
+  TEST --&gt; CRIT[thresholds hardcoded&lt;br/&gt;in 15+ scripts]
+  CRIT -- fail --&gt; RETRY[auto retry x2-3&lt;br/&gt;9,938 GPU-min]
+  RETRY --&gt; CRIT
+  CRIT -- pass --&gt; GREEN[green: 518 GPU-min / build]
+  GHA --&gt; GREEN
+</pre>
+<h2>3. Proposed: class → tier → workload → acceptance</h2>
+<pre class="mermaid">
+flowchart LR
+  subgraph S1[1-2 PR + labels]
+    PR[PR push / per-build diff]
+    FORCE[force-ci / mp-full / mp-full-tp]
+  end
+
+  subgraph S3[3 Classifier ci_rule_shadow.py]
+    DOC[docs]
+    TST[tests_only]
+    OTH[other_platform]
+    CORE[core]
+    LIFE[core + lifecycle paths]
+    P2PG[core + p2p / gds paths]
+    ADV[adapter vLLM]
+    ADS[adapter SGLang]
+    ADA[adapter all&lt;br/&gt;transfer_context]
+    KER[kernel]
+    KVL[kv_layout]
+    DEP[deps_ci]
+  end
+
+  subgraph S4[4 Tiers]
+    L0[L0 lint]
+    L1[L1 unit CPU]
+    L2[L2 engine-free&lt;br/&gt;server scenarios]
+    CE[CPU E2E&lt;br/&gt;vLLM-CPU opt-125m]
+    L3V[L3 smoke vLLM 1-GPU&lt;br/&gt;lm_eval x2 modes]
+    L3S[L3 smoke SGLang 1-GPU]
+    LS[layout smoke&lt;br/&gt;small / dummy models]
+    AO[add-ons&lt;br/&gt;restart_recovery / p2p / gds /&lt;br/&gt;lm_eval_preemption]
+    FULL[Full / nightly&lt;br/&gt;dsv4 TP4, kimi TP2,&lt;br/&gt;perf vs baseline, engine matrix]
+  end
+
+  subgraph S6[6 Acceptance config]
+    ACC[05_acceptance_profile.yaml&lt;br/&gt;criteria + profiles + tiers +&lt;br/&gt;relaxation rules]
+  end
+
+  subgraph S7[7-8 Verdict]
+    V[JSON verdict per job&lt;br/&gt;bug / flake / infra]
+    M[mergeable&lt;br/&gt;core PR: ~3 GPU-min]
+  end
+
+  PR --&gt; S3
+  FORCE --&gt; FULL
+  DOC --&gt; L0
+  TST --&gt; L0 &amp; L1
+  OTH --&gt; L0 &amp; L1
+  CORE --&gt; L0 &amp; L1 &amp; L2 &amp; CE
+  LIFE --&gt; AO
+  P2PG --&gt; AO
+  ADV --&gt; L1 &amp; L2 &amp; CE &amp; L3V
+  ADS --&gt; L1 &amp; L2 &amp; L3S
+  ADA --&gt; L3V &amp; L3S &amp; AO
+  KER --&gt; L1 &amp; L3V &amp; LS
+  KVL --&gt; L1 &amp; L2 &amp; CE &amp; L3V &amp; LS
+  DEP --&gt; FULL
+
+  L1 &amp; L2 &amp; CE &amp; L3V &amp; L3S &amp; LS &amp; AO &amp; FULL --&gt; ACC
+  ACC --&gt; V --&gt; M
+</pre>
+<h2>4. Workload → future home (from P2, P4, P5, P6, P8)</h2>
+<pre class="mermaid">
+flowchart TB
+  subgraph NOW[Today: every code PR]
+    W1[cache_stats 98% startup]
+    W2[http_api 97%]
+    W3[lazy_offload 97%]
+    W4[gds_smoke 96%]
+    W5[restart_recovery]
+    W6[deadlock]
+    W7[long_doc_qa_l2 24% flaky]
+    W8[long_doc_qa]
+    W9[vllm_bench]
+    W10[preemption_correctness 19.9% GPU]
+    W11[dsv4_flash_tp 4-GPU]
+    W12[kimi_linear_tp]
+    W13[lm_eval]
+    W14[fault_tolerance]
+    W15[p2p]
+    W16[mp_autostart_tp2]
+  end
+
+  subgraph NEW[Future home]
+    U[L1 connector unit test]
+    SB[L2 server scenario]
+    STORED[1-GPU + stored baseline]
+    REPLAY[same-engine replay on PR,&lt;br/&gt;full on nightly]
+    LSM[layout smoke 1-GPU]
+    SMK[L3 smoke]
+    ADD[add-on by path]
+    NIGHT[nightly / label]
+  end
+
+  W1 --&gt; U
+  W2 --&gt; SB
+  W3 --&gt; SB
+  W4 --&gt; ADD
+  W5 --&gt; ADD
+  W5 -. server side .-&gt; SB
+  W6 --&gt; SB
+  W7 -- data flow --&gt; SB
+  W7 -- perf --&gt; STORED
+  W8 --&gt; STORED
+  W9 --&gt; STORED
+  W10 --&gt; REPLAY
+  W11 --&gt; LSM
+  W11 --&gt; NIGHT
+  W12 --&gt; LSM
+  W13 --&gt; SMK
+  W14 --&gt; NIGHT
+  W15 --&gt; ADD
+  W16 --&gt; NIGHT
+</pre>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+mermaid.initialize({startOnLoad:true, theme:"default", flowchart:{useMaxWidth:false}, mindmap:{useMaxWidth:false}});
+</script>
+</body></html>

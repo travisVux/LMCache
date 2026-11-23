@@ -1,0 +1,60 @@
+<section class="notes" lang="vi">
+  <div class="note">
+    <h2>Bối cảnh</h2>
+    <p>CI tải Docker image của Moore Threads (<code>musa-pytorch-release-public:rc5.1.0…</code>). Image này có sẵn <code>torch 2.9.1</code> và <code>torch_musa</code> (phần mở rộng để torch chạy trên GPU MUSA). LMCache được build <b>bên trong</b> image này để tạo ra wheel <code>lmcache-…+musa</code>.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 1</span> Python không tìm thấy <code>torch_musa</code></h2>
+    <p>Image có một lỗi ẩn từ trước:</p>
+    <ul>
+      <li>Thư mục <code>torch_musa</code> nằm thật ở <code>/home/torch_musa</code>.</li>
+      <li>Nhưng Python được "đăng ký" để tìm nó ở một đường dẫn khác (đường dẫn trên máy Moore Threads lúc build image). Đường dẫn đó <b>không tồn tại</b> trong image.</li>
+      <li>Kết quả: <code>import torch_musa</code> báo <code>ModuleNotFoundError</code>.</li>
+    </ul>
+    <table>
+      <tr><th></th><th>Lúc build có gọi <code>torch_musa</code>?</th><th>Kết quả</th></tr>
+      <tr><td>v0.5.7.post1</td><td>Không (chỉ build C++ chung)</td><td class="ok">wheel publish OK</td></tr>
+      <tr><td>v0.5.8rc1</td><td>Có: #5865 thêm <code>from torch_musa.utils import …</code></td><td class="bad">build hỏng</td></tr>
+    </table>
+    <p><b>Tóm lại:</b> #5865 không viết sai. Nó chỉ là code đầu tiên cần <code>torch_musa</code> lúc build, nên làm lộ ra lỗi đã có sẵn trong image.</p>
+    <p class="muted">Thêm: bước kiểm tra đầu script chỉ <code>import torch</code> (vẫn OK, in ra "BUILD TORCH: 2.9.1"), nên lỗi chỉ hiện ra khoảng 8 phút sau, ở giữa <code>setup.py</code>.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 2</span> Đỏ từ 11-07, 6 ngày sau mới biết</h2>
+    <ol class="timeline">
+      <li><b>11-07 05:43</b> #5865 merge. PR chạy <b>0 check MUSA</b>, nên không ai thấy lỗi.</li>
+      <li><b>11-07 05:44</b> Lần chạy publish đầu tiên trên dev sau khi merge: MUSA đã hỏng.</li>
+      <li><b>11-07 → 11-12</b> 7 lần hỏng và 73 lần bị cancel, không có lần nào xanh. Không ai để ý.</li>
+      <li><b>11-13</b> Tag v0.5.8rc1, release hỏng. Lúc này mới phát hiện.</li>
+    </ol>
+    <p><b>Vấn đề không nằm ở code</b>, mà ở chỗ CI không báo lỗi đúng lúc: PR không kiểm tra MUSA, còn dev đỏ thì không ai nhìn.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 1</span> Chỉ cho Python chỗ tìm <code>torch_musa</code></h2>
+    <p>Sửa Issue 1. Branch <code>fix/musa-wheel-build</code> (commit <code>6fe78159</code>):</p>
+    <ul>
+      <li>Nếu <code>import torch_musa</code> hỏng mà <code>/home/torch_musa</code> có tồn tại, thì thêm <code>/home/torch_musa</code> vào <code>PYTHONPATH</code>.</li>
+      <li>Import <code>torch_musa</code> ngay đầu script (<b>fail-fast</b>): nếu vẫn hỏng thì báo lỗi sau vài giây, không phải chờ 8 phút.</li>
+    </ul>
+    <p class="warn">Trạng thái: mới push lên fork, <b>chưa có PR, chưa chạy CI</b>.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 2</span> Bắt lỗi ngay ở PR</h2>
+    <p>Sửa Issue 2. PR nào sửa file MUSA thì CI build wheel MUSA luôn:</p>
+    <ul>
+      <li><code>setup_extensions/build_profiles/musa.py</code></li>
+      <li><code>csrc/musa/**</code></li>
+    </ul>
+    <p>Nếu đã có check này, #5865 đã bị chặn ngay ngày 11-07, trước khi merge.</p>
+    <p class="warn">Trạng thái: đề xuất, chưa làm.</p>
+  </div>
+
+  <div class="note">
+    <h2>Tóm tắt</h2>
+    <p><span class="sw s1"></span>Solution 1 giúp release 0.5.8 build được.<br><span class="sw s2"></span>Solution 2 giúp lần sau không lặp lại chuyện "đỏ 6 ngày mà không ai biết".</p>
+  </div>
+</section>

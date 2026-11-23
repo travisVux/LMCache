@@ -1,0 +1,88 @@
+{
+ "window": "2026-10-05..2026-11-04 (k3-multiprocess-test PR builds)",
+ "mp_pr_gpu_hours": 3099,
+ "mp_pr_builds": 401,
+ "mp_commits": 399,
+ "triggers": {
+  "gha_test": {
+   "real": {
+    "gpu_hours": 82.3,
+    "share": 0.0265,
+    "mp_builds": 19,
+    "commits": 19
+   },
+   "incl_flaky": {
+    "gpu_hours": 82.3,
+    "share": 0.0265,
+    "mp_builds": 19,
+    "commits": 19
+   },
+   "failed_commits": 434,
+   "real_failed_commits": 434
+  },
+  "quality": {
+   "real": {
+    "gpu_hours": 45.5,
+    "share": 0.0147,
+    "mp_builds": 12,
+    "commits": 12
+   },
+   "incl_flaky": {
+    "gpu_hours": 45.5,
+    "share": 0.0147,
+    "mp_builds": 12,
+    "commits": 12
+   },
+   "failed_commits": 465,
+   "real_failed_commits": 464
+  },
+  "k3_unit": {
+   "real": {
+    "gpu_hours": 96.0,
+    "share": 0.031,
+    "mp_builds": 19,
+    "commits": 19
+   },
+   "incl_flaky": {
+    "gpu_hours": 96.0,
+    "share": 0.031,
+    "mp_builds": 20,
+    "commits": 20
+   },
+   "failed_commits": 623,
+   "real_failed_commits": 622
+  },
+  "required (quality+k3_unit)": {
+   "real": {
+    "gpu_hours": 136.9,
+    "share": 0.0442,
+    "mp_builds": 28,
+    "commits": 28
+   },
+   "incl_flaky": {
+    "gpu_hours": 136.9,
+    "share": 0.0442,
+    "mp_builds": 29,
+    "commits": 29
+   },
+   "failed_commits": 986,
+   "real_failed_commits": 984
+  },
+  "all three": {
+   "real": {
+    "gpu_hours": 188.4,
+    "share": 0.0608,
+    "mp_builds": 40,
+    "commits": 40
+   },
+   "incl_flaky": {
+    "gpu_hours": 188.4,
+    "share": 0.0608,
+    "mp_builds": 41,
+    "commits": 41
+   },
+   "failed_commits": 1097,
+   "real_failed_commits": 1095
+  }
+ }
+}

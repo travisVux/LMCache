@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" class="force-motion">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v0.5.8rc1 build issues</title>
+<style>* { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace; background: #020617;
+         min-height: 100vh; padding: 2rem; color: #e2e8f0; }
+  .container { max-width: 960px; margin: 0 auto; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 0.4rem; }
+  .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: #34d399; }
+  h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; }
+  .subtitle { color: #64748b; font-size: 0.8rem; margin-bottom: 1.5rem; }
+  .diagram-card { border: 1px solid #1e293b; border-radius: 12px; position: relative;
+    background: repeating-linear-gradient(0deg, #0f1b33 0 0.5px, transparent 0.5px 40px),
+      repeating-linear-gradient(90deg, #0f1b33 0 0.5px, transparent 0.5px 40px), #030a1c;
+    padding: 1.25rem 1rem; }
+  .pause-btn { position: absolute; top: 12px; right: 12px; z-index: 2; background: transparent;
+    border: 1px solid #1e293b; color: #64748b; border-radius: 6px; padding: 4px 10px;
+    font: inherit; font-size: 11px; cursor: pointer; }
+  .pause-btn:hover { color: #e2e8f0; border-color: #334155; }
+  .footer { color: #475569; font-size: 0.7rem; margin-top: 1rem; }
+  .flow { stroke-dasharray: 5 5; }
+  .flow-async { stroke-dasharray: 2 4; }
+  .flow-auth { stroke-dasharray: 4 4; }
+  @media (prefers-reduced-motion: no-preference) {
+    .flow { animation: dashmove 0.75s linear infinite; }
+    .flow-async { animation: dashasync 0.9s linear infinite; }
+    .flow-auth { animation: dashauth 1.2s linear infinite; }
+    .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+  }
+  /* ?motion=on forces animation even when the OS asks for reduced motion */
+  html.force-motion .flow { animation: dashmove 0.75s linear infinite; }
+  html.force-motion .flow-async { animation: dashasync 0.9s linear infinite; }
+  html.force-motion .flow-auth { animation: dashauth 1.2s linear infinite; }
+  html.force-motion .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+  @keyframes dashmove { to { stroke-dashoffset: -10; } }
+  @keyframes dashasync { to { stroke-dashoffset: -12; } }
+  @keyframes dashauth { to { stroke-dashoffset: -8; } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  body.paused .flow, body.paused .flow-async, body.paused .flow-auth,
+  body.paused .pulse-dot { animation-play-state: paused; }
+  .container { max-width: 1240px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 1.25rem; }
+  .nav a, .nav button { font: inherit; font-size: 12px; color: #94a3b8; border: 1px solid #1e293b; border-radius: 6px;
+    padding: 4px 10px; text-decoration: none; background: transparent; cursor: pointer; }
+  .nav a:hover, .nav button:hover { color: #e2e8f0; border-color: #334155; }
+  .case { margin: 2.5rem 0 0; scroll-margin-top: 1rem; }
+  .case > h2 { font-size: 1.05rem; margin-bottom: .25rem; }
+  .case > .subtitle { margin-bottom: 1rem; }
+  .layout { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1fr); }
+  .layout > *, .notes > * { min-width: 0; }
+  h1 { overflow-wrap: anywhere; }
+  .nav button { white-space: normal; text-align: left; }
+  @media (min-width: 980px) { .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; } }
+  .notes, .overview { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.6; color: #cbd5e1; }
+  .notes { display: grid; gap: .9rem; }
+  .note { border: 1px solid #1e293b; border-left: 3px solid #334155; border-radius: 10px; padding: .9rem 1rem; background: #030a1c; }
+  .note.issue { border-left-color: #f43f5e; }
+  .note.solution { border-left-color: #22d3ee; border-left-style: dashed; }
+  .note h2 { font-size: 15px; color: #f1f5f9; margin-bottom: .45rem; line-height: 1.4; }
+  .note p + p, .note p + ul, .note ul + p, .note p + table, .note table + p, .note p + ol, .note ol + p { margin-top: .5rem; }
+  .note ul, .note ol { padding-left: 1.2rem; }
+  .tag { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    padding: 1px 6px; border-radius: 4px; margin-right: 6px; vertical-align: 1px; }
+  .issue .tag { color: #fda4af; background: rgba(244,63,94,.14); }
+  .solution .tag { color: #67e8f9; background: rgba(34,211,238,.12); }
+  code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: .88em; color: #e2e8f0;
+    background: #0f172a; padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #1e293b; vertical-align: top; }
+  th { color: #94a3b8; font-weight: 600; }
+  .overview { border: 1px solid #1e293b; border-radius: 12px; padding: 1rem; background: #030a1c; overflow-x: auto; }
+  .overview table { min-width: 720px; margin-top: .6rem; }
+  .overview a { color: #67e8f9; }
+  .ok { color: #34d399; } .bad { color: #fb7185; }
+  .muted { color: #64748b; font-size: 12.5px; }
+  .warn { color: #fbbf24; font-size: 13px; }
+  .timeline li { margin-bottom: .2rem; }
+  .sw { display: inline-block; width: 12px; height: 8px; border: 1.5px dashed #22d3ee; border-radius: 2px; margin-right: 6px; }
+  @media (max-width: 600px) { body { padding: 1rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><div class="pulse-dot"></div><h1>v0.5.8rc1: 2 thứ chưa publish (SGLang image, MUSA wheel)</h1></div>
+  <p class="subtitle">Mỗi case: diagram bên trái (luồng build thật), giải thích bên phải. Đỏ = issue hôm nay, xanh nét đứt = solution đề xuất.</p>
+  <nav class="nav"><a href="#sglang">SGLang image</a><a href="#musa">MUSA wheel</a><button id="pauseAll" aria-pressed="false">⏸ pause</button></nav>
+
+<section class="overview" lang="vi">
+  <p>Release <code>v0.5.8rc1</code> (tag 11-13): PyPI, image vLLM RC, wheel XPU / ROCm / RBLN đều publish OK.
+  Chỉ thiếu <b>2 thứ</b>, mỗi thứ có 2 issue và 2 solution:</p>
+  <table>
+    <tr><th>Thiếu gì</th><th>Issue 1 (vì sao hỏng)</th><th>Issue 2 (vì sao khó / vì sao muộn)</th><th>Solution 1 (sửa ngay)</th><th>Solution 2 (lâu dài)</th></tr>
+    <tr><td><a href="#sglang">Image <code>lmcache/sglang:v0.5.8rc1</code></a></td>
+        <td>Không bản SGLang nào dùng đúng torch 2.14.0 (chỉ có 2.14.1 / 2.13.0)</td>
+        <td>Không nâng pin lên 2.14.1 được: vLLM 0.33.0 cần 2.14.0</td>
+        <td>Chấp nhận cùng 2.14.x → SGLang v0.5.23<br><span class="muted">fork, chưa PR</span></td>
+        <td>Build LMCache trên torch của SGLang<br><span class="muted">đề xuất</span></td></tr>
+    <tr><td><a href="#musa">Wheel <code>v0.5.8rc1-musa</code></a></td>
+        <td>#5865 cần <code>torch_musa</code> lúc build, mà image MUSA trỏ sai đường dẫn</td>
+        <td>Đỏ trên dev từ 11-07, PR không có check MUSA, 6 ngày sau mới biết</td>
+        <td>Thêm <code>/home/torch_musa</code> vào <code>PYTHONPATH</code> + fail-fast<br><span class="muted">fork, chưa PR</span></td>
+        <td>Build MUSA trên PR sửa file MUSA<br><span class="muted">đề xuất</span></td></tr>
+  </table>
+</section>
+
+  <section class="case" id="sglang">
+    <h2>v0.5.8rc1 image build: vLLM vs SGLang</h2>
+    <p class="subtitle">One torch pin (2.14.0) feeds two engines. vLLM matches it. SGLang does not: 2 issues, 2 solutions.</p>
+    <div class="layout">
+      <div><div class="diagram-card"><svg class="dm" id="sglang_flowsvg" width="100%" viewBox="0 0 699 870" role="img" aria-roledescription="flowchart" aria-labelledby="sglang_flowsvg-title" aria-describedby="sglang_flowsvg-desc"><title id="sglang_flowsvg-title">v0.5.8rc1 image build: vLLM vs SGLang animated diagram</title><desc id="sglang_flowsvg-desc">Top-down flow diagram; dashed connectors animate in the direction of flow and dots ride the main paths.</desc><defs><marker id="sglang_arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><g fill="none"><path class="flow" d="M349.5 74 V126" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M349.5 174 V202 H233.5 V226" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M349.5 174 V202 H438.5 V226" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M233.5 288 V316 H272.5 V340" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M438.5 288 V316 H426.5 V340" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M272.5 388 V420.5 H241 V449" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M426.5 388 V416 H439.5 V440" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow-async" d="M439.5 502 V530 H115.5 V554" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M439.5 502 V530 H329 V554" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M439.5 502 V530 H563 V554" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M329 616 V644 H349.5 V668" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M563 616 V644 H349.5 V668" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#sglang_arrow)"/><path class="flow" d="M349.5 730 V782" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#sglang_arrow)"/></g><text x="266.8" y="417.5" fill="#64748b" font-size="10">yes</text><text x="439" y="413" fill="#64748b" font-size="10">no</text><text x="287.5" y="527" fill="#64748b" font-size="10">bump pin?</text><g><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="sglang_j0_0" dur="0.6s" begin="0s;sglang_j0_3.end+0.6s" fill="freeze" path="M349.5 74 V126"/></circle><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="sglang_j0_1" dur="1.1s" begin="sglang_j0_0.end+0.3s" fill="freeze" path="M349.5 174 V202 H233.5 V226"/></circle><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="sglang_j0_2" dur="0.6s" begin="sglang_j0_1.end+0.3s" fill="freeze" path="M233.5 288 V316 H272.5 V340"/></circle><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="sglang_j0_3" dur="0.6s" begin="sglang_j0_2.end+0.3s" fill="freeze" path="M272.5 388 V420.5 H241 V449"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="sglang_j1_0" dur="0.9s" begin="0s;sglang_j1_3.end+0.6s" fill="freeze" path="M349.5 174 V202 H438.5 V226"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="sglang_j1_1" dur="0.6s" begin="sglang_j1_0.end+0.3s" fill="freeze" path="M438.5 288 V316 H426.5 V340"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="sglang_j1_2" dur="0.6s" begin="sglang_j1_1.end+0.3s" fill="freeze" path="M426.5 388 V416 H439.5 V440"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="sglang_j1_3" dur="2.5s" begin="sglang_j1_2.end+0.3s" fill="freeze" path="M439.5 502 V530 H115.5 V554"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="sglang_j2_0" dur="1.1s" begin="0s;sglang_j2_2.end+0.6s" fill="freeze" path="M439.5 502 V530 H329 V554"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="sglang_j2_1" dur="0.6s" begin="sglang_j2_0.end+0.3s" fill="freeze" path="M329 616 V644 H349.5 V668"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="sglang_j2_2" dur="0.6s" begin="sglang_j2_1.end+0.3s" fill="freeze" path="M349.5 730 V782"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="sglang_j3_0" dur="1.2s" begin="0s;sglang_j3_1.end+0.6s" fill="freeze" path="M439.5 502 V530 H563 V554"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="sglang_j3_1" dur="1.8s" begin="sglang_j3_0.end+0.3s" fill="freeze" path="M563 616 V644 H349.5 V668"/></circle></g><g font-family="JetBrains Mono, ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace" text-anchor="middle"><rect x="282" y="34" width="135" height="40" rx="20" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="1.5"/><text x="349.5" y="58" fill="#e2e8f0" font-size="13" font-weight="600">TAG v0.5.8rc1</text><rect x="241" y="130" width="217" height="44" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="349.5" y="156" fill="#e2e8f0" font-size="13" font-weight="500">LMCache pin torch==2.14.0</text><rect x="159.5" y="230" width="148" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="233.5" y="256" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="233.5">vLLM 0.33.0 pins</tspan><tspan x="233.5" dy="15">torch 2.14.0</tspan></text><rect x="337.5" y="230" width="202" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="438.5" y="256" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="438.5">SGLang v0.5.23/22 =</tspan><tspan x="438.5" dy="15">2.14.1, v0.5.21- = 2.13.0</tspan></text><rect x="210.5" y="344" width="124" height="44" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981" stroke-dasharray="4 3"/><text x="272.5" y="370" fill="#e2e8f0" font-size="13" font-weight="500">exact 2.14.0?</text><rect x="364.5" y="344" width="124" height="44" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981" stroke-dasharray="4 3"/><text x="426.5" y="370" fill="#e2e8f0" font-size="13" font-weight="500">exact 2.14.0?</text><rect x="166" y="453" width="150" height="40" rx="20" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="1.5"/><text x="241" y="470" fill="#e2e8f0" font-size="13" font-weight="600"><tspan x="241">vllm-openai:v0.5.8rc1</tspan><tspan x="241" dy="15">PUSHED</tspan></text><rect x="346" y="444" width="187" height="58" rx="8" fill="rgba(244,63,94,0.08)" stroke="#f43f5e" stroke-width="1.5"/><text x="439.5" y="470" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="439.5">ISSUE 1: resolve</tspan><tspan x="439.5" dy="15">exits, no sglang image</tspan></text><rect x="34" y="558" width="163" height="58" rx="8" fill="rgba(244,63,94,0.08)" stroke="#f43f5e" stroke-width="1.5"/><text x="115.5" y="584" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="115.5">ISSUE 2: pin 2.14.1</tspan><tspan x="115.5" dy="15">breaks vLLM lane</tspan></text><rect x="227" y="558" width="204" height="58" rx="8" fill="rgba(34,211,238,0.06)" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="6 3"/><text x="329" y="584" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="329">SOLUTION 1: major.minor</tspan><tspan x="329" dy="15">fallback to v0.5.23</tspan></text><rect x="461" y="558" width="204" height="58" rx="8" fill="rgba(34,211,238,0.06)" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="6 3"/><text x="563" y="584" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="563">SOLUTION 2: build</tspan><tspan x="563" dy="15">lmcache on SGLang torch</tspan></text><rect x="255.5" y="672" width="188" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="349.5" y="698" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="349.5">native ops +</tspan><tspan x="349.5" dy="15">connector load checks</tspan></text><rect x="274.5" y="786" width="150" height="40" rx="20" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="1.5"/><text x="349.5" y="810" fill="#e2e8f0" font-size="13" font-weight="600">sglang:v0.5.8rc1 PUSHED</text></g><g font-size="11" fill="#94a3b8" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace"><g transform="translate(34 841.0)"><rect width="14" height="10" rx="2" fill="none" stroke="#10b981"/><text x="20" y="9">works today</text></g><g transform="translate(184 841.0)"><rect width="14" height="10" rx="2" fill="rgba(244,63,94,0.08)" stroke="#f43f5e"/><text x="20" y="9">issue (today)</text></g><g transform="translate(334 841.0)"><rect width="14" height="10" rx="2" fill="none" stroke="#22d3ee" stroke-dasharray="3 2"/><text x="20" y="9">solution (proposed)</text></g><g transform="translate(484 841.0)"><circle cx="7" cy="5" r="3.5" fill="#34d399"/><text x="20" y="9">build in flight</text></g></g></svg></div><p class="footer">Data: release run 43357734309 (2026-11-13) · SGLang pyproject.toml per tag · branch fix/sglang-torch-minor-match (7ae3da34)</p></div>
+      <section class="notes" lang="vi">
+  <div class="note">
+    <h2>Bối cảnh</h2>
+    <p>LMCache ghim <code>torch==2.14.0</code> trong <code>pyproject.toml</code>. Wheel trên PyPI được build với đúng torch này, nên phần code C++/CUDA của LMCache chỉ chắc chắn chạy được với torch 2.14.0.</p>
+    <p>Image <code>lmcache/sglang</code> = image chính thức <code>lmsysorg/sglang</code> + wheel LMCache cài thêm. Vì vậy CI phải chọn một bản SGLang <b>dùng cùng torch</b> với LMCache.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 1</span> Không có bản SGLang nào dùng đúng torch 2.14.0</h2>
+    <p>Bước "Resolve the newest SGLang release image" đi lùi từ bản SGLang mới nhất và tìm bản có torch <b>giống hệt</b> 2.14.0:</p>
+    <table>
+      <tr><th>SGLang</th><th>torch</th><th>Khớp 2.14.0?</th></tr>
+      <tr><td>v0.5.23, v0.5.22</td><td>2.14.1</td><td class="bad">không (lệch bản vá)</td></tr>
+      <tr><td>v0.5.21 → v0.5.18</td><td>2.13.0</td><td class="bad">không</td></tr>
+    </table>
+    <p>Không tìm được bản nào khớp, nên bước này báo lỗi. Các bước build image phía sau bị skip, và <b>không có image <code>lmcache/sglang:v0.5.8rc1</code></b>.</p>
+    <p class="muted">Lane vLLM thì OK: vLLM 0.33.0 dùng đúng torch 2.14.0, nên <code>lmcache/vllm-openai:v0.5.8rc1</code> có trên Docker Hub.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 2</span> Không thể đơn giản nâng lên 2.14.1</h2>
+    <p>Cách sửa "dễ" là đổi pin của LMCache sang <code>torch==2.14.1</code> cho khớp SGLang. Nhưng:</p>
+    <ul>
+      <li>Cùng <b>một pin</b> này được dùng cho cả wheel PyPI, image vLLM và image SGLang.</li>
+      <li>vLLM 0.33.0 bắt buộc <code>torch==2.14.0</code>.</li>
+      <li>Nâng lên 2.14.1 thì SGLang khớp nhưng <b>image vLLM lại hỏng</b>.</li>
+    </ul>
+    <p><b>Tóm lại:</b> một pin torch phải phục vụ 2 engine đang dùng 2 bản vá khác nhau. Không có giá trị nào khớp cả hai.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 1</span> Chấp nhận cùng major.minor (2.14.x)</h2>
+    <p>Branch <code>fix/sglang-torch-minor-match</code> (commit <code>7ae3da34</code>):</p>
+    <ul>
+      <li>Ưu tiên bản SGLang khớp đúng 2.14.0. Nếu không có, lấy bản mới nhất cùng <code>2.14.*</code>, tức là v0.5.23 (torch 2.14.1).</li>
+      <li>Dockerfile vẫn kiểm tra kỹ: cài LMCache không được làm đổi torch, code native của LMCache phải load được, connector SGLang phải import được. Nếu 2.14.0 và 2.14.1 không tương thích thì build vẫn báo lỗi, không ship image hỏng.</li>
+    </ul>
+    <p class="muted">Bản vá (2.14.0 → 2.14.1) thường giữ tương thích, nhưng không được đảm bảo. Các bước kiểm tra trên là lưới an toàn.</p>
+    <p class="warn">Trạng thái: mới push lên fork, <b>chưa có PR, chưa chạy CI</b>.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 2</span> Build LMCache ngay trên torch của SGLang</h2>
+    <p>Không cài wheel từ PyPI nữa, mà build LMCache từ source <b>bên trong</b> image SGLang, với torch của chính SGLang (2.14.1).</p>
+    <ul>
+      <li>Ưu: torch luôn khớp tuyệt đối, không phụ thuộc pin nào nữa.</li>
+      <li>Nhược: build lâu hơn, image cần thêm compiler CUDA, và wheel trong image khác wheel trên PyPI.</li>
+    </ul>
+    <p class="warn">Trạng thái: đề xuất, chưa làm.</p>
+  </div>
+
+  <div class="note">
+    <h2>Tóm tắt</h2>
+    <p><span class="sw s1"></span>Solution 1 nhỏ, sửa được ngay cho 0.5.8.<br><span class="sw s2"></span>Solution 2 bền hơn nhưng tốn công, nên cân nhắc cho bản sau.</p>
+  </div>
+</section>
+
+    </div>
+  </section>
+  <section class="case" id="musa">
+    <h2>MUSA wheel build: v0.5.7.post1 vs v0.5.8rc1</h2>
+    <p class="subtitle">Same CI image, same broken torch_musa path. post1 never needs it. rc1 does (#5865): 2 issues, 2 solutions.</p>
+    <div class="layout">
+      <div><div class="diagram-card"><svg class="dm" id="musa_flowsvg" width="100%" viewBox="0 0 570 1014" role="img" aria-roledescription="flowchart" aria-labelledby="musa_flowsvg-title" aria-describedby="musa_flowsvg-desc"><title id="musa_flowsvg-title">MUSA wheel build: v0.5.7.post1 vs v0.5.8rc1 animated diagram</title><desc id="musa_flowsvg-desc">Top-down flow diagram; dashed connectors animate in the direction of flow and dots ride the main paths.</desc><defs><marker id="musa_arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><g fill="none"><path class="flow" d="M285 74 V126" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M285 188 V216 H185 V240" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M285 188 V216 H371 V240" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M185 302 V331 H189 V356" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M371 302 V330 H375 V354" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M375 402 V430 H285 V454" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow-async" d="M285 516 V544 H137 V568" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M285 516 V544 H403 V568" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M137 630 V658 H285 V682" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M403 630 V776 H285 V796" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M285 744 V796" stroke="#10b981" stroke-width="1" opacity="0.85" marker-end="url(#musa_arrow)"/><path class="flow" d="M285 858 V910" stroke="#10b981" stroke-width="1.5" opacity="0.85" marker-end="url(#musa_arrow)"/></g><text x="340" y="427" fill="#64748b" font-size="10">no</text><text x="221" y="541" fill="#64748b" font-size="10">why so late?</text><g><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="musa_j0_0" dur="0.6s" begin="0s;musa_j0_2.end+0.6s" fill="freeze" path="M285 74 V126"/></circle><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="musa_j0_1" dur="1.0s" begin="musa_j0_0.end+0.3s" fill="freeze" path="M285 188 V216 H185 V240"/></circle><circle r="3.5" class="dot" fill="#34d399"><animateMotion id="musa_j0_2" dur="0.6s" begin="musa_j0_1.end+0.3s" fill="freeze" path="M185 302 V331 H189 V356"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="musa_j1_0" dur="0.9s" begin="0s;musa_j1_3.end+0.6s" fill="freeze" path="M285 188 V216 H371 V240"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="musa_j1_1" dur="0.6s" begin="musa_j1_0.end+0.3s" fill="freeze" path="M371 302 V330 H375 V354"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="musa_j1_2" dur="0.9s" begin="musa_j1_1.end+0.3s" fill="freeze" path="M375 402 V430 H285 V454"/></circle><circle r="3.5" class="dot" fill="#f43f5e"><animateMotion id="musa_j1_3" dur="1.3s" begin="musa_j1_2.end+0.3s" fill="freeze" path="M285 516 V544 H137 V568"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="musa_j2_0" dur="1.1s" begin="0s;musa_j2_2.end+0.6s" fill="freeze" path="M285 516 V544 H403 V568"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="musa_j2_1" dur="1.9s" begin="musa_j2_0.end+0.3s" fill="freeze" path="M403 630 V776 H285 V796"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="musa_j2_2" dur="0.6s" begin="musa_j2_1.end+0.3s" fill="freeze" path="M285 858 V910"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="musa_j3_0" dur="1.3s" begin="0s;musa_j3_1.end+0.6s" fill="freeze" path="M137 630 V658 H285 V682"/></circle><circle r="3.5" class="dot" fill="#22d3ee"><animateMotion id="musa_j3_1" dur="0.6s" begin="musa_j3_0.end+0.3s" fill="freeze" path="M285 744 V796"/></circle></g><g font-family="JetBrains Mono, ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace" text-anchor="middle"><rect x="210" y="34" width="150" height="40" rx="20" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="1.5"/><text x="285" y="58" fill="#e2e8f0" font-size="13" font-weight="600">BUILD MUSA WHEEL</text><rect x="185.5" y="130" width="199" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="285" y="156" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="285">CI image: torch 2.9.1,</tspan><tspan x="285" dy="15">torch_musa path broken</tspan></text><rect x="114" y="244" width="142" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="185" y="270" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="185">v0.5.7.post1: no</tspan><tspan x="185" dy="15">#5865, C++ only</tspan></text><rect x="286" y="244" width="170" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="371" y="270" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="371">v0.5.8rc1: #5865</tspan><tspan x="371" dy="15">imports torch_musa</tspan></text><rect x="114" y="360" width="150" height="40" rx="20" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="1.5"/><text x="189" y="377" fill="#e2e8f0" font-size="13" font-weight="600"><tspan x="189">v0.5.7.post1-musa</tspan><tspan x="189" dy="15">PUBLISHED</tspan></text><rect x="294" y="358" width="162" height="44" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981" stroke-dasharray="4 3"/><text x="375" y="384" fill="#e2e8f0" font-size="13" font-weight="500">torch_musa loads?</text><rect x="160.5" y="458" width="249" height="58" rx="8" fill="rgba(244,63,94,0.08)" stroke="#f43f5e" stroke-width="1.5"/><text x="285" y="484" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="285">ISSUE 1: ModuleNotFoundError,</tspan><tspan x="285" dy="15">no rc1 -musa wheel</tspan></text><rect x="34" y="572" width="206" height="58" rx="8" fill="rgba(244,63,94,0.08)" stroke="#f43f5e" stroke-width="1.5"/><text x="137" y="598" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="137">ISSUE 2: red on dev</tspan><tspan x="137" dy="15">since 11-07, 0 PR checks</tspan></text><rect x="270" y="572" width="266" height="58" rx="8" fill="rgba(34,211,238,0.06)" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="6 3"/><text x="403" y="598" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="403">SOLUTION 1: add</tspan><tspan x="403" dy="15">/home/torch_musa to PYTHONPATH</tspan></text><rect x="178" y="686" width="214" height="58" rx="8" fill="rgba(34,211,238,0.06)" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="6 3"/><text x="285" y="712" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="285">SOLUTION 2: MUSA build on</tspan><tspan x="285" dy="15">PRs touching musa files</tspan></text><rect x="209.5" y="800" width="151" height="58" rx="8" fill="rgba(16,185,129,0.04)" stroke="#10b981"/><text x="285" y="826" fill="#e2e8f0" font-size="13" font-weight="500"><tspan x="285">fail-fast: import</tspan><tspan x="285" dy="15">torch_musa first</tspan></text><rect x="210" y="914" width="150" height="40" rx="20" fill="rgba(52,211,153,0.06)" stroke="#34d399" stroke-width="1.5"/><text x="285" y="938" fill="#e2e8f0" font-size="13" font-weight="600">v0.5.8-musa PUBLISHED</text></g><g font-size="11" fill="#94a3b8" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace"><g transform="translate(34 969.0)"><rect width="14" height="10" rx="2" fill="none" stroke="#10b981"/><text x="20" y="9">works today</text></g><g transform="translate(184 969.0)"><rect width="14" height="10" rx="2" fill="rgba(244,63,94,0.08)" stroke="#f43f5e"/><text x="20" y="9">issue (today)</text></g><g transform="translate(34 985.0)"><rect width="14" height="10" rx="2" fill="none" stroke="#22d3ee" stroke-dasharray="3 2"/><text x="20" y="9">solution (proposed)</text></g><g transform="translate(184 985.0)"><circle cx="7" cy="5" r="3.5" fill="#34d399"/><text x="20" y="9">build in flight</text></g></g></svg></div><p class="footer">Data: release run 43357734309 job 131689267354 (2026-11-13) · dev publish runs 11-07..11-12 · branch fix/musa-wheel-build (6fe78159)</p></div>
+      <section class="notes" lang="vi">
+  <div class="note">
+    <h2>Bối cảnh</h2>
+    <p>CI tải Docker image của Moore Threads (<code>musa-pytorch-release-public:rc5.1.0…</code>). Image này có sẵn <code>torch 2.9.1</code> và <code>torch_musa</code> (phần mở rộng để torch chạy trên GPU MUSA). LMCache được build <b>bên trong</b> image này để tạo ra wheel <code>lmcache-…+musa</code>.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 1</span> Python không tìm thấy <code>torch_musa</code></h2>
+    <p>Image có một lỗi ẩn từ trước:</p>
+    <ul>
+      <li>Thư mục <code>torch_musa</code> nằm thật ở <code>/home/torch_musa</code>.</li>
+      <li>Nhưng Python được "đăng ký" để tìm nó ở một đường dẫn khác (đường dẫn trên máy Moore Threads lúc build image). Đường dẫn đó <b>không tồn tại</b> trong image.</li>
+      <li>Kết quả: <code>import torch_musa</code> báo <code>ModuleNotFoundError</code>.</li>
+    </ul>
+    <table>
+      <tr><th></th><th>Lúc build có gọi <code>torch_musa</code>?</th><th>Kết quả</th></tr>
+      <tr><td>v0.5.7.post1</td><td>Không (chỉ build C++ chung)</td><td class="ok">wheel publish OK</td></tr>
+      <tr><td>v0.5.8rc1</td><td>Có: #5865 thêm <code>from torch_musa.utils import …</code></td><td class="bad">build hỏng</td></tr>
+    </table>
+    <p><b>Tóm lại:</b> #5865 không viết sai. Nó chỉ là code đầu tiên cần <code>torch_musa</code> lúc build, nên làm lộ ra lỗi đã có sẵn trong image.</p>
+    <p class="muted">Thêm: bước kiểm tra đầu script chỉ <code>import torch</code> (vẫn OK, in ra "BUILD TORCH: 2.9.1"), nên lỗi chỉ hiện ra khoảng 8 phút sau, ở giữa <code>setup.py</code>.</p>
+  </div>
+
+  <div class="note issue">
+    <h2><span class="tag">ISSUE 2</span> Đỏ từ 11-07, 6 ngày sau mới biết</h2>
+    <ol class="timeline">
+      <li><b>11-07 05:43</b> #5865 merge. PR chạy <b>0 check MUSA</b>, nên không ai thấy lỗi.</li>
+      <li><b>11-07 05:44</b> Lần chạy publish đầu tiên trên dev sau khi merge: MUSA đã hỏng.</li>
+      <li><b>11-07 → 11-12</b> 7 lần hỏng và 73 lần bị cancel, không có lần nào xanh. Không ai để ý.</li>
+      <li><b>11-13</b> Tag v0.5.8rc1, release hỏng. Lúc này mới phát hiện.</li>
+    </ol>
+    <p><b>Vấn đề không nằm ở code</b>, mà ở chỗ CI không báo lỗi đúng lúc: PR không kiểm tra MUSA, còn dev đỏ thì không ai nhìn.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 1</span> Chỉ cho Python chỗ tìm <code>torch_musa</code></h2>
+    <p>Sửa Issue 1. Branch <code>fix/musa-wheel-build</code> (commit <code>6fe78159</code>):</p>
+    <ul>
+      <li>Nếu <code>import torch_musa</code> hỏng mà <code>/home/torch_musa</code> có tồn tại, thì thêm <code>/home/torch_musa</code> vào <code>PYTHONPATH</code>.</li>
+      <li>Import <code>torch_musa</code> ngay đầu script (<b>fail-fast</b>): nếu vẫn hỏng thì báo lỗi sau vài giây, không phải chờ 8 phút.</li>
+    </ul>
+    <p class="warn">Trạng thái: mới push lên fork, <b>chưa có PR, chưa chạy CI</b>.</p>
+  </div>
+
+  <div class="note solution">
+    <h2><span class="tag">SOLUTION 2</span> Bắt lỗi ngay ở PR</h2>
+    <p>Sửa Issue 2. PR nào sửa file MUSA thì CI build wheel MUSA luôn:</p>
+    <ul>
+      <li><code>setup_extensions/build_profiles/musa.py</code></li>
+      <li><code>csrc/musa/**</code></li>
+    </ul>
+    <p>Nếu đã có check này, #5865 đã bị chặn ngay ngày 11-07, trước khi merge.</p>
+    <p class="warn">Trạng thái: đề xuất, chưa làm.</p>
+  </div>
+
+  <div class="note">
+    <h2>Tóm tắt</h2>
+    <p><span class="sw s1"></span>Solution 1 giúp release 0.5.8 build được.<br><span class="sw s2"></span>Solution 2 giúp lần sau không lặp lại chuyện "đỏ 6 ngày mà không ai biết".</p>
+  </div>
+</section>
+
+    </div>
+  </section>
+</div>
+<script>
+(function () {
+  // Motion is ON by default on this page; ?motion=off follows the OS reduced-motion setting instead.
+  var force = !/[?&]motion=off\b/.test(location.search);
+  if (!force) document.documentElement.classList.remove('force-motion');
+  var svgs = document.querySelectorAll('svg.dm');
+  var btn = document.getElementById('pauseAll');
+  if (!force && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.dot').forEach(function (d) { d.remove(); });
+    btn.textContent = 'animation off (?motion=off + OS reduced motion)'; btn.disabled = true; return;
+  }
+  var paused = false;
+  btn.addEventListener('click', function () {
+    paused = !paused; document.body.classList.toggle('paused', paused);
+    svgs.forEach(function (s) { paused ? s.pauseAnimations() : s.unpauseAnimations(); });
+    btn.textContent = paused ? '\u25b6 play' : '\u23f8 pause';
+    btn.setAttribute('aria-pressed', String(paused));
+  });
+})();
+</script>
+</body>
+</html>

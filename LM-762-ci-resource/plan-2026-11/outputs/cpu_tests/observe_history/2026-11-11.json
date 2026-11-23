@@ -1,0 +1,58 @@
+{
+ "at": "2026-11-11T14:54:57Z",
+ "day": "2026-11-11",
+ "prs": {
+  "open": 711,
+  "draft": 243,
+  "approved": 26,
+  "changes": 11,
+  "merged_unreleased": 75,
+  "since": "v0.5.7",
+  "approved_gate_fail": 1
+ },
+ "dev": {
+  "k3-unit-tests": {
+   "passed": 10,
+   "n": 10,
+   "last": "passed"
+  },
+  "k3-multiprocess-test": {
+   "passed": 2,
+   "n": 3,
+   "last": "passed"
+  },
+  "k3-comprehensive-test": {
+   "passed": 0,
+   "n": 1,
+   "last": "failed"
+  }
+ },
+ "queue": {
+  "k3-unit-tests": {
+   "w50": 0.1,
+   "w90": 2.0,
+   "d50": 19.4,
+   "passed": 17,
+   "n": 20
+  },
+  "k3-multiprocess-test": {
+   "w50": 1.3,
+   "w90": 28.7,
+   "d50": 9.4,
+   "passed": 15,
+   "n": 20
+  }
+ },
+ "load": {
+  "bk_running": 3,
+  "bk_waiting": 0,
+  "gha_queued": 18,
+  "gha_running": 9
+ },
+ "nightly": "failure",
+ "release": {
+  "latest": "v0.5.7",
+  "stable": "v0.5.7",
+  "publish": "queued"
+ }
+}
