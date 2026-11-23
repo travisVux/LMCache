@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekly Full Build</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .strip { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .strip a { display: block; width: 26px; height: 26px; border-radius: 5px; background: var(--gray-bg); }
+  .strip a.p { background: var(--green); }
+  .strip a.f { background: var(--red); }
+  .strip a.r { background: var(--amber); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kpi { background: var(--panel-2); border-radius: 8px; padding: 10px 12px; }
+  .kpi b { display: block; font-size: 20px; }
+  .chip { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+  .chip.green { background: var(--green-bg); color: var(--green); }
+  .chip.red { background: var(--red-bg); color: var(--red); }
+  .chip.amber { background: var(--amber-bg); color: var(--amber); }
+  .chip.gray { background: var(--gray-bg); color: var(--muted); }
+  table.tbl { width: 100%; border-collapse: collapse; }
+  table.tbl td, table.tbl th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .problems { margin: 8px 0 0; padding-left: 18px; }
+  .problems li { margin: 2px 0; word-break: break-word; }
+  @media (max-width: 640px) { .top, main { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1 data-en="Weekly full build" data-vi="Build full hằng tuần">Build full hằng tuần</h1>
+    <p class="sub" data-en="Full CUDA suite on dev every Sunday 08:00 UTC: unit, every multiprocess workload + DSV4 full-size, CacheBlend. Live from GitHub."
+       data-vi="Toàn bộ suite CUDA trên dev mỗi Chủ nhật 08:00 UTC: unit, mọi workload multiprocess + DSV4 full-size, CacheBlend. Đọc trực tiếp từ GitHub.">Toàn bộ suite CUDA trên dev mỗi Chủ nhật 08:00 UTC: unit, mọi workload multiprocess + DSV4 full-size, CacheBlend. Đọc trực tiếp từ GitHub.</p>
+  </div>
+  <div class="tools">
+    <a href="index.html" data-en="← Dashboard" data-vi="← Dashboard">← Dashboard</a>
+    <span class="seg"><button type="button" data-lang="en">EN</button><button type="button" data-lang="vi">VI</button></span>
+  </div>
+</div>
+<main id="main"><section class="card"><p class="muted" id="status">…</p></section></main>
+<script>
+(() => {
+  "use strict";
+  const REPO = new URLSearchParams(location.search).get("repo") || "LMCache/LMCache";
+  const WORKFLOW = "weekly_full_build.yml";
+  const GH = "https://api.github.com";
+  const store = {
+    get(k, d) { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
+  };
+  let LANG = store.get("opsLang", "vi");
+  const T = (en, vi) => (LANG === "vi" ? vi : en);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const day = (s) => (s ? String(s).slice(0, 10) : "—");
+  const short = (sha) => String(sha || "").slice(0, 8);
+  const NAMES = {
+    "k3-unit-tests": ["Unit tests", "Unit test"],
+    "k3-multiprocess-test": ["Multiprocess + DSV4 full-size", "Multiprocess + DSV4 full-size"],
+    "k3-blend-test": ["CacheBlend", "CacheBlend"],
+  };
+  const KIND = {
+    failed: ["failed", "fail"], soft_failed: ["soft-failed", "soft-fail"], not_run: ["did not run", "không chạy"],
+    missing: ["required job missing", "thiếu job bắt buộc"], suite_skipped: ["suite skipped", "suite bị bỏ qua"],
+    workload_skipped: ["workload skipped", "workload bị bỏ qua"], build: ["build", "build"],
+  };
+  let data = null;
+
+  async function gh(path) {
+    const r = await fetch(`${GH}${path}`, { headers: { Accept: "application/vnd.github+json" } });
+    if (!r.ok) { const e = new Error(`${path}: HTTP ${r.status}`); e.status = r.status; throw e; }
+    return r.json();
+  }
+
+  async function load() {
+    const runs = (await gh(`/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=12`)).workflow_runs;
+    const latest = runs.find((r) => r.status === "completed") || null;
+    let annotations = [];
+    if (latest) {
+      const jobs = (await gh(`/repos/${REPO}/actions/runs/${latest.id}/jobs`)).jobs;
+      if (jobs.length) annotations = await gh(`/repos/${REPO}/check-runs/${jobs[0].id}/annotations?per_page=100`);
+    }
+    return { runs, latest, annotations };
+  }
+
+  function cls(run) {
+    if (run.status !== "completed") return "r";
+    return run.conclusion === "success" ? "p" : run.conclusion === "failure" || run.conclusion === "timed_out" ? "f" : "";
+  }
+
+  function render() {
+    const main = document.getElementById("main");
+    if (data.error) {
+      const e = data.error;
+      const msg = e.status === 404
+        ? T(`${WORKFLOW} is not on the default branch of ${REPO} yet.`, `${WORKFLOW} chưa có trên nhánh mặc định của ${REPO}.`)
+        : e.status === 403
+          ? T("GitHub API rate limit reached (60 requests/hour without login). Try again later.", "Đã chạm giới hạn GitHub API (60 request/giờ khi chưa đăng nhập). Thử lại sau.")
+          : T(`Could not load: ${e.message}`, `Không tải được: ${e.message}`);
+      main.innerHTML = `<section class="card"><p>${esc(msg)}</p></section>`;
+      return;
+    }
+    const { runs, latest, annotations } = data;
+    if (!runs.length) {
+      main.innerHTML = `<section class="card"><p>${T("No weekly run yet.", "Chưa có lần chạy nào.")}</p></section>`;
+      return;
+    }
+    const oldestFirst = runs.slice().reverse();
+    const strip = oldestFirst.map((r) => `<a class="${cls(r)}" href="${esc(r.html_url)}" target="_blank" rel="noopener" title="${esc(day(r.run_started_at))} · ${esc(r.conclusion || r.status)} · ${esc(short(r.head_sha))}" aria-label="${esc(day(r.run_started_at))} ${esc(r.conclusion || r.status)}"></a>`).join("");
+    const completed = runs.filter((r) => r.status === "completed");
+    const lastGreen = completed.find((r) => r.conclusion === "success");
+    const sinceGreen = lastGreen ? completed.indexOf(lastGreen) : completed.length;
+    const ok = latest && latest.conclusion === "success";
+    const verdict = latest
+      ? `<span class="chip ${ok ? "green" : "red"}">${ok ? T("PASSED", "XANH") : T("FAILED", "ĐỎ")}</span>`
+      : `<span class="chip gray">${T("running", "đang chạy")}</span>`;
+    const compare = lastGreen && latest && !ok
+      ? `<a href="https://github.com/${esc(REPO)}/compare/${esc(lastGreen.head_sha)}...${esc(latest.head_sha)}" target="_blank" rel="noopener">${esc(short(lastGreen.head_sha))}…${esc(short(latest.head_sha))}</a>`
+      : "—";
+
+    // Annotation shapes are fixed by .github/scripts/weekly_full_build.py.
+    const pipeRe = /^(\S+) (\S+)$/;
+    const pipes = [], problems = {};
+    annotations.forEach((a) => {
+      const msg = String(a.message || "").trim();
+      const m = msg.match(pipeRe);
+      const isPipeLine = m && (m[2] === "None" || /\/builds\/\d+$/.test(m[2]));
+      if (isPipeLine && NAMES[a.title] && !pipes.some((p) => p.slug === a.title)) {
+        pipes.push({ slug: a.title, state: m[1], url: m[2] === "None" ? "" : m[2], level: a.annotation_level });
+      } else if (NAMES[a.title]) {
+        (problems[a.title] ??= []).push(msg);
+      }
+    });
+    const rows = pipes.map((p) => {
+      const n = NAMES[p.slug];
+      const list = (problems[p.slug] || []).map((msg) => {
+        const [kind, ...rest] = msg.split(" ");
+        const url = rest.length && /^https:\/\//.test(rest.at(-1)) ? rest.pop() : "";
+        const label = rest.join(" ");
+        const k = KIND[kind] ? T(KIND[kind][0], KIND[kind][1]) : kind;
+        return `<li><b>${esc(k)}</b> ${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a>` : `<code>${esc(label)}</code>`}</li>`;
+      }).join("");
+      const good = p.level === "notice";
+      return `<tr><td><b>${esc(T(n[0], n[1]))}</b><br><span class="muted mono">${esc(p.slug)}</span></td>
+        <td>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">#${esc(p.url.split("/").pop())}</a>` : "—"}</td>
+        <td><span class="chip ${good ? "green" : "red"}">${esc(p.state)}</span>${list ? `<ul class="problems">${list}</ul>` : ""}</td></tr>`;
+    }).join("");
+
+    document.getElementById("main").innerHTML = `
+      <section class="card">
+        <h2>${T("Last 12 weeks", "12 tuần gần nhất")}</h2>
+        <p class="why muted">${T("Oldest → newest. Green passed · red failed · amber running · gray cancelled.", "Cũ → mới. Xanh pass · đỏ fail · vàng đang chạy · xám bị hủy.")}</p>
+        <div class="strip">${strip}</div>
+      </section>
+      <section class="card">
+        <div class="kpis">
+          <div class="kpi"><span class="muted">${T("Latest run", "Lần chạy gần nhất")}</span><b>${verdict}</b>
+            ${latest ? `<a href="${esc(latest.html_url)}" target="_blank" rel="noopener">${esc(day(latest.run_started_at))} · ${esc(short(latest.head_sha))}</a>` : ""}</div>
+          <div class="kpi"><span class="muted">${T("Failed runs since last green", "Số lần đỏ từ lần xanh cuối")}</span><b>${lastGreen ? sinceGreen : T("no green yet", "chưa có lần xanh")}</b>
+            ${lastGreen ? `<a href="${esc(lastGreen.html_url)}" target="_blank" rel="noopener">${T("last green", "xanh cuối")} ${esc(day(lastGreen.run_started_at))}</a>` : ""}</div>
+          <div class="kpi"><span class="muted">${T("Changes to bisect", "Khoảng commit cần dò")}</span><b style="font-size:14px">${compare}</b>
+            <span class="muted">${T("last green → latest", "xanh cuối → mới nhất")}</span></div>
+        </div>
+      </section>
+      <section class="card">
+        <h2>${T("Latest run by pipeline", "Lần chạy gần nhất theo pipeline")}</h2>
+        ${rows ? `<table class="tbl"><thead><tr><th>Pipeline</th><th>Buildkite</th><th>${T("Result", "Kết quả")}</th></tr></thead><tbody>${rows}</tbody></table>`
+               : `<p class="muted">${T("No per-pipeline result in this run (it may have stopped before reaching Buildkite). Open the run for details.", "Lần chạy này không có kết quả theo pipeline (có thể dừng trước khi tới Buildkite). Mở run để xem chi tiết.")}</p>`}
+        <p class="muted">${T("Logs of failed jobs and report.json are in the run's artifact for 90 days.", "Log của job fail và report.json nằm trong artifact của run, giữ 90 ngày.")}</p>
+      </section>`;
+  }
+
+  function applyLang() {
+    document.documentElement.lang = LANG;
+    document.querySelectorAll("[data-en]").forEach((el) => { el.textContent = el.dataset[LANG]; });
+    document.querySelectorAll("[data-lang]").forEach((b) => b.classList.toggle("on", b.dataset.lang === LANG));
+    if (data) render();
+  }
+  document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => { LANG = b.dataset.lang; store.set("opsLang", LANG); applyLang(); }));
+  applyLang();
+  document.getElementById("status").textContent = T("Loading from GitHub…", "Đang tải từ GitHub…");
+  load().then((d) => { data = d; render(); }).catch((e) => { data = { error: e }; render(); });
+})();
+</script>
+</body>
+</html>
