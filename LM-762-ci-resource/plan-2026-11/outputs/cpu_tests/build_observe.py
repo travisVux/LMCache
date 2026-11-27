@@ -31,7 +31,7 @@ PR_QUERY = (
     'orderBy:{field:UPDATED_AT,direction:DESC}){totalCount pageInfo{endCursor hasNextPage} nodes{number title url isDraft createdAt updatedAt '
     'reviewDecision mergeable baseRefName author{login} assignees(first:3){nodes{login}} labels(first:8){nodes{name color}} '
     'milestone{title} autoMergeRequest{enabledAt} commits(last:1){nodes{commit{oid statusCheckRollup{state '
-    'contexts(first:80){nodes{__typename ... on CheckRun{name status conclusion} '
+    'contexts(first:80){nodes{__typename ... on CheckRun{name status conclusion detailsUrl} '
     '... on StatusContext{context state targetUrl}}}}}}}}}}}'
 )
 MSTATE_QUERY = 'query{repository(owner:"LMCache",name:"LMCache"){__PRS__}}'  # __PRS__ -> p123:pullRequest(number:123){number mergeStateStatus}
@@ -113,6 +113,7 @@ body[data-v="obs"] .obs-bar,body[data-all="1"] .obs-bar{display:flex}
 .obs-bar .src span{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--text-secondary);white-space:nowrap}
 .obs-bar .src span.ok{border-color:color-mix(in oklab,var(--good) 60%,var(--border))}
 .obs-bar .src span.off{opacity:.7;border-style:dashed}
+.obs-bar .src span.stale{border-color:var(--warning);border-style:dashed}
 .obs-bar .src span.err{border-color:var(--critical);color:var(--critical)}
 .obs-bar .sp{flex:1}
 .obs-bar button,.obs-bar select,.obs-set input{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font:inherit;font-size:12.5px}
@@ -161,9 +162,7 @@ body[data-v="obs"] .obs-bar,body[data-all="1"] .obs-bar{display:flex}
 .obs-t .ttl{font-weight:600;line-height:1.35}
 .obs-t .meta{color:var(--text-muted);font-size:11.5px;margin-top:2px}
 .obs-lab{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:999px;margin:2px 4px 0 0;border:1px solid var(--border);color:var(--text-secondary)}
-:root{--good-text:#0b7a0b;--crit-text:#b42f2f;--muted-text:#66655f}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--good-text:#34c234;--crit-text:#f26b6b;--muted-text:#a3a29a}}
-:root[data-theme="dark"]{--good-text:#34c234;--crit-text:#f26b6b;--muted-text:#a3a29a}
+/* --good-text / --crit-text / --muted-text: aliases in the round-3 token block (ux_ui.TOKENS) */
 button.theme{white-space:nowrap}
 .gch{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:650;padding:1px 6px;border-radius:5px;margin:1px 3px 1px 0;border:1px solid var(--border);white-space:nowrap;color:var(--text-secondary)}
 .gch::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--border)}
@@ -565,18 +564,21 @@ JS = r"""
     b.append(st);
     if(S){const src=el('span',{class:'src'});const errs=lastErr.length?lastErr:(S.errors||[]);
       const hasErr=p=>errs.some(e=>e.toLowerCase().includes(p));
-      src.append(el('span',{class:hasErr('github')||hasErr('search')?'err':'ok',title:'GitHub REST'},'GitHub'+(M.gha.rate!=null?T(` · ${fmt(M.gha.rate)} calls left`,` · còn ${fmt(M.gha.rate)} lượt`):'')),
-        el('span',{class:S.mode&&S.mode.gql?'ok':'off',title:T('PR reviews + checks (GraphQL, needs a token)','Review + check của PR (GraphQL, cần token)')},'PR checks'+(S.mode&&S.mode.gql?' ✓':T(' · no token',' · chưa có token'))),
-        el('span',{class:S.mode&&S.mode.bk?(hasErr('buildkite')?'err':'ok'):'off'},'Buildkite'+(S.mode&&S.mode.bk?' ✓':T(' · no token',' · chưa có token'))));
+      const oldH=(Date.now()-M.at)/36e5,old=!live&&oldH>48,ok=old?'stale':'ok',mk=old?T(` · ${Math.round(oldH/24)} d old`,` · cũ ${Math.round(oldH/24)} ngày`):' ✓';   // round 2 C3 / D5
+      src.append(el('span',{class:hasErr('github')||hasErr('search')?'err':ok,title:'GitHub REST'},'GitHub'+(old?mk:'')+(M.gha.rate!=null?T(` · ${fmt(M.gha.rate)} calls left`,` · còn ${fmt(M.gha.rate)} lượt`):'')),
+        el('span',{class:S.mode&&S.mode.gql?ok:'off',title:T('PR reviews + checks (GraphQL, needs a token)','Review + check của PR (GraphQL, cần token)')},'PR checks'+(S.mode&&S.mode.gql?mk:T(' · no token',' · chưa có token'))),
+        (()=>{const bh=S.bk_at?(Date.now()-Date.parse(S.bk_at))/36e5:oldH,bo=!live&&bh>48;   // Buildkite kept from an older run (no token)
+          return el('span',{class:S.mode&&S.mode.bk?(bo?'stale':hasErr('buildkite')?'err':'ok'):'off',title:S.bk_at&&S.bk_at!==S.at?T(`Buildkite data of ${String(S.bk_at).slice(0,16).replace('T',' ')} UTC (no token on this host)`,`Dữ liệu Buildkite lúc ${String(S.bk_at).slice(0,16).replace('T',' ')} UTC (máy này chưa có token)`):''},'Buildkite'+(S.mode&&S.mode.bk?(bo?T(` · ${Math.round(bh/24)} d old`,` · cũ ${Math.round(bh/24)} ngày`):' ✓'):T(' · no token',' · chưa có token')));})());
       if(live&&S.calls)src.append(el('span',{},T(`${S.calls} requests`,`${S.calls} request`)));b.append(src);}
     b.append(el('span',{class:'sp'}));
     if(CFG.local_only){const cp=el('button',{title:T('Copy the command','Chép lệnh'),onclick:()=>{try{navigator.clipboard.writeText(CFG.collect_cmd);cp.textContent='✓';setTimeout(()=>cp.textContent=T('Copy','Chép'),1200);}catch(e){}}},T('Copy','Chép'));
-      b.append(el('span',{class:'obs-note',style:'margin:0'},T('Update: local run only','Cập nhật: chỉ chạy local'),' ',el('code',{class:'obsraw',style:'font-size:11px'},'observe_collect.py')),cp);}
+      const web=!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)&&location.protocol!=='file:';   // round 2 B3: readers of the web copy cannot run scripts
+      b.append(web?el('span',{class:'obs-note',style:'margin:0'},T('Refreshed daily at 07:00 (UTC+7) on the release PC; if it looks old, tell the release owner.','Làm mới 07:00 (UTC+7) hằng ngày trên máy release; nếu thấy cũ, báo release owner.')):el('span',{class:'obs-note',style:'margin:0'},T('Refresh: local run','Làm mới: chạy local'),' ',el('code',{class:'obsraw',style:'font-size:11px'},'observe_collect.py')));if(!web)b.append(cp);}
     else{const sel=el('select',{'aria-label':T('Auto refresh','Tự làm mới'),onchange:e=>{auto=+e.target.value;save('obsAuto',auto);}});
     [[0,T('Auto: off','Tự động: tắt')],[1,T('every 1 min','mỗi 1 phút')],[2,T('every 2 min','mỗi 2 phút')],[5,T('every 5 min','mỗi 5 phút')],[15,T('every 15 min','mỗi 15 phút')]].forEach(([v,t])=>{const o=el('option',{value:v},t);if(v===auto)o.selected=true;sel.append(o);});
     const btn=el('button',{class:'pri',onclick:refresh},T('⟳ Refresh','⟳ Làm mới'));
     b.append(sel,btn,el('button',{onclick:()=>{showSet=!showSet;renderBar();},'aria-expanded':String(showSet)},T('Settings','Cài đặt')));}
-    const errs=lastErr.length?lastErr:(S&&S.errors)||[];if(errs.length)b.append(el('div',{class:'obs-errs'},'⚠ '+errs.slice(0,4).join(' · ')+(errs.length>4?` (+${errs.length-4})`:'')));
+    const errs=lastErr.length?lastErr:(S&&S.errors)||[];if(errs.length)b.append(el('div',{class:'obs-errs'},'⚠ '+errs.slice(0,4).map(e=>/^buildkite: no token/i.test(e)?T('Buildkite: no token. Set BUILDKITE_API_TOKEN','Buildkite: thiếu token. Đặt BUILDKITE_API_TOKEN'):e).join(' · ')+(errs.length>4?` (+${errs.length-4})`:'')));
     if(showSet&&!CFG.local_only){const box=el('div',{class:'obs-set'});
       const inp=(k,label,ph)=>{const i=el('input',{type:'password',value:tok[k]||'',placeholder:ph,autocomplete:'off',spellcheck:'false',onchange:e=>{tok[k]=e.target.value.trim();saveTok();}});return el('label',{},label,i);};
       const rem=el('input',{type:'checkbox',onchange:e=>{remember=e.target.checked;saveTok();}});rem.checked=remember;
@@ -598,7 +600,7 @@ JS = r"""
           onclick:hasTrace?ev=>{if(!ev.ctrlKey&&!ev.metaKey){ev.preventDefault();openTrace(t.tag);}}:null,
           title:r?(M.pubAll[t.tag]||[r]).map(x=>`publish.yml (${x.event}, attempt ${x.run_attempt||1}): ${x.conclusion||x.status}`).join(' · ')+(hasTrace?' · Click to trace PRs & Error Logs':''):t.tag});
         a.append(el('b',{},t.rc||t.post||'stable'),el('span',{},day(t.at)+(s?' '+({ok:'✓',fail:'✗',run:'…',cancel:'⊘',skip:'–'})[s]:'')));ch.append(a);});
-      const sub=st&&first&&first!==st?T(`rc1 → stable: ${Math.round((ms(st.at)-ms(first.at))/864e5)} d`,`rc1 → stable: ${Math.round((ms(st.at)-ms(first.at))/864e5)} ngày`):st?T('stable','stable'):T('in testing','đang test');
+      const sub=st&&first&&first!==st?T(`rc1 → stable: ${Math.round((ms(st.at)-ms(first.at))/864e5)} d`,`rc1 → stable: ${Math.round((ms(st.at)-ms(first.at))/864e5)} ngày`):st?T('stable','stable'):(lr=>lr?T(`Testing ${lr}`,`Đang test ${lr}`):T('Testing','Đang test'))(String((v.main.filter(t=>t.rc).pop()||{}).tag||'').replace(/^.*?(rc\d+)$/,'$1'));
       const row=el('div',{class:'row'},el('div',{class:'ver'},'v'+v.ver,el('small',{},sub)),el('div',{},ch));
       if(v.plat.length){const pl=[...new Set(v.plat.map(t=>t.plat))].sort();row.lastChild.append(el('div',{class:'plat'},T(`+${v.plat.length} platform tags: `,`+${v.plat.length} tag nền tảng: `)+pl.join(', ')));}box.append(row);});
     if(!M.versions.length)box.append(el('div',{class:'obs-empty'},T('No release data.','Không có dữ liệu release.')));w.append(box);
@@ -747,7 +749,7 @@ JS = r"""
     const hd=el('div',{class:'tr-hd'},
       el('div',{},
         el('h3',{},'⚡ ',T('Release → PR → Critical Stage → Test Case → Error Log Tracer','Truy vết Luồng Động: Release → PR → Critical Stage → Test Case → Error Log')),
-        el('p',{},T('One interactive flowchart: click any node (release, PR, stage, test case or error log) to re-route the flow and open its details in the inspector below.','Một flowchart tương tác duy nhất: bấm vào bất kỳ node nào (release, PR, stage, test case hoặc error log) để đổi nhánh luồng và mở chi tiết ở khung bên dưới.'))
+        el('p',{},T('Click a node to see its details.','Bấm một node để xem chi tiết.'))
       ),
       el('div',{class:'tr-ctrl'},agentSum(),replayBtn,copyBtn)
     );

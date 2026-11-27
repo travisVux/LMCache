@@ -12,7 +12,7 @@ import re
 
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))  # sibling modules also under python -I
-from gates import AREA_CLASS, CLASSES, DESC, JOBS, TIER_WORKLOADS, TIERS, WORKLOADS
+from gates import AREA_CLASS, CLASSES, DESC, JOBS, TIER_WORKLOADS, TIERS, WL_COST, WORKLOADS
 
 from pathlib import Path as _Path  # noqa: E402
 # the page sits in Plan/2026-11/, two levels above outputs/cpu_tests/
@@ -22,7 +22,7 @@ GATES_HTML = r"""
 <!-- GATES:HTML:START -->
 <section class="card" data-view="gates" data-tab="guide">
   <div class="head"><h2>1 · Merge &amp; release gates</h2>
-  <p class="sub">Every check a PR meets, grouped by what it blocks. Defined once in <code>gates.py</code>.</p></div>
+  <p class="sub">Every check a PR meets on dev today, grouped by what it blocks.</p></div>
   <table class="gate" id="gJobs"><thead><tr><th>Job</th><th>Blocks</th><th>Tier</th><th>Runs on</th><th>What it runs</th><th class="r">Time</th></tr></thead><tbody></tbody></table>
 </section>
 <!-- GATES:HTML:END -->
@@ -32,7 +32,7 @@ IMPACT_HTML = r"""
 <!-- GATES:IMPACT:START -->
 <section class="card" data-view="gates" data-tab="tiers">
   <div class="head"><h2>5 · Change impact: feature area → what must run</h2>
-  <p class="sub">Pick a feature area (same numbering as the Unit-test view).</p></div>
+  <p class="sub">Pick a feature area (same numbering as the Unit-test view) to see its P8 target tiers.</p></div>
   <div class="ex-bar"><select id="impA" aria-label="Feature area"></select></div>
   <div class="imp" id="impOut"></div>
 </section>
@@ -54,7 +54,18 @@ CSS = r"""
 .gate tr.grp td{background:var(--surface-2);font-weight:700;font-size:11px;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;padding:6px 8px}
 .tierchip{display:inline-block;font:11px ui-monospace,Consolas,monospace;font-weight:700;padding:1px 6px;border-radius:5px;color:#fff}
 .tierchip.t-cpu{background:var(--series-3)}.tierchip.t-gpu{background:var(--series-1)}.tierchip.t-full{background:var(--series-2)}
-.tierchip.cond{background:transparent;border:1.5px dashed var(--text-muted);color:var(--text-primary)}
+/* planned (P8) tier = hollow + dashed in its own colour; applied tier = solid. "?" suffix = only when the sub-path matches */
+.tierchip.plan{background:transparent;color:var(--text-primary);border:1.5px dashed var(--series-3);padding:0 5px}
+.tierchip.plan.t-gpu{border-color:var(--series-1)}.tierchip.plan.t-full{border-color:var(--series-2)}
+.stepcol.planned .step{background:transparent!important;border:2px dashed var(--c);border-bottom:none}
+.stepcol.planned .steplab{opacity:.8}
+.planpill{display:inline-block;margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:0 6px;border-radius:999px;border:1px dashed var(--text-muted);color:var(--text-secondary)}
+.gloss tr.grp td{background:var(--surface-2);font-weight:700;font-size:11px;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;padding:6px 8px}
+.gloss tr.planned td{color:var(--text-secondary)}
+.matrix th.plan{border-bottom:2px dashed var(--text-muted);color:var(--text-muted);font-style:italic}
+.matrix td.plan{background:repeating-linear-gradient(135deg,transparent 0 6px,color-mix(in oklab,var(--text-muted) 9%,transparent) 6px 8px)}
+.matrix td.plan .dot{opacity:.55}
+.legend .hatch{display:inline-block;width:14px;height:12px;border:1px dashed var(--text-muted);vertical-align:middle;margin-right:4px;background:repeating-linear-gradient(135deg,transparent 0 3px,color-mix(in oklab,var(--text-muted) 25%,transparent) 3px 5px)}
 .imp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
 .imp .box{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12.5px;background:var(--surface-1)}
 .imp .box h4{margin:0 0 6px;font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em}
@@ -91,7 +102,8 @@ JS = r"""
   const V=()=>(window.I18N&&I18N.lang==='vi')?1:0;
   const fmt=n=>Number(n).toLocaleString('en-US');
   const TN=Object.fromEntries(GD.tiers.map(t=>[t.id,t]));
-  const chip=(id,cond)=>el('span',{class:'tierchip t-'+TN[id].color+(cond?' cond':''),title:TN[id].name},id);
+  const PL=id=>TN[id].status==='planned';
+  const chip=(id,cond)=>el('span',{class:'tierchip t-'+TN[id].color+(PL(id)?' plan':''),title:TN[id].name+(PL(id)?' · planned (P8)':' · applied today')+(cond?' · only when the sub-path matches':'')},id+(cond?'?':''));
   const GL={merge:['blocks merge','chặn merge','req'],release:['blocks release','chặn release','rel'],advisory:['advisory','tham khảo','adv']};
   // area numbering identical to the Unit-test view (group.index)
   const AC={};{let gi=0,ii=0,last=null;CD.areas.forEach(a=>{if(a.group!==last){last=a.group;gi++;ii=0;}AC[a.id]=gi+'.'+(++ii);});}
@@ -105,9 +117,11 @@ JS = r"""
         tr.append(c1,c2,c3,el('td',{},j.runs[v]),el('td',{},j.what[v]),el('td',{class:'r'},j.time[v]));tb.appendChild(tr);});});}
 
   function gloss(){const tb=$('#tierGloss');if(!tb)return;const v=V();tb.replaceChildren();
-    GD.tiers.forEach(t=>{const tr=el('tr'),k=el('td',{class:'k'});k.append(chip(t.id),document.createTextNode(' '+t.name));
+    [['applied','Applied today (a job runs it)','Đang áp dụng (có job chạy)'],['planned','Planned (P8 target, no job yet)','Kế hoạch (mục tiêu P8, chưa có job)']].forEach(([s,en,vn])=>{
+    const h=el('tr',{class:'grp'});h.appendChild(el('td',{colspan:'6'},v?vn:en));tb.appendChild(h);
+    GD.tiers.filter(t=>t.status===s).forEach(t=>{const tr=el('tr',{class:s}),k=el('td',{class:'k'});k.append(chip(t.id),document.createTextNode(' '+t.name));
       const ex=el('td');ex.appendChild(el('code',{},t.example));const st=el('td');st.appendChild(el('span',{class:'pill '+t.exists[0]},t.exists[1+v]));
-      tr.append(k,el('td',{},t.plain[v]),el('td',{},t.hw[v]+' · '+t.cost[v]),el('td',{},t.catches[v]),ex,st);tb.appendChild(tr);});}
+      tr.append(k,el('td',{},t.plain[v]),el('td',{},t.hw[v]+' · '+t.cost[v]),el('td',{},t.catches[v]),ex,st);tb.appendChild(tr);});});}
 
   function impactOf(aid){const cls=GD.area_class[aid]||'core';const C=GD.classes.find(c=>c.id===cls);
     const req=Object.entries(C.tiers).filter(([,x])=>x===1).map(([k])=>k),cond=Object.entries(C.tiers).filter(([,x])=>x===2).map(([k])=>k);
@@ -118,8 +132,8 @@ JS = r"""
     const a=CD.areas.find(x=>x.id===sel.value)||CD.areas[0],I=impactOf(a.id);out.replaceChildren();
     const box=(title)=>{const b=el('div',{class:'box'});b.appendChild(el('h4',{},title));out.appendChild(b);return b;};
     const b1=box(v?'1 · Loại thay đổi':'1 · Change class');b1.append(el('code',{},I.cls),el('div',{class:'sd'},I.C.paths));
-    const b2=box(v?'2 · Tầng phải qua':'2 · Tiers to pass');const ch=el('div',{class:'chips'});I.req.forEach(t=>ch.appendChild(chip(t)));I.cond.forEach(t=>ch.appendChild(chip(t,true)));b2.appendChild(ch);
-    if(I.cond.length)b2.appendChild(el('div',{class:'sd'},v?'nét đứt = chỉ khi sub-path khớp':'dashed = only when the sub-path matches'));
+    const b2=box(v?'2 · Tầng mục tiêu (P8)':'2 · Target tiers (P8)');const ch=el('div',{class:'chips'});I.req.forEach(t=>ch.appendChild(chip(t)));I.cond.forEach(t=>ch.appendChild(chip(t,true)));b2.appendChild(ch);
+    b2.appendChild(el('div',{class:'sd'},v?'Nét đứt = kế hoạch, chưa chạy · ? = chỉ khi sub-path khớp. Hôm nay: 4 check bắt buộc + MP smoke cho mọi PR code ready.':'Dashed = planned, not running yet · ? = only when the sub-path matches. Today: the 4 required checks + MP smoke on every ready code PR.'));
     const b3=box(v?'3 · Unit test bảo vệ':'3 · Unit tests guarding it');b3.appendChild(el('div',{},`${fmt(a.passed)} ${v?'test trong':'tests in'} ${a.files} ${v?'file':'files'}`));
     if(a.notrun)b3.appendChild(el('div',{class:'sd'},`+${a.notrun} ${v?'file chỉ chạy trên GPU pod':'files only on the GPU pod'}`));
     const nv=(a.sm||{})['vLLM import']||0;if(nv)b3.appendChild(el('div',{class:'warn'},v?`⚠ ${nv}/${a.files} file import vLLM → chỉ chạy ở GHA Test, không cổng merge nào bao phủ`:`⚠ ${nv}/${a.files} files import vLLM → run only on GHA Test, no merge gate covers them`));
@@ -140,18 +154,28 @@ JS = r"""
   function desc(){const v=V();document.querySelectorAll('section[data-view]').forEach(sec=>{const h=sec.querySelector('h2'),hd=sec.querySelector('.head');if(!h||!hd)return;
     const m=h.textContent.match(/^(\d+)/),it=m&&GD.desc[sec.dataset.view]&&GD.desc[sec.dataset.view][m[1]];let b=hd.querySelector('.sdesc');
     if(!it){if(b)b.remove();return;}if(!b){b=el('div',{class:'sdesc'});hd.appendChild(b);}b.replaceChildren();
-    const full=it[v?2:0],first=full.split(/(?<=[.!?]) /)[0],rest=full.slice(first.length).trim();
-    const p=el('div');p.append(el('b',{},v?'Mục đích':'Purpose'),document.createTextNode(first));b.append(p);
-    const more=el('details',{class:'sdmore'});more.appendChild(el('summary',{},v?'Thêm':'More'));if(rest)more.appendChild(el('div',{},rest));more.appendChild(el('div',{class:'sk'},it[v?3:1]));
-    if(it[4])more.appendChild(el('div',{class:'sd'},(v?'Dữ liệu: ':'Data: ')+it[v?5:4]));b.appendChild(more);});}
+    // gates.py DESC: (takeaway EN, takeaway VI, data EN, data VI). The <p class="sub"> above already says what the section is.
+    const p=el('div',{class:'sk'});p.append(el('b',{},v?'Điểm chính':'Key takeaway'),document.createTextNode(it[v]));b.append(p);
+    if(it[2])b.appendChild(el('div',{class:'sd'},(v?'Dữ liệu: ':'Data: ')+it[2+v]));});}
 
   // descriptions on/off switch in the nav (remembered)
   const row=document.querySelector('.vnav .row'),all=row&&row.querySelector('label.all');
-  if(row&&!document.getElementById('vDesc')){let on=true;try{on=localStorage.getItem('ciMapDesc')!=='0';}catch(e){}
-    const lab=el('label',{class:'all'}),cb=el('input',{type:'checkbox',id:'vDesc'});cb.checked=on;lab.append(cb,document.createTextNode('Descriptions'));row.insertBefore(lab,all||null);
-    const ap=()=>{document.body.classList.toggle('nodesc',!cb.checked);try{localStorage.setItem('ciMapDesc',cb.checked?'1':'0');}catch(e){}};cb.addEventListener('change',ap);ap();}
+  if(row&&!document.getElementById('vDesc')){let on=false;try{on=localStorage.getItem('ciMapHelp')==='1';}catch(e){}   // round 3: help text, off by default
+    const lab=el('label',{class:'all'}),cb=el('input',{type:'checkbox',id:'vDesc'});cb.checked=on;lab.append(cb,document.createTextNode('Help text'));row.insertBefore(lab,all||null);
+    const ap=()=>{document.body.classList.toggle('nodesc',!cb.checked);try{localStorage.setItem('ciMapHelp',cb.checked?'1':'0');}catch(e){}};cb.addEventListener('change',ap);ap();}
 
-  const renderAll=()=>{jobs();gloss();impact();fmLinks();wlm();desc();};
+  // round 2 G4: window + reconciliation chip next to the workload GPU-min values (gates.py WL_COST, read from P1 at build time)
+  function wlWin(){const W=GD.wl_cost;if(!W)return;const v=V(),win=`${W.since} → ${W.last}`;
+    const th=document.querySelector('#wlm thead th:nth-child(3)');if(th)th.textContent=(v?'GPU-phút · ':'GPU-min · ')+win;
+    const put=(anchor,id,txt)=>{const a=$(anchor);if(!a)return;let n=document.getElementById(id);if(!n){n=el('p',{class:'note',id});a.after(n);}n.textContent=txt;};
+    const oth=W.other.length?(v?` · chưa có trong bảng: ${W.other.join(', ')}`:` · not in the chart: ${W.other.join(', ')}`):'';
+    const rec=v?`Khung ${win} (P1, UTC) · ${W.n_shown} workload = ${fmt(W.shown)} GPU-phút · cả ${W.n_all} workload = ${fmt(W.all)} · tổng PR của MP ${fmt(W.pr_total)} GPU-phút = ${fmt(W.pr_total_h)} GPU-giờ (bảng chi phí CI)${oth}`
+               :`Window ${win} (P1, UTC) · ${W.n_shown} workloads = ${fmt(W.shown)} GPU-min · all ${W.n_all} workloads = ${fmt(W.all)} · MP PR total ${fmt(W.pr_total)} GPU-min = ${fmt(W.pr_total_h)} GPU-h (CI cost home)${oth}`;
+    put('#wlm','wlWinT',rec);put('#bars + details','wlWinB',rec);
+    if(W.p8&&W.p8.gpu_min)put('#compare','wlWinC',v?`"Hôm nay" = bản chụp P8 (${W.p8.date}, ${W.p8.prs} PR, ${win}): ${fmt(W.p8.gpu_min)} GPU-phút. Bản xuất P1 hiện tại: ${fmt(W.pr_total)} GPU-phút cùng khung.`
+      :`"Today" = P8 snapshot (${W.p8.date}, ${W.p8.prs} PRs, ${win}): ${fmt(W.p8.gpu_min)} GPU-min. Current P1 export: ${fmt(W.pr_total)} GPU-min for the same window.`);}
+
+  const renderAll=()=>{jobs();gloss();impact();fmLinks();wlm();wlWin();desc();};
   addEventListener('langchange',renderAll);renderAll();
 })();
 </script>
@@ -204,6 +228,77 @@ def retag(page, h2_old, h2_new, view, tab):
     return page.replace(h2_old, h2_new, 1)
 
 
+def swap(page, old, new):
+    """Replace a static page fragment once (whitespace-tolerant, the page is editor-formatted); no-op when already done."""
+    if new in page:
+        return page
+    m = re.search(_flex(old), page)
+    if not m:
+        print("skip (not found):", old[:60])
+        return page
+    return page[:m.start()] + new + page[m.end():]
+
+
+H2_STAIRS = "2 · Early-fail staircase: applied today vs planned"
+H2_MATRIX = "4 · Change class → target tiers (P8 plan)"
+# static parts of §2–§4 (they live in the page, not in a generated block)
+STATIC_SWAPS = [
+    ("<h2>2 · Early-fail staircase (proposed)</h2>", f"<h2>{H2_STAIRS}</h2>"),
+    ('<p class="sub">A PR climbs only as high as its change class needs. Height = relative cost. <span class="badge req">required today</span> jobs are named in the tooltip.</p>',
+     '<p class="sub">Test tiers by relative cost: solid = runs today, dashed = planned (P8).</p>'),
+    ('<span><i class="sw" style="background:var(--series-3);display:inline-block"></i>CPU only (every code PR)</span>',
+     '<span><i class="sw" style="background:var(--series-3);display:inline-block"></i>CPU</span>'),
+    ('<span><i class="sw" style="background:var(--series-1);display:inline-block"></i>GPU: L1 unit pod required today; others only on path match</span>',
+     '<span><i class="sw" style="background:var(--series-1);display:inline-block"></i>GPU</span>'),
+    ('<span><i class="sw" style="background:var(--series-2);display:inline-block"></i>Full: label or nightly</span>',
+     '<span><i class="sw" style="background:var(--series-2);display:inline-block"></i>Full: weekly or label</span><span><i class="hatch"></i>dashed = planned (P8), no job yet</span>'),
+    ('<p class="sub">Lower = cheaper and earlier. A failing step stops the climb.</p>',
+     '<p class="sub">What each tier is and catches: applied tiers first, then planned (P8) ones.</p>'),
+    ("<h2>4 · Change class → required tiers</h2>", f"<h2>{H2_MATRIX}</h2>"),
+    ('<p class="sub">Union of tiers over the classes a PR touches (P8).</p>',
+     '<p class="sub">P8 target tiers per change class; hatched columns are planned tiers that do not run today.</p>'),
+    ('<div class="legend"><span><i class="dot"></i>required</span><span><i class="ring"></i>only when the matching sub-path changes</span></div>',
+     '<div class="legend"><span><i class="dot"></i>target: required</span><span><i class="ring"></i>only when the matching sub-path changes</span><span><i class="hatch"></i>planned tier, not running today</span></div>'),
+    # mindmap (E2E view → 8): dev CI on 2026-11-27
+    ("'One function or class alone, fake inputs. GHA test.yml py3.10–3.14, not required'",
+     "'One function or class alone, fake inputs. GHA test.yml py3.11–3.14 (drafts: 3.12), not required'"),
+    ("'Required: Buildkite cpu_e2e_validation (in k3-multiprocess-test), ~3.6 min. Same script in GHA cpu_device.yml (advisory)'",
+     "'Buildkite cpu_e2e_validation in MP smoke (k3-multiprocess-smoke, every ready PR), ~3.6 min. Same script in GHA cpu_device.yml, 6 legs (advisory)'"),
+]
+
+STEPS_JS = """      const steps = GD.tiers.filter(t => t.h).sort((a, b) => a.h - b.h).map(t => ({ id: t.id, name: t.name, hw: t.hw[0], cost: t.cost[0], h: t.h, c: CCOL[t.color], p: t.status === 'planned', d: (t.status === 'planned' ? 'Planned (P8), no job today. ' : 'Today: ' + t.job + '. ') + t.catches[0] }));
+      const st = $('#stairs'), ax = $('#stairsAxis');
+      steps.forEach(s => {
+        const col = el('div', { class: 'stepcol' + (s.p ? ' planned' : '') });
+        const lab = el('div', { class: 'steplab' }); lab.appendChild(el('b', {}, s.name)); lab.appendChild(document.createTextNode(s.hw + ' · ' + s.cost)); if (s.p) { lab.appendChild(document.createElement('br')); lab.appendChild(el('span', { class: 'planpill' }, 'planned')); }
+        const d = el('div', { class: 'step', style: `height:${s.h * 0.62}%;--c:var(--${s.c});background:var(--${s.c})`, 'aria-label': s.name + ', ' + s.hw + ', ' + s.cost + (s.p ? ', planned' : '') });
+        bindTip(d, s.name + ' · ' + s.hw, s.cost, s.d, `var(--${s.c})`);
+        col.appendChild(lab); col.appendChild(d); st.appendChild(col);
+        ax.appendChild(el('div', {}, s.id));
+      });
+"""
+
+MATRIX_JS = """      // P8 columns only (MP smoke is a today-only tier); 1 = required, 2 = conditional (gates.py CLASSES); hatched = planned tier
+      const TT = GD.tiers.filter(t => t.p8 !== false), tiers = TT.map(t => t.short);
+      const rows = GD.classes.map(c => [c.id, c.paths, c.prs, c.gpumin, TT.map(t => c.tiers[t.id] || 0)]);
+      const m = $('#matrix');
+      const thead = el('thead'), hr = el('tr');
+      hr.appendChild(el('th', {}, 'Change class'));
+      hr.appendChild(el('th', {}, 'PRs / 100'));
+      TT.forEach(t => hr.appendChild(el('th', t.status === 'planned' ? { class: 'plan', title: 'planned (P8), not running today' } : {}, t.short)));
+      hr.appendChild(el('th', {}, 'MP GPU-min / build'));
+      thead.appendChild(hr); m.appendChild(thead);
+      const tb = el('tbody');
+      rows.forEach(r => {
+        const tr = el('tr');
+        const c = el('td', { class: 'cls' }, r[0]); c.appendChild(el('small', {}, r[1])); tr.appendChild(c);
+        tr.appendChild(el('td', { class: 'num' }, String(r[2])));
+        r[4].forEach((v, i) => { const pl = TT[i].status === 'planned', td = el('td', pl ? { class: 'plan' } : {}); if (v) { const s = el('i', { class: v === 1 ? 'dot' : 'ring', 'aria-label': (v === 1 ? 'required' : 'conditional') + (pl ? ', planned' : '') }); bindTip(s, r[0] + ' → ' + tiers[i], (v === 1 ? 'required' : 'only on matching sub-path') + (pl ? ' · planned tier' : ''), null, 'var(--series-1)'); td.appendChild(s); } tr.appendChild(td); });
+        tr.appendChild(el('td', { class: 'num' }, r[3]));
+        tb.appendChild(tr);
+      });"""
+
+
 def take_section(page, h2):
     """Cut the <section> that contains h2 out of the page; return (page, section_html)."""
     i = page.find(h2)
@@ -227,7 +322,7 @@ def move_sections(page, block):
     page, _ = take_block(page, "<!-- GATES:IMPACT:START -->", "<!-- GATES:IMPACT:END -->")
     page, _ = take_block(page, "<!-- GATES:WLM:START -->", "<!-- GATES:WLM:END -->")
     moved = []
-    for h2 in ("2 · Early-fail staircase (proposed)</h2>", "3 · What L0 … Full mean</h2>", "4 · Change class → required tiers</h2>"):
+    for h2 in (H2_STAIRS + "</h2>", "3 · What L0 … Full mean</h2>", H2_MATRIX + "</h2>"):
         page, sec = take_section(page, h2)
         moved.append(sec)
     # build_page re-inserts this section inside the CPU block on every run: take ALL copies, keep one
@@ -248,7 +343,7 @@ def move_sections(page, block):
 def main():
     page = open(PAGE, encoding="utf-8").read()
     data = dict(jobs=JOBS, tiers=TIERS, classes=CLASSES, tier_workloads=TIER_WORKLOADS, area_class=AREA_CLASS,
-                workloads=WORKLOADS, desc={v: {str(k): x for k, x in d.items()} for v, d in DESC.items()})
+                workloads=WORKLOADS, wl_cost=WL_COST, desc={v: {str(k): x for k, x in d.items()} for v, d in DESC.items()})
     dj = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     data_block = f'<!-- GATES:DATA:START -->\n<script id="gatesData" type="application/json">{dj}</script>\n<!-- GATES:DATA:END -->'
     page = put(page, "<!-- GATES:DATA:START -->", "<!-- GATES:DATA:END -->", data_block, "<!-- NAV:HTML:END -->")
@@ -274,15 +369,11 @@ def main():
     page = re.sub(r'<table class="find">.*?</table>', '<div class="ffg" id="gfind"></div>', page, count=1, flags=re.S)
 
     # --- old hard-coded arrays -> gates.py ---
-    GDL = "const GD=JSON.parse(document.getElementById('gatesData').textContent);"
-    page = sub_block(page, "  const steps=[", "\n  const st=$('#stairs')",
-                     "  " + GDL + "\n  const CCOL={cpu:'series-3',gpu:'series-1',full:'series-2'};\n"
-                     "  const steps=GD.tiers.filter(t=>t.h).sort((a,b)=>a.h-b.h).map(t=>({id:t.id,name:t.name,hw:t.hw[0],cost:t.cost[0],h:t.h,c:CCOL[t.color],d:(t.job?'Today: '+t.job+'. ':'Not a job today. ')+t.catches[0]}));",
-                     "steps")
-    page = sub_block(page, "  const tiers=['L0 lint'", "\n  const m=$('#matrix')",
-                     "  const tiers=GD.tiers.map(t=>t.short);\n  // 1 = required, 2 = conditional (gates.py CLASSES)\n"
-                     "  const rows=GD.classes.map(c=>[c.id,c.paths,c.prs,c.gpumin,GD.tiers.map(t=>c.tiers[t.id]||0)]);",
-                     "matrix")
+    # staircase (§2) + matrix (§4): applied tiers solid, planned (P8) tiers dashed / hatched (gates.py TIERS status)
+    page = sub_block(page, "      const steps = GD.tiers", "\n      // 4. matrix", STEPS_JS, "steps")
+    page = sub_block(page, "      const tiers = GD.tiers.map(t => t.short);", "\n      m.appendChild(tb);", MATRIX_JS, "matrix")
+    for old, new in STATIC_SWAPS:
+        page = swap(page, old, new)
     page = sub_block(page, "  const W=[", "\n  const max=Math.max(...W.map",
                      "  const W=GD.workloads.filter(w=>w.gpumin>0).map(w=>[w.name,w.gpumin,w.group,w.home]);", "workloads")
     page = sub_block(page, "  const fb=$('#find');", "\n})();",

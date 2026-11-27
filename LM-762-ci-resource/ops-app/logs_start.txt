@@ -1,0 +1,1 @@
+ops-app on http://127.0.0.1:8765/  mode=release release=20261125T030845Z site=C:\Users\Admin\Desktop\Workplace\release-desk\LM-762-ci-resource\ops-app\releases\20261125T030845Z\site db=C:\Users\Admin\Desktop\Workplace\release-desk\LM-762-ci-resource\ops-app\releases\20261125T030845Z\ops.db

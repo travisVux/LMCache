@@ -7,8 +7,8 @@
   const V=()=>(window.I18N&&I18N.lang==='vi')?1:0, T=(en,vi)=>V()?vi:en;
   const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const sec=k=>document.querySelector(`section[data-ops="${k}"]`);
-  const head=(n,en,vi,sen,svi)=>`<div class="head"><h2>${n} · ${esc(T(en,vi))}</h2>${sen?`<p class="sub">${T(sen,svi)}</p>`:''}</div>`;
-  if(!N||N.error){const s=sec('nr-ck');if(s)s.innerHTML=head('3A','Release cockpit','Release cockpit')+`<div class="ops-empty">${esc(N?N.error:T('No data: run build_ops_tabs.py with the local clone and the ROADMAP of the next release.','Chưa có dữ liệu: chạy build_ops_tabs.py với clone local và ROADMAP của release tới.'))}</div>`;
+  const head=(n,en,vi,sen,svi)=>`<div class="head"><h2>${n} · ${esc(T(en,vi))}</h2>${sen?`<p class="sub">${svi===undefined?sen:T(sen,svi)}</p>`:''}</div>`;
+  if(!N||N.error){const s=sec('nr-ck');if(s)s.innerHTML=head('3A','Release cockpit','Bảng điều khiển release')+`<div class="ops-empty">${esc(N?N.error:T('No data: run build_ops_tabs.py with the local clone and the ROADMAP of the next release.','Chưa có dữ liệu: chạy build_ops_tabs.py với clone local và ROADMAP của release tới.'))}</div>`;
     ['nr-scope','nr-cp','nr-fm','nr-cut'].forEach(k=>{const x=sec(k);if(x)x.remove();});return;}
   const J=id=>{try{return JSON.parse(document.getElementById(id).textContent);}catch(e){return null;}};
   const CPU=J('cpuData')||{areas:[]}, GD=J('gatesData')||{tiers:[],classes:[],tier_workloads:{},area_class:{}};
@@ -35,8 +35,8 @@
   const stageTxt=s=>s==null?T('Off the request path: only users of that feature.','Ngoài đường đi request: chỉ người dùng tính năng đó.'):`B${s} · ${esc(((FLOW[s]||{}).name||[])[V()]||'')}: ${esc(IMPACT[s][1+V()])}.`;
 
   const SCOPE=new Set(N.items.flatMap(i=>i.prs)), PR=Object.fromEntries(N.prs.map(p=>[p.num,p]));
-  const MIN_CUT=Math.max(...[...SCOPE].map(n=>PR[n]?PR[n].i:-1)), HEAD_CUT=N.prs.length-1;
-  let cut=MIN_CUT,pick=null,selArea=null,rideLimit=10,ckPhase=1,cpJ='A',cpMode='scope',cpBug=null,cpNode=null;
+  const HEAD_CUT=Math.max(0,N.prs.length-1), MIN_CUT=(m=>m<0?HEAD_CUT:m)(Math.max(-1,...[...SCOPE].map(n=>PR[n]?PR[n].i:-1)));   // round 2: no listed PR in range (next line not prepared yet) -> cut at HEAD
+  let cut=MIN_CUT,pick=null,selArea=null,rideLimit=10,ckPhase=1,ckUser=false,cpJ='A',cpMode='scope',cpBug=null,cpNode=null;
   const CODE_T=new Set(['bug','feature','perf','refactor','other']);
   const weight=p=>p.stage!=null?IMPACT[p.stage][0]:(p.area==='build'?2:1);
   const mpReq=p=>[...p.cpu_tiers,...p.gpu_tiers].some(t=>['L2','CE','AO','FULL'].includes(t));
@@ -75,8 +75,8 @@
   const evb=(id,en,vi,extra)=>`<button class="nr-ev" data-goto="${id}" ${extra||''} type="button">${esc(T(en,vi))} ↓</button>`;
 
   /* ================= 3A · cockpit ================= */
-  const PREP=N.prep||[], PH=[[0,'Daily check','Daily check','daily_release_check.sh'],[1,'Prepare','Chuẩn bị',T('decisions, blockers, scope','quyết định, blocker, scope')],[2,'Cut rc1','Cắt rc1','gh release create'],
-    [3,'Verify rc','Verify rc','gate G1–G8'],[4,'Go / No-Go','Go / No-Go',T('T-1, 13-item checklist','T-1, checklist 13 mục')],[5,'Ship stable','Ship stable','T'],[6,'Watch','Theo dõi','T+1 → T+7']];
+  const PREP=N.prep||[], PH=[[0,'Daily check','Kiểm tra hằng ngày','daily_release_check.sh'],[1,'Prepare','Chuẩn bị',T('decisions, blockers, scope','quyết định, blocker, scope')],[2,'Cut rc1','Cắt rc1','gh release create'],
+    [3,'Verify rc','Kiểm rc','gate G1–G8'],[4,'Go / No-Go','Go / No-Go',T('T-1, 13-item checklist','T-1, checklist 13 mục')],[5,'Ship stable','Phát hành stable','T'],[6,'Watch','Theo dõi','T+1 → T+7']];
   function p1Items(){const it=[],prep=N.prep_rel||'RELEASE_PREP.md',rmp=N.roadmap.rel||'ROADMAP.md';
     PREP.filter(r=>r.id[0]==='D').forEach(r=>{const done=/^(decided|done|xong|đã)/i.test(r.cols[3]||'');
       it.push({g:T('Release Lead decisions','Quyết định của Release Lead'),lvl:done?'ok':'bad',id:r.id,raw:1,title:r.cols[0],owner:'Release Lead',
@@ -105,25 +105,62 @@
         ev:evb('nr-cp','Critical path','Critical path')+evb('nr-fm','Tests per feature','Test theo feature'),rec:T('Buildkite link in the tracker issue','Link Buildkite vào tracker issue')},
       {lvl:'none',id:'G7',title:T('Controllers RC green','Controllers RC xanh'),owner:'Release Signal',body:'Coordinator / Kafka (F09)',ev:'',rec:'Runbook Phase 3'},
       {lvl:'none',id:'G8',title:T('XPU wheel imports in a clean env','XPU wheel import trong môi trường sạch'),owner:'Intel contact',body:'C6 / #6281',ev:'',rec:'Runbook Phase 3'}];}
-  function rCockpit(){const s=sec('nr-ck');if(!s)return;const items=p1Items(),open=items.filter(x=>x.lvl==='bad'||x.lvl==='warn'),nb=items.filter(x=>x.lvl==='bad').length,cur=open.length?1:2;
-    const c=N.prs[cut];
+  // expert review 2026-11-25 (R1): when the line of the prep doc already has a final tag (ops.db, deskData), the
+  // cockpit is in Phase 6 · Watch and never offers to cut an rc of a shipped version.
+  function shipped(){let L=((N.roadmap.rel||'').match(/release-([\d.]+)/)||[])[1];
+    let O={};try{O=JSON.parse(document.getElementById('deskData').textContent).overview||{};}catch(e){}
+    const base=t=>String(t||'').replace(/^v/,'').split(/rc|\.post|\.dev/)[0];
+    if(!L&&O.shipped&&O.stable)L=base(O.stable.tag||O.stable);   // round 2: no prep doc for the next line yet -> the shipped line is the stable one
+    if(!L)return null;
+    const st=O.stable&&(O.stable.tag||O.stable),la=O.latest||{};
+    const hit=[st,la.kind==='final'?la.tag:null].find(t=>t&&base(t)===L);
+    const rcs=(O.releases||[]).map(r=>r.tag).filter(t=>t.startsWith('v'+L+'rc')&&/^[0-9]+$/.test(t.slice(L.length+3))).sort();
+    return hit?{line:L,tag:hit,at:(la.tag===hit&&la.at)||'',rcs,O}:null;}
+  // round 2 A2 / A6 / D2: after the ship each phase shows what is MEASURED, not "done" because a later phase is current
+  function shipStat(SH,open){const O=SH.O||{},gaps=(O.blockers||[]).filter(b=>(b.kind==='artifact'||b.kind==='publish')&&b.gating!==false&&String(b.title||'').startsWith(SH.tag));
+    const ch=(k,t)=>`<span class="gch ${k}">${t}</span>`;
+    return {0:{st:'unk',b:ch('s-none',T('no data','chưa có dữ liệu'))},
+      1:{st:open.length?'carry':'done',b:open.length?ch('s-run',T(`${open.length} carried over`,`${open.length} việc chuyển tiếp`)):ch('s-ok',T('done','xong'))},
+      2:{st:SH.rcs.length?'done':'unk',b:SH.rcs.length?ch('s-ok',T(`${SH.rcs.length} rc cut`,`đã cắt ${SH.rcs.length} rc`)):ch('s-none',T('no rc seen','không thấy rc'))},
+      3:{st:'unk',b:ch('s-none',T('no data','chưa có dữ liệu'))},
+      4:{st:'unk',b:ch('s-none',T('no data','chưa có dữ liệu'))},
+      5:{st:gaps.length?'warn':'done',b:gaps.length?ch('s-fail',T(`${gaps.length} post-publish gap(s)`,`${gaps.length} thiếu sót sau publish`)):ch('s-ok',T('artifacts present','đủ artifact'))},
+      6:{st:'cur',b:(O.watch&&O.watch.until)?ch((O.watch.over?'s-ok':'s-run'),O.watch.over?T('watch over','hết theo dõi'):T(`until ${String(O.watch.until).slice(0,10)}`,`tới ${String(O.watch.until).slice(0,10)}`)):''}};}
+  function nextLine(SH,open){const O=SH.O||{},W=O.watch||{},nx=W.next_line||'next';
+    return `<div class="nr-next"><b>${T(`Start ${nx}:`,`Bắt đầu ${nx}:`)}</b> ${T(`create the prep doc of ${nx} and move the ${open.length} open item(s) of ${SH.line} into it as "carried over".`,`tạo tài liệu chuẩn bị của ${nx} và chuyển ${open.length} việc còn mở của ${SH.line} vào đó dưới mục "chuyển tiếp".`)}
+      <pre class="nr-cmd">mkdir release-${esc(nx)}\ncp release-${esc(SH.line)}/RELEASE_PREP.md release-${esc(nx)}/RELEASE_PREP.md   # then edit: version ${esc(nx)}, "Prepared &lt;date&gt;", carried-over items</pre>
+      <span class="ops-src">${T(`First true: the ${SH.tag} watch window is over (${String(W.until||'?').slice(0,10)}) or no yank is needed, and every post-publish gap of ${SH.tag} has a recorded decision (decide.py).`,`Điều kiện trước: hết cửa sổ theo dõi ${SH.tag} (${String(W.until||'?').slice(0,10)}) hoặc chắc chắn không cần yank, và mọi thiếu sót sau publish của ${SH.tag} đã có quyết định được ghi (decide.py).`)}</span></div>`;}
+  function rcCut(){let O={};try{O=JSON.parse(document.getElementById('deskData').textContent).overview||{};}catch(e){}   // newest tag is an rc above stable
+    const la=O.latest||{};if(la.kind!=='rc'||!la.tag)return null;
+    return {tag:la.tag,at:String(la.at||''),url:la.url,line:String(la.tag).replace(/^v/,'').split(/rc/)[0]};}
+  function rCockpit(){const s=sec('nr-ck');if(!s)return;const items=p1Items(),open=items.filter(x=>x.lvl==='bad'||x.lvl==='warn'),nb=items.filter(x=>x.lvl==='bad').length,SH=shipped(),RC=SH?null:rcCut(),cur=SH?6:RC?3:open.length?1:2;
+    if(SH&&!ckUser)ckPhase=6;
+    if(RC&&!ckUser)ckPhase=3;   // 2026-11-26: an rc of the next line is tagged -> rc gates (also when its prep doc is missing)
+    const c=N.prs[cut]||{num:'?',sha:'?',at:''};
     const card=x=>`<div class="nr-card lv-${x.lvl}"><div class="nr-ct"><span class="nr-id">${esc(x.id)}</span><b${x.raw?' class="obsraw"':''}>${esc(x.title)}</b><span class="obs-lab">${esc(x.owner)}</span></div><div class="nr-cb">${x.body}</div><div class="nr-cf"><span>${T('Write the result','Ghi kết quả')}: ${x.rec}</span>${x.ev?`<span class="nr-evs">${T('Evidence','Bằng chứng')}: ${x.ev}</span>`:''}</div></div>`;
     let body='';
     if(ckPhase===1){const gs=[...new Set(items.map(x=>x.g))];
       body=gs.map((g,i)=>{const xs=items.filter(x=>x.g===g),l=xs.filter(x=>x.lvl!=='ok').length;return`<div class="nr-grp"><h3><span class="nr-gi">${i+1}</span>${esc(g)} <span class="gch ${l?(xs.some(x=>x.lvl==='bad')?'s-fail':'s-run'):'s-ok'}">${l?T(`${l} open`,`${l} còn mở`):T('done','xong')}</span></h3>${xs.map(card).join('')}</div>`;}).join('')+
+        (SH?`<div class="nr-next"><b>${T(`${esc(SH.tag)} is already tagged: no rc of ${esc(SH.line)} is cut any more.`,`${esc(SH.tag)} đã được tag: không cắt rc nào của ${esc(SH.line)} nữa.`)}</b> ${T('Open items above carry over to the next line or become a post release / known issue.','Các việc còn mở ở trên chuyển sang dòng tiếp theo hoặc thành bản post / known issue.')}${SH.rcs.length?` ${T('Release candidates of this line','Các RC của dòng này')}: ${SH.rcs.map(esc).join(' → ')} → ${esc(SH.tag)}.`:''}</div>`:
         `<div class="nr-next"><b>${T('When groups 1–4 are done → Phase 2:','Khi nhóm 1–4 xong → Phase 2:')}</b> ${T(`cut rc1 at the selected cut point (after #${c.num}, ${esc(c.sha)})`,`cắt rc1 tại điểm cắt đang chọn (sau #${c.num}, ${esc(c.sha)})`)} ${evb('nr-cut','change the cut','đổi điểm cắt')}
-          <pre class="nr-cmd">gh release create v${esc(((N.roadmap.rel||'').match(/release-([\d.]+)/)||[])[1]||'X')}rc1 -R LMCache/LMCache --target ${esc(c.sha)} --prerelease \\\n  --title "LMCache rc1" --generate-notes --notes-start-tag ${esc(N.stable)}</pre><span class="ops-src">${T('Command of Runbook Phase 2; use the full SHA when you run it.','Lệnh theo Runbook Phase 2; dùng SHA đầy đủ khi chạy thật.')}</span></div>`;}
-    else if(ckPhase===3)body=`<div class="nr-grp"><h3><span class="nr-gi">G</span>${T('The rc must pass these gates (Runbook Phase 3)','rc phải qua các gate này (Runbook Phase 3)')}</h3>${p3Items().map(card).join('')}</div><div class="nr-next">${T('A gate is red → ','Gate đỏ → ')}${evb('nr-cp','Trace bug','Trace bug','data-cpmode="bug"')} ${T('to find the node, the suspect PRs and the tests; fix, cherry-pick, cut the next rc.','để tìm node, PR nghi ngờ và test; sửa, cherry-pick, cắt rc tiếp theo.')}</div>`;
+          <pre class="nr-cmd">gh release create v${esc(((N.roadmap.rel||'').match(/release-([\d.]+)/)||[])[1]||'X')}rc1 -R LMCache/LMCache --target ${esc(c.sha)} --prerelease \\\n  --title "LMCache rc1" --generate-notes --notes-start-tag ${esc(N.stable)}</pre><span class="ops-src">${T('Command of Runbook Phase 2; use the full SHA when you run it.','Lệnh theo Runbook Phase 2; dùng SHA đầy đủ khi chạy thật.')}</span></div>`);}
+    else if(ckPhase===3)body=(RC?`<div class="nr-next" data-nr="rc"><b>${T(`${esc(RC.tag)} is cut${RC.at?` (${esc(RC.at.slice(0,10))})`:''}: the ${esc(RC.line)} line is in the rc phase.`,`Đã cắt ${esc(RC.tag)}${RC.at?` (${esc(RC.at.slice(0,10))})`:''}: dòng ${esc(RC.line)} đang ở giai đoạn rc.`)}</b>${RC.url?` <a class="ux-ev" href="${esc(RC.url)}" target="_blank" rel="noopener">${esc(RC.tag)} ↗</a>`:''}${N.items.length?'':` ${T(`No prep doc for ${esc(RC.line)} yet: create release-${esc(RC.line)}/ROADMAP.md and RELEASE_PREP.md so this cockpit lists the scope and the open decisions.`,`Chưa có tài liệu chuẩn bị cho ${esc(RC.line)}: tạo release-${esc(RC.line)}/ROADMAP.md và RELEASE_PREP.md để bảng này hiện scope và các quyết định còn mở.`)}`}</div>`:'')+`<div class="nr-grp"><h3><span class="nr-gi">G</span>${T('The rc must pass these gates (Runbook Phase 3)','rc phải qua các gate này (Runbook Phase 3)')}</h3>${p3Items().map(card).join('')}</div><div class="nr-next">${T('A gate is red → ','Gate đỏ → ')}${evb('nr-cp','Trace bug','Trace bug','data-cpmode="bug"')} ${T('to find the node, the suspect PRs and the tests; fix, cherry-pick, cut the next rc.','để tìm node, PR nghi ngờ và test; sửa, cherry-pick, cắt rc tiếp theo.')}</div>`;
+    else if(ckPhase===6&&SH){const W=(SH.O||{}).watch||{},since=String(SH.at||'').slice(0,10);
+      body=`<div class="nr-next"><b>${T(`Watch ${esc(SH.tag)} until ${esc(String(W.until||'?').slice(0,10))}.`,`Theo dõi ${esc(SH.tag)} tới ${esc(String(W.until||'?').slice(0,10))}.`)}</b> ${T('This page has no issue data: look at the issues opened since the release.','Trang này chưa có dữ liệu issue: xem các issue mở từ ngày release.')} <a class="ux-ev" href="https://github.com/LMCache/LMCache/issues?q=is%3Aissue+created%3A%3E%3D${esc(since)}" target="_blank" rel="noopener">${T('Issues since','Issue từ')} ${esc(since)} ↗</a><br>${T('Yank criteria: the wheel does not install or import, data corruption / wrong cache hits, a security issue, or a crash on the default config (Runbook section 8). A platform wheel gap is a known issue or a .post1, not a yank.','Tiêu chí yank: wheel không cài hoặc không import được, hỏng dữ liệu / cache hit sai, lỗi bảo mật, hoặc crash với cấu hình mặc định (Runbook mục 8). Thiếu wheel nền tảng là known issue hoặc .post1, không yank.')}</div>`+nextLine(SH,open);}
     else body=`<div class="nr-next">${esc({0:T('Run daily_release_check.sh every day until T; new PRs go to the ROADMAP (Gaps or Internal). This page does not read that output yet.','Chạy daily_release_check.sh mỗi ngày tới T; PR mới vào ROADMAP (Gaps hoặc Internal). Trang chưa đọc output của script này.'),
       2:T('Cut the rc at the chosen cut point, then cancel the image push run as in the runbook.','Cắt rc tại điểm cắt đã chọn, rồi huỷ run push image như runbook.'),
       4:T('Write the release notes (breaking first) and go through the 13-item checklist of Runbook section 7. One No-Go = no release: fix, cut the next rc.','Viết release note (breaking trước), đi qua checklist 13 mục của Runbook mục 7. Một mục No-Go là không release: sửa, cắt rc tiếp.'),
-      5:T('Tag stable, publish, re-run G1 with the stable version, check every Docker tag.','Tag stable, publish, chạy lại G1 với version stable, kiểm mọi Docker tag.'),
-      6:T('Watch new issues T+1 → T+7; SEV-1 → Runbook section 8 (yank, move tags back).','Theo dõi issue mới T+1 → T+7; SEV-1 → Runbook mục 8 (yank, trả tag về).')}[ckPhase])}</div>`;
-    s.innerHTML=head('3A','Release cockpit','Release cockpit',
-      open.length?T(`In <b>Phase 1 · Prepare</b>. <b>${open.length}</b> items left (${nb} to decide) before cutting rc1. Each card: who, where to write the answer, and the evidence below.`,`Đang ở <b>Phase 1 · Chuẩn bị</b>. Còn <b>${open.length}</b> việc (${nb} phải quyết) trước khi cắt rc1. Mỗi thẻ: ai làm, ghi kết quả vào đâu, bằng chứng ở phần nào bên dưới.`):T('Ready to cut rc1.','Sẵn sàng cắt rc1.'))+
-      `<ol class="nr-phases">${PH.map(([n,en,vi,sub])=>{const st=n<cur?(n===0?'unk':'done'):n===cur?'cur':'lock';
+      5:T('Tag stable on the SAME commit as the last green rc (check: git rev-parse vX == vXrcN), publish, re-run G1 with the stable version. Post-publish gates (expert review R11): (1) smoke the published wheel in a clean venv: pip install lmcache==X, import lmcache, load the native extension; (2) lmcache-cli on PyPI has version X, not a dev version; (3) every Docker tag, including latest and -cu*, points at X and is multi-arch; (4) the GitHub release has all assets; (5) attestation / signature, if adopted.','Tag stable trên CÙNG commit với rc xanh cuối (kiểm: git rev-parse vX == vXrcN), publish, chạy lại G1 với version stable. Gate sau publish (review R11): (1) smoke wheel đã publish trong venv sạch: pip install lmcache==X, import lmcache, load native extension; (2) lmcache-cli trên PyPI có version X, không phải bản dev; (3) mọi Docker tag, kể cả latest và -cu*, trỏ tới X và đủ multi-arch; (4) GitHub release đủ asset; (5) attestation / chữ ký, nếu đã áp dụng.'),
+      6:T('Watch new issues T+1 → T+7. Yank criteria: the wheel does not install or import, data corruption / wrong cache hits, a security issue, or a crash on the default config. Then Runbook section 8: yank on PyPI, move Docker latest back to the rollback target, post a known issue. A gap in a platform wheel (MUSA, ROCm, XPU, RBLN) is a known issue or a .post1, not a yank.','Theo dõi issue mới T+1 → T+7. Tiêu chí yank: wheel không cài hoặc không import được, hỏng dữ liệu / cache hit sai, lỗi bảo mật, hoặc crash với cấu hình mặc định. Khi đó theo Runbook mục 8: yank trên PyPI, trả Docker latest về bản rollback, đăng known issue. Thiếu wheel nền tảng (MUSA, ROCm, XPU, RBLN) là known issue hoặc .post1, không yank.')}[ckPhase])}</div>`;
+    // round 3 (B_content #40 / #41): the cockpit state is a status line (always shown), not help text
+    s.innerHTML=head('3A','Release cockpit','Bảng điều khiển release')+`<p class="nr-sum">${(()=>{const wu=SH&&SH.O&&SH.O.watch&&SH.O.watch.until?String(SH.O.watch.until).slice(5,10):'T+7';
+      if(RC)return T(`<b>${esc(RC.tag)} cut</b>${RC.at?` ${esc(RC.at.slice(5,10))}`:''} · Phase 3 · rc gates`,`<b>Đã cắt ${esc(RC.tag)}</b>${RC.at?` ${esc(RC.at.slice(5,10))}`:''} · Giai đoạn 3 · gate của rc`);
+      return SH?T(`<b>${esc(SH.tag)} shipped</b>${SH.at?` ${esc(String(SH.at).slice(5,10))}`:''} · watch to ${wu} · ${open.length} items carry over`,`<b>${esc(SH.tag)} đã phát hành</b>${SH.at?` ${esc(String(SH.at).slice(5,10))}`:''} · theo dõi tới ${wu} · ${open.length} việc chuyển tiếp`)
+        :open.length?T(`Phase 1 · Prepare: ${open.length} left, ${nb} to decide`,`Giai đoạn 1 · Chuẩn bị: còn ${open.length} việc, ${nb} cần quyết`):T('Ready to cut rc1.','Sẵn sàng cắt rc1.');})()}</p>`+
+      `<ol class="nr-phases">${PH.map(([n,en,vi,sub])=>{const PS=SH?shipStat(SH,open):null;if(PS&&PS[n])return`<li><button class="nr-ph ${PS[n].st}${ckPhase===n?' sel':''}" data-ph="${n}" type="button" aria-pressed="${ckPhase===n}"><span class="nr-pn">${T('Phase','Giai đoạn')} ${n}</span><b>${esc(T(en,vi))}</b><span class="nr-ps">${esc(sub)}</span>${PS[n].b}</button></li>`;
+        const st=n<cur?(n===0?'unk':'done'):n===cur?'cur':'lock';
         const b=n===1?`<span class="gch ${open.length?'s-fail':'s-ok'}">${open.length?T(`${open.length} items`,`${open.length} việc`):T('done','xong')}</span>`:st==='unk'?`<span class="gch s-none">${T('no data','chưa có dữ liệu')}</span>`:st==='lock'?`<span class="gch s-none">${T('after the previous phase','chờ phase trước')}</span>`:'';
-        return`<li><button class="nr-ph ${st}${ckPhase===n?' sel':''}" data-ph="${n}" type="button" aria-pressed="${ckPhase===n}"><span class="nr-pn">Phase ${n}</span><b>${esc(T(en,vi))}</b><span class="nr-ps">${esc(sub)}</span>${b}</button></li>`;}).join('')}</ol>`+body;}
+        return`<li><button class="nr-ph ${st}${ckPhase===n?' sel':''}" data-ph="${n}" type="button" aria-pressed="${ckPhase===n}"><span class="nr-pn">${T('Phase','Giai đoạn')} ${n}</span><b>${esc(T(en,vi))}</b><span class="nr-ps">${esc(sub)}</span>${b}</button></li>`;}).join('')}</ol>`+body;}
 
   /* ================= 3B · scope ================= */
   function kpis(){const inRc=[...SCOPE].filter(n=>PR[n]&&PR[n].i<=cut).length,ride=N.prs.filter(p=>p.i<=cut&&!SCOPE.has(p.num)),rb=ride.filter(p=>p.ride.lvl==='bad').length,rw=ride.filter(p=>p.ride.lvl==='warn').length,after=N.prs.length-1-cut;
@@ -146,12 +183,12 @@
         <td data-col="mp">${mp}</td><td data-col="tests">${ts}</td>
         <td data-col="verdict">${r.reasons.length?r.reasons.map(x=>`<div class="ops-rule lv-${x[0]==='bad'?'bad':'warn'}">${esc(x[1])}</div>`).join(''):`<span class="nr-mute">${T('Ready; waiting for the rc proof','Sẵn sàng; chờ bằng chứng trên rc')}</span>`}</td>
         <td data-col="dec">${decCell(r)}</td></tr>`;});});
-    s.innerHTML=head('3B','Evidence A · Scope: what this release promises','Bằng chứng A · Scope: release cam kết gì',
+    s.innerHTML=head('3B','Scope','Scope',
       T(`Items of <code>${esc(N.roadmap.rel||'')}</code>. Release = rc cut from dev + cherry-picks: every PR merged before the cut ships. Click any cell for its meaning.`,`Các mục trong <code>${esc(N.roadmap.rel||'')}</code>. Release = rc cắt từ dev + cherry-pick: mọi PR merge trước điểm cắt đều ship. Bấm vào ô bất kỳ để xem định nghĩa.`))+kpis()+`<div class="obs-scroll"><table class="obs-t nr-t">${h}</tbody></table></div>`;}
 
   /* ================= 3C · critical path trace ================= */
   function rCP(){const s=sec('nr-cp');if(!s)return;
-    const H=head('3C','Evidence B · Critical path: where the change sits, and how to trace a bug','Bằng chứng B · Critical path: thay đổi nằm ở đâu, và trace bug thế nào',
+    const H=head('3C','Critical path','Critical path',
       T('Journeys and features F01–F17 come from the Feature Matrix xlsx. <b>By change</b>: pick a scope item; changed nodes are the critical stages to test. <b>Trace bug</b>: pick a symptom; the page shows the node, the feature, the suspect PRs in the rc and the CPU / GPU tests.','Journey và feature F01–F17 lấy từ Feature Matrix xlsx. <b>Theo thay đổi</b>: chọn mục scope; node bị đổi là critical stage cần test. <b>Trace bug</b>: chọn triệu chứng; trang chỉ ra node, feature, PR nghi ngờ trong rc và test CPU / GPU.'));
     if(!CP){s.innerHTML=H+`<div class="ops-empty">${T('Feature Matrix xlsx not found in knowledge/inputs.','Không thấy Feature Matrix xlsx trong knowledge/inputs.')}</div>`;return;}
     const Jn=CP.journeys.find(j=>j.id===cpJ),nodes=CP.node_f[cpJ],touch=fTouch(cpMode==='bug'?shipping():pickedPRs()),bugF=cpMode==='bug'&&cpBug?cpBug:null;
@@ -200,20 +237,20 @@
           <td data-col="tiers">${t.req.map(x=>tierChip(x)).join('')}${t.cond.map(x=>tierChip(x,true)).join('')}</td><td data-col="wl" class="nr-mute">${wl.length?esc(wl.join(', ')):'–'}</td>
           <td data-col="verdict">${v.why.length?v.why.map(x=>`<div class="ops-rule lv-${x[0]==='bad'?'bad':'warn'}">${esc(x[1])}</div>`).join(''):`<span class="nr-mute">${T('OK','Ổn')}</span>`}</td></tr>`;});});
     const pk=`<div class="ops-filter"><button type="button" data-pick="all" aria-pressed="${pick===null}">${T('Whole rc','Toàn bộ rc')}</button>${N.items.map((it,i)=>`<button type="button" data-pick="${i}" aria-pressed="${pick===i}" title="${esc(it.text)}">${esc(it.text.length>30?it.text.slice(0,29)+'…':it.text)}</button>`).join('')}<button type="button" data-pick="ride" aria-pressed="${pick==='ride'}">${T('Risky ship-along','Đi kèm rủi ro cao')}</button></div>`;
-    s.innerHTML=head('3D','Evidence C · Tests per feature: what each PR touches and what must run','Bằng chứng C · Test theo feature: PR chạm gì và phải chạy gì',
+    s.innerHTML=head('3D','Tests per feature','Test theo feature',
       T('Rows = Feature matrix areas (same codes as Release Exploration). ● main code of the area, ○ other code, △ tests only. Faded tier with * = proposed, no real job today. Click a row to filter the ship-along list in 3E; click any cell or chip for its meaning.','Hàng = nhóm của Feature matrix (cùng mã với Khám phá Release). ● code chính của nhóm, ○ code phụ, △ chỉ test. Tier mờ có * = đề xuất, chưa có job thật. Bấm một hàng để lọc danh sách đi kèm ở 3E; bấm ô hoặc chip bất kỳ để xem định nghĩa.'))+pk+
       `<div class="obs-scroll"><table class="obs-t nr-t"><thead><tr><th>${T('Code','Mã')}</th><th>Feature</th><th>${T('Stage','Bước')}</th><th>${T('Scope PRs','PR scope')}</th><th>${T('Ship-along','Đi kèm')}</th><th>${T('Unit tests','Unit test')}</th><th>${T('Tiers','Tier')}</th><th>${T('E2E workloads','Workload E2E')}</th><th>${T('Verdict','Kết luận')}</th></tr></thead><tbody>${h}<tr><td colspan="9" class="nr-mute">${T(`${CPU.areas.length-shown} other areas are not touched.`,`${CPU.areas.length-shown} nhóm khác không bị chạm.`)}</td></tr></tbody></table></div>`;}
 
   /* ================= 3E · rc cut ================= */
-  function rCut(){const s=sec('nr-cut');if(!s)return;const c=N.prs[cut],a0=N.prs[0];
+  function rCut(){const s=sec('nr-cut');if(!s)return;const c=N.prs[cut],a0=N.prs[0];if(!c){s.innerHTML=head('3E','rc cut point','Điểm cắt rc')+`<div class="ops-empty">${T('No PR merged into dev after the stable tag yet.','Chưa có PR nào merge vào dev sau tag stable.')}</div>`;return;}
     const strip=N.prs.map(p=>{const sc=SCOPE.has(p.num),k=sc?'scope':p.breaking?'bk':(CODE_T.has(p.type)&&weight(p)===3&&!['docs','tests'].includes(p.risk))?'hi':'lo';
-      return`<button type="button" class="nr-tick ${k}${p.i>cut?' after':''}${p.i===cut?' cut':''}" data-cut="${p.i}" title="#${p.num} · ${esc(p.at)} · ${esc(p.title)}${sc?' · SCOPE':''}"></button>`;}).join('');
+      return`<button type="button" class="nr-tick ${k}${p.i>cut?' after':''}${p.i===cut?' cut':''}" data-cut="${p.i}" aria-pressed="${p.i===cut}" aria-label="${T('cut after','cắt sau')} #${p.num} · ${esc(p.at)}" title="#${p.num} · ${esc(p.at)} · ${esc(p.title)}${sc?' · SCOPE':''}"></button>`;}).join('');
     const f=p=>selArea===null||(selArea in p.a_src)||(selArea in p.a_test);
     const ride=N.prs.filter(p=>p.i<=cut&&!SCOPE.has(p.num)&&f(p)).sort((x,y)=>RANK[y.ride.lvl]-RANK[x.ride.lvl]||weight(y)-weight(x)||y.i-x.i),show=ride.filter(p=>p.ride.lvl!=='ok');
     const after=N.prs.filter(p=>p.i>cut&&f(p)),pk=after.filter(p=>p.breaking||(p.type==='bug'&&weight(p)===3));
     const row=(p,why,lv)=>`<div class="ops-rule lv-${lv}"><a href="${GH(p.num)}" target="_blank" rel="noopener">#${p.num}</a> <b class="obsraw">${esc(p.title)}</b><div class="nr-mute">${esc(p.stage==null?T('off the path','ngoài đường đi'):'B'+p.stage)} · ${esc(AN(p.area))} · ${esc(p.type)} · ${esc(p.at.slice(0,10))} · MP CI: ${mpTxt(p)}</div>${why.map(w=>`<div>${esc(w[1])}</div>`).join('')}</div>`;
     const fa=selArea?` · ${T('touching','chạm')} ${esc((FM[selArea]||{}).code||'')} ${esc(AN(selArea))} <button type="button" class="nr-link" data-clear="1">${T('clear','bỏ lọc')}</button>`:'';
-    s.innerHTML=head('3E','Evidence D · rc cut point: what really ships','Bằng chứng D · Điểm cắt rc: thực sự ship những gì',
+    s.innerHTML=head('3E','rc cut point','Điểm cắt rc',
       T('One bar per PR on dev after the stable tag, oldest left. Cut the rc at a bar: everything left of it ships, everything right of it needs a cherry-pick. Click a bar to try another cut.','Mỗi vạch là một PR trên dev sau tag stable, cũ ở bên trái. Cắt rc tại một vạch: mọi PR bên trái đều ship, PR bên phải phải cherry-pick. Bấm vào vạch để thử điểm cắt khác.'))+
       `<div class="ops-filter"><span class="nr-mute">${T('Cut','Điểm cắt')}:</span> <b>${T(`after #${c.num}`,`sau #${c.num}`)}</b> <code>${esc(c.sha)}</code> <span class="nr-mute">${esc(c.at)}</span><button type="button" data-cut="${MIN_CUT}" aria-pressed="${cut===MIN_CUT}">${T('Minimum: after the last scope PR','Tối thiểu: sau PR scope cuối')}</button><button type="button" data-cut="${HEAD_CUT}" aria-pressed="${cut===HEAD_CUT}">${T('dev HEAD','HEAD của dev')}</button></div>
       <div class="obs-scroll"><div class="nr-strip">${strip}</div><div class="nr-axis"><span>${esc(a0.at.slice(0,10))} · ${esc(N.stable)}</span><span>${esc(N.prs[HEAD_CUT].at.slice(0,10))} · HEAD</span></div></div>
@@ -257,15 +294,21 @@
   function show(d,x,y){pop.innerHTML=`<div class="nr-ph2"><b>${esc(d[0])}</b><button type="button" class="nr-x" aria-label="${T('Close','Đóng')}">×</button></div><div class="nr-pb">${d[1]}</div>`;pop.hidden=false;
     const r=pop.getBoundingClientRect(),m=12;pop.style.left=Math.max(m,Math.min(x+10,innerWidth-r.width-m))+'px';pop.style.top=(y+14+r.height<innerHeight-m?y+14:Math.max(m,y-r.height-10))+'px';}
 
-  function render(){calcRide();rCockpit();rScope();rCP();rFM();rCut();}
+  const COLL=['nr-scope','nr-cp','nr-fm','nr-cut'];let openEv={};try{openEv=JSON.parse(localStorage.getItem('nrOpenEv')||'{}');}catch(e){}
+  function collapse(){COLL.forEach(k=>{const s=sec(k);if(!s)return;const op=!!openEv[k];s.classList.toggle('nr-coll',!op);
+      let b=s.querySelector(':scope > .head .nr-tog');const h=s.querySelector(':scope > .head');if(!h)return;
+      if(!b){b=document.createElement('button');b.type='button';b.className='nr-tog ux-btn';h.append(b);b.addEventListener('click',()=>{openEv[k]=!openEv[k];try{localStorage.setItem('nrOpenEv',JSON.stringify(openEv));}catch(e){}collapse();b.focus({preventScroll:true});});}
+      b.setAttribute('aria-expanded',String(op));b.textContent=op?T('Hide the evidence','Ẩn bằng chứng'):T('Show the evidence','Hiện bằng chứng');});}
+  function render(){calcRide();rCockpit();rScope();rCP();rFM();rCut();collapse();}
   const inNr=e=>e.target.closest('section[data-ops^="nr-"]');
   document.addEventListener('click',e=>{
     if(e.target.closest('.nr-x'))return hide();if(e.target.closest('.nr-pop'))return;if(!inNr(e)){hide();return;}if(e.target.closest('a'))return;
     const b=e.target.closest('[data-ph],[data-goto],[data-cut],[data-pick],[data-more],[data-clear],[data-cpj],[data-cpmode],[data-cpnode]');
     if(b){hide();const d=b.dataset;
-      if(d.ph!=null){ckPhase=+d.ph;return rCockpit();}
+      if(d.ph!=null){ckPhase=+d.ph;ckUser=true;return rCockpit();}
+      if(d.goto&&COLL.includes(d.goto)&&!openEv[d.goto]){openEv[d.goto]=true;collapse();}
       if(d.goto){if(d.pick!=null){pick=d.pick==='ride'?'ride':+d.pick;cpMode='scope';cpNode=null;rCP();rFM();}if(d.cpmode){cpMode=d.cpmode;rCP();}const t=sec(d.goto);if(t)t.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return;}
-      if(d.cut!=null){cut=+d.cut;rideLimit=10;return render();}
+      if(d.cut!=null){cut=+d.cut;rideLimit=10;const tick=b.classList.contains('nr-tick');render();if(tick){const nb=document.querySelector(`.nr-tick[data-cut="${cut}"]`);if(nb)nb.focus({preventScroll:true});}return;}
       if(d.pick!=null){pick=d.pick==='all'?null:d.pick==='ride'?'ride':+d.pick;selArea=null;cpNode=null;rCP();rFM();return rCut();}
       if(d.more){rideLimit+=10;return rCut();}
       if(d.clear){selArea=null;rFM();return rCut();}
@@ -280,5 +323,7 @@
   document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
   addEventListener('scroll',hide,{passive:true});
   render();addEventListener('langchange',()=>{hide();render();});
+  // deskData (release state) may be parsed after this script: draw the cockpit again once the page is complete
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if(shipped()||rcCut())rCockpit();});
 })();
 </script>

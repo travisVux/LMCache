@@ -10,6 +10,7 @@ export_window(lake, since, until, out):
 
 ingest_legacy(lake, folder): load an old P1-style folder into the lake (fetched_at = when that file was made),
 keeping whatever the lake already has that is newer.
+ingest_cache(lake, cache_dir, p1_folders): the same for ops-app/data/ci_impact_cache (Buildkite builds, GitHub Actions run jobs).
 """
 import json
 import os
@@ -17,7 +18,7 @@ import shutil
 from datetime import datetime, timedelta, timezone
 
 from core.pipeline import days, ts
-from sources import BK_PIPELINES, REPO, UNFINISHED, GhPrs, BkBuilds, GhCommits, pr_is_final, _suite_last, _all_concluded, _suites
+from sources import BK_PIPELINES, REPO, UNFINISHED, GhPrs, BkBuilds, GhCommits, GhRunJobs, pr_is_final, _suite_last, _all_concluded, _suites
 
 BUILD_FILE = {"k3-multiprocess-test": "builds_30d.json", "k3-unit-tests": "builds_k3-unit-tests_30d.json"}
 CACHE_FILES = ("fail_signatures.json", "log_markers.json")
@@ -88,6 +89,130 @@ def ingest_legacy(lake, folder):
                 n["gh_run_jobs"] = n.get("gh_run_jobs", 0) + 1
     _merge_cache(lake, raw)
     return n
+
+
+# ------------------------------------------------------------------ ops-app CI impact cache -> lake
+GHA_CACHE_FILES = ("gha_runs.json", "gha_runs_test.json", "gha_runs_cpu_device.json")
+FINAL_BK = ("passed", "failed", "canceled", "skipped", "not_run")
+
+
+def _p1_jobs(folders):
+    """job id -> (node, raw_log_url) from P1 exports (jobs_all*.csv): the cache strips agent / raw_log_url."""
+    import csv
+    out = {}
+    for f in folders:
+        for fn in ("jobs_all_30d.csv", "jobs_all.csv"):
+            p = os.path.join(f, fn)
+            if os.path.exists(p):
+                for r in csv.DictReader(open(p, encoding="utf-8")):
+                    out[r["job_id"]] = (r.get("node") or "", r.get("raw_log_url") or "")
+    return out
+
+
+def _enrich(builds, older, p1):
+    """richest form: keep agent / raw_log_url from an older lake copy (same job id), else the node from a P1 csv;
+    raw_log_url is a fixed URL per script job (checked against every P1 row) so it is filled when missing."""
+    olds = {j["id"]: j for b in older or [] for j in b.get("jobs") or []}
+    n = 0
+    for b in builds:
+        for j in b.get("jobs") or []:
+            o = olds.get(j["id"]) or {}
+            for k in ("agent", "raw_log_url"):
+                if not j.get(k) and o.get(k):
+                    j[k] = o[k]
+            node, url = p1.get(j["id"], ("", ""))
+            if not j.get("agent") and node:
+                j["agent"] = {"meta_data": ["k8s:node=" + node], "_from": "P1 jobs_all csv (node only)"}
+                n += 1
+            if not j.get("raw_log_url") and j.get("type") == "script":
+                j["raw_log_url"] = url or (f"https://api.buildkite.com/v2/organizations/lmcache/pipelines/{b['pipeline_slug']}"
+                                           f"/builds/{b['number']}/jobs/{j['id']}/log.txt")
+    return n
+
+
+def ingest_cache(lake, cache_dir, p1_folders=(), dry_run=False):
+    """Load ops-app/data/ci_impact_cache (read only) into the lake. Idempotent: a partition is written only when the
+    cache copy is newer than the lake copy.
+      bk_builds.json {slug#number: build}: per pipeline the build numbers must be contiguous (no build missing) from the
+        first cached build on; only whole UTC days after the day of that build are stored, up to the last online fetch
+        (after_meta.json 'until', else the file mtime) = fetched_at. final = the BkBuilds rule: fetched_at >= day end
+        + 3 days and no unfinished build. pipeline / env are stripped as BkBuilds.fetch does.
+      gha_runs*.json {run id: {run, jobs}}: the jobs carry the GhRunJobs fields (filter=all, every attempt);
+        fetched_at = file mtime (the runs list is re-read on every online refresh, a new attempt is fetched again);
+        final = every job completed (the GhRunJobs rule). Runs with no jobs are left to the fetcher.
+      p1_folders: node / raw_log_url per job id, and their raw/fail_signatures.json into the log-evidence cache."""
+    from collections import defaultdict
+    n, why = defaultdict(int), defaultdict(int)
+    origin = "cache:" + os.path.basename(os.path.normpath(cache_dir))
+    p1 = _p1_jobs(p1_folders)
+    # ---- Buildkite builds
+    p = os.path.join(cache_dir, "bk_builds.json")
+    if os.path.exists(p):
+        meta = os.path.join(cache_dir, "after_meta.json")
+        fetched = _mtime(p)
+        if os.path.exists(meta):
+            fetched = min(fetched, (json.load(open(meta, encoding="utf-8")) or {}).get("until") or fetched)
+        allb = json.load(open(p, encoding="utf-8"))
+        for pl in BK_PIPELINES:
+            bs = sorted((b for b in allb.values() if b.get("pipeline_slug") == pl), key=lambda b: b["number"])
+            if not bs:
+                continue
+            nums = [b["number"] for b in bs]
+            gaps = [i for i in range(1, len(nums)) if nums[i] != nums[i - 1] + 1]
+            first = bs[gaps[-1]] if gaps else bs[0]   # the cache is complete from this build on
+            d0 = (ts(first["created_at"]).date() + timedelta(days=1)).isoformat()
+            n[f"bk first whole day {pl}"] = d0
+            per = defaultdict(list)
+            for b in bs:
+                if b["number"] >= first["number"]:
+                    per[b["created_at"][:10]].append(b)
+            for d in days(d0 + "T00:00:00Z", (ts(fetched).date() + timedelta(days=1)).isoformat() + "T00:00:00Z"):
+                key = f"{pl}/{d}"
+                if not _newer(lake, "bk_builds", key, fetched):
+                    why["bk_builds lake newer or same"] += 1
+                    continue
+                out = []
+                for b in per.get(d, []):
+                    b = json.loads(json.dumps(b))
+                    b.pop("pipeline", None); b.pop("env", None)
+                    for j in b.get("jobs") or []:
+                        j.pop("env", None)
+                    out.append(b)
+                end = (ts(d + "T00:00:00Z") + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                final = ts(fetched) >= ts(end) + BkBuilds.SETTLE and all(b.get("state") in FINAL_BK for b in out)
+                n["bk_builds"] += 1; n["bk_builds final"] += int(final); n["bk_builds rows"] += len(out)
+                if dry_run:
+                    continue
+                n["bk jobs node from P1"] += _enrich(out, lake.read("bk_builds", key), p1)
+                lake.write("bk_builds", key, out)
+                lake.ok("bk_builds", key, d, len(out), None, final, fetched, origin)
+    # ---- GitHub Actions run jobs
+    for fn in GHA_CACHE_FILES:
+        p = os.path.join(cache_dir, fn)
+        if not os.path.exists(p):
+            continue
+        fetched = _mtime(p)
+        for k, v in json.load(open(p, encoding="utf-8")).items():
+            jobs = v.get("jobs") or []
+            if not jobs:
+                why["gh_run_jobs no jobs in cache"] += 1
+                continue
+            if not _newer(lake, "gh_run_jobs", k, fetched):
+                why["gh_run_jobs lake newer or same"] += 1
+                continue
+            o = dict(run_id=int(k), jobs=[{x: (int(k) if x == "run_id" else j.get(x)) for x in GhRunJobs.KEEP} for j in jobs])
+            final = all(j.get("status") == "completed" for j in o["jobs"])
+            old = lake.read("gh_run_jobs", k)
+            n["gh_run_jobs"] += 1; n["gh_run_jobs new"] += int(old is None); n["gh_run_jobs changed"] += int(old is not None and old != o)
+            if dry_run:
+                continue
+            if old != o:
+                lake.write("gh_run_jobs", k, o)
+            lake.ok("gh_run_jobs", k, (v["run"].get("created_at") or "")[:10], len(o["jobs"]), None, final, fetched, origin)
+    if not dry_run:
+        for f in p1_folders:
+            _merge_cache(lake, os.path.join(f, "raw"))
+    return dict(n, skipped=dict(why))
 
 
 def _run_days(lake):

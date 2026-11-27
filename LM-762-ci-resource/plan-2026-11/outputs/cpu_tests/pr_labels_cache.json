@@ -32,12 +32,25 @@
 "5174": [
 "full"
 ],
+"5362": [
+"full",
+"skip expensive ci"
+],
+"5400": [
+"full"
+],
+"5450": [
+"full"
+],
 "5556": [
 "full"
 ],
 "5639": [
 "full",
 "skip expensive ci"
+],
+"5646": [
+"full"
 ],
 "5697": [
 "skip expensive ci"
@@ -48,6 +61,10 @@
 "5843": [
 "full"
 ],
+"5863": [
+"full",
+"skip expensive ci"
+],
 "5865": [
 "full"
 ],
@@ -55,6 +72,10 @@
 "full"
 ],
 "5902": [
+"full",
+"skip expensive ci"
+],
+"5917": [
 "full",
 "skip expensive ci"
 ],
@@ -70,14 +91,32 @@
 "full",
 "skip expensive ci"
 ],
+"6121": [
+"full"
+],
 "6125": [
 "full"
 ],
 "6143": [
 "mp"
 ],
+"6157": [
+"full"
+],
 "6199": [
 "full"
+],
+"6212": [
+"full",
+"amd"
+],
+"6213": [
+"full",
+"skip expensive ci"
+],
+"6215": [
+"full",
+"skip expensive ci"
 ],
 "6231": [
 "full",
@@ -113,6 +152,10 @@
 "skip expensive ci"
 ],
 "6261": [
+"full",
+"skip expensive ci"
+],
+"6264": [
 "full",
 "skip expensive ci"
 ],
@@ -191,6 +234,9 @@
 "full",
 "skip expensive ci"
 ],
+"6344": [
+"full"
+],
 "6350": [
 "full",
 "skip expensive ci"
@@ -218,6 +264,9 @@
 "full",
 "skip expensive ci"
 ],
+"6392": [
+"full"
+],
 "6394": [
 "documentation",
 "full"
@@ -226,8 +275,198 @@
 "full",
 "skip expensive ci"
 ],
+"6485": [
+"full",
+"skip expensive ci"
+],
+"6503": [
+"full"
+],
+"6509": [
+"full"
+],
+"6523": [
+"full",
+"skip expensive ci"
+],
+"6541": [
+"full",
+"skip expensive ci"
+],
+"6542": [
+"full"
+],
+"6549": [
+"full"
+],
+"6551": [
+"full",
+"skip expensive ci"
+],
+"6564": [
+"full"
+],
+"6569": [
+"full"
+],
+"6573": [
+"full",
+"skip expensive ci"
+],
 "6583": [
 "full",
 "skip expensive ci"
+],
+"6592": [
+"full",
+"skip expensive ci"
+],
+"6598": [
+"full",
+"skip expensive ci"
+],
+"6624": [
+"full",
+"mp"
+],
+"6626": [
+"full",
+"amd"
+],
+"6627": [
+"full"
+],
+"6629": [
+"full",
+"skip expensive ci"
+],
+"6632": [
+"full"
+],
+"6645": [
+"full",
+"mp"
+],
+"6658": [
+"full",
+"skip expensive ci"
+],
+"6659": [
+"full"
+],
+"6670": [
+"full"
+],
+"6675": [
+"full",
+"skip expensive ci"
+],
+"6676": [
+"full",
+"skip expensive ci"
+],
+"6680": [
+"full"
+],
+"6684": [
+"full"
+],
+"6686": [
+"full"
+],
+"6697": [
+"mp"
+],
+"6698": [
+"full",
+"skip expensive ci"
+],
+"6700": [
+"full",
+"skip expensive ci"
+],
+"6710": [
+"mp"
+],
+"6711": [
+"full"
+],
+"6717": [
+"full",
+"skip expensive ci"
+],
+"6719": [
+"full",
+"skip expensive ci"
+],
+"6721": [
+"full"
+],
+"6752": [
+"full"
+],
+"6754": [
+"full"
+],
+"6755": [
+"full",
+"xpu",
+"skip expensive ci"
+],
+"6756": [
+"full"
+],
+"6757": [
+"full"
+],
+"6760": [
+"full",
+"skip expensive ci"
+],
+"6763": [
+"full",
+"skip expensive ci"
+],
+"6765": [
+"full",
+"skip expensive ci"
+],
+"6767": [
+"full"
+],
+"6774": [
+"full"
+],
+"6781": [
+"full"
+],
+"6782": [
+"skip expensive ci"
+],
+"6807": [
+"full"
+],
+"6812": [
+"full"
+],
+"6813": [
+"full"
+],
+"6814": [
+"full",
+"skip expensive ci"
+],
+"6815": [
+"full"
+],
+"6836": [
+"full"
+],
+"6854": [
+"full",
+"skip expensive ci"
+],
+"6855": [
+"full"
 ]
 }

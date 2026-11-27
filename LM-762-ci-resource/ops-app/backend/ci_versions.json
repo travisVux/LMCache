@@ -1,0 +1,24 @@
+{
+ "_doc": "CI improvement versions for the CI impact tab (#obs/impact). v0 = the live window of 'baseline_days' days before the FIRST merge of v1's start_prs (fetched again on every refresh, never frozen). Each version starts burn_in_hours (default 24) after the LATEST merge of its 'start_prs' (when all its PR-flow changes are live) and ends where the next version starts (the newest one: now). 'prs' are shown on the page; 'weekly_from' = the PR whose merge starts the weekly-build count of that version. To add v2: append {id, title, prs, start_prs}, then run collect_ci_impact.py.",
+ "baseline_days": 30,
+ "versions": [
+  {
+   "id": "v1",
+   "title": [
+    "Tiered pre-review CI · split k3-multiprocess · weekly full build",
+    "CI theo tầng trước review · tách k3-multiprocess · weekly full build"
+   ],
+   "prs": [
+    6730,
+    6731,
+    6854
+   ],
+   "start_prs": [
+    6730,
+    6731
+   ],
+   "weekly_from": 6854,
+   "burn_in_hours": 24
+  }
+ ]
+}

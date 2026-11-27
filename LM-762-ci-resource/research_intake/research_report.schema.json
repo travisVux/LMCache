@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lmcache.research_report/v1",
+  "title": "LMCache Research report (intake contract v1)",
+  "description": "One file = one report from the Research App (8-GPU pipeline): a draft PR and its benchmark. Dropped into research_intake/inbox/, checked by validate.py, shown by build_research.py in Release Management > Research intake under one of 3 contexts. No network service, no contact data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "context", "title", "created_at", "source", "summary", "environment", "benchmark", "verdict"],
+  "properties": {
+    "schema": {"const": "lmcache.research_report/v1"},
+    "id": {"type": "string", "pattern": "^rr-[a-z0-9][a-z0-9-]{5,79}$", "description": "Stable id, also the file name without .json"},
+    "context": {"enum": ["CI Validation", "LMCache optimization", "New product feature"]},
+    "title": {"type": "string", "minLength": 8, "maxLength": 160},
+    "created_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "sample": {"type": "boolean", "description": "true only for the shipped examples; the page marks them SAMPLE"},
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["app", "run_id"],
+      "properties": {
+        "app": {"type": "string", "minLength": 2, "maxLength": 60},
+        "run_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]{3,80}$"},
+        "pipeline": {"type": "string", "maxLength": 60}
+      }
+    },
+    "pr": {
+      "type": "object", "additionalProperties": false, "required": ["number"],
+      "properties": {
+        "number": {"type": "integer", "minimum": 1},
+        "title": {"type": "string", "maxLength": 200},
+        "branch": {"type": "string", "pattern": "^[A-Za-z0-9._/-]{1,120}$"},
+        "state": {"enum": ["draft", "open", "merged", "closed"]}
+      }
+    },
+    "features": {"type": "array", "maxItems": 17, "items": {"type": "string", "pattern": "^F(0[1-9]|1[0-7])$"}},
+    "areas": {"type": "array", "maxItems": 29, "items": {"type": "string", "pattern": "^[a-z0-9_]{2,20}$"}},
+    "summary": {"type": "string", "minLength": 20, "maxLength": 2000},
+    "hypothesis": {"type": "string", "maxLength": 1000},
+    "environment": {
+      "type": "object", "additionalProperties": false, "required": ["gpus", "engine"],
+      "properties": {
+        "gpus": {"type": "integer", "minimum": 0, "maximum": 8},
+        "gpu_model": {"type": "string", "maxLength": 60},
+        "engine": {"enum": ["vllm", "sglang", "trtllm", "none"]},
+        "engine_version": {"type": "string", "maxLength": 60},
+        "model": {"type": "string", "maxLength": 120},
+        "lmcache_commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"}
+      }
+    },
+    "benchmark": {
+      "type": "object", "additionalProperties": false, "required": ["name", "runs", "metrics"],
+      "properties": {
+        "name": {"type": "string", "minLength": 2, "maxLength": 120},
+        "runs": {"type": "integer", "minimum": 1},
+        "metrics": {
+          "type": "array", "minItems": 1, "maxItems": 30,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["name", "unit", "baseline", "candidate", "better"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1, "maxLength": 60},
+              "unit": {"type": "string", "maxLength": 20},
+              "baseline": {"type": "number"},
+              "candidate": {"type": "number"},
+              "better": {"enum": ["higher", "lower"]}
+            }
+          }
+        }
+      }
+    },
+    "ci": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "gates": {
+          "type": "array", "maxItems": 30,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["name", "result"],
+            "properties": {
+              "name": {"type": "string", "maxLength": 80},
+              "result": {"enum": ["passed", "failed", "not_run", "flaky"]},
+              "url": {"type": "string", "pattern": "^https://"}
+            }
+          }
+        }
+      }
+    },
+    "verdict": {"enum": ["improves", "regresses", "neutral", "inconclusive"]},
+    "artifacts": {
+      "type": "array", "maxItems": 20,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["label", "url"],
+        "properties": {"label": {"type": "string", "maxLength": 80}, "url": {"type": "string", "pattern": "^https://"}}
+      }
+    }
+  }
+}

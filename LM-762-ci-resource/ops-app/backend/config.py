@@ -61,6 +61,15 @@ ARTIFACT_SPECS = [
     ("docker:sglang",                 "docker", "sglang",                    "Docker sglang",          1, 1),
 ]
 DOCKER_REPOS = ["vllm-openai", "standalone", "lmcache-payload", "sglang"]
+
+# Release gating policy (expert review 2026-11-25, default until the release owner changes it here):
+#   gating     = what users get from `pip install lmcache` / the main image: a gap blocks "complete"
+#   known issue = platform wheels and optional images: a gap is listed as a known issue, it does not block
+#   waits on a decision = an artifact whose need is still an open decision in RELEASE_PREP.md (cu12.9 = D2)
+GATING_ARTIFACTS = {"pypi:lmcache", "pypi:lmcache-cli", "gh:main", "docker:vllm-openai"}
+ARTIFACT_DECISION = {"gh:cu129": "D2"}
+PLATFORM_JOB = r"(?i)\b(musa|rocm|xpu|rbln|cu12\.?9|cu129)\b"
+WATCH_DAYS = 7          # after a final tag: Phase 6 Watch for this many days, then the page follows the next line
 PYPI_PROJECTS = ["lmcache", "lmcache-cli", "lmcache-rust-raw-block-io"]
 
 # Buildkite pipelines that must be green on dev before the next RC.

@@ -8,6 +8,8 @@ The runner fetches a partition when
     - it is not final yet (recent data that may still change: running builds, open PRs), or
     - its watermark moved past the last fetch (the PR / run changed after we read it), or
     - --refresh was given.
+--max-age D: a not-final partition fetched less than D days ago, whose watermark did not move, is kept when its
+source says the stored copy is settled enough (Source.recent_ok; only gh_prs: an open PR whose check suites all concluded).
 After a fetch the source says whether the payload is final (settled): final partitions are not fetched again.
 Failures never stop the run: they are written to the state table with the error and retried on the next run.
 """
@@ -41,27 +43,36 @@ class Source:
     def fetch(self, ctx, part):           # -> (payload, rows, watermark, final)
         raise NotImplementedError
 
+    def recent_ok(self, lake, key):       # --max-age: may a recent, not-final copy be kept? default no
+        return False
 
-def need(lake, src, p, refresh, retry_dead):
+
+def need(lake, src, p, refresh, retry_dead, max_age=None):
     st = lake.get(src.name, p.key)
     if refresh or st is None or not lake.has_payload(src.name, p.key) and st["status"] == "ok":
         return True
     if st["status"] == "dead":
         return retry_dead
-    if st["status"] == "failed" or not st["final"]:
+    if st["status"] == "failed":
         return True
+    if not st["final"]:
+        moved = bool(p.watermark and st["fetched_at"] and p.watermark > st["fetched_at"])
+        fresh = bool(max_age and st["fetched_at"] and ts(st["fetched_at"]) >= datetime.now(timezone.utc) - max_age)
+        return not (fresh and not moved and src.recent_ok(lake, p.key))
     return bool(p.watermark and st["fetched_at"] and p.watermark > st["fetched_at"])
 
 
-def run(src, ctx, since, until, refresh=False, retry_dead=False, only_failed=False, limit=None, command="", dry_run=False):
+def run(src, ctx, since, until, refresh=False, retry_dead=False, only_failed=False, limit=None, command="", dry_run=False, max_age=None):
     lake, t0, started = ctx.lake, time.time(), datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     parts = src.plan(ctx, since, until)
-    todo = [p for p in parts if need(lake, src, p, refresh, retry_dead)]
+    todo = [p for p in parts if need(lake, src, p, refresh, retry_dead, max_age)]
+    kept = sum(1 for p in parts if (lake.get(src.name, p.key) or {}).get("final") is False and p not in todo) if max_age else 0
     if only_failed:
         todo = [p for p in todo if (lake.get(src.name, p.key) or {}).get("status") in ("failed", "dead")]
     if limit:
         todo = todo[:limit]
-    print(f"[{src.name}] planned {len(parts)} · to fetch {len(todo)} · up to date {len(parts) - len(todo)}", flush=True)
+    print(f"[{src.name}] planned {len(parts)} · to fetch {len(todo)} · up to date {len(parts) - len(todo)}"
+          + (f" (of which not final but fetched < max-age ago: {kept})" if kept else ""), flush=True)
     if dry_run:
         why = {}
         for p in todo:

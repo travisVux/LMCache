@@ -132,7 +132,10 @@ def ci_only(files):
 NEEDS = {"docs": ("none", True), "tests": ("cpu+gpu-unit", True), "core": ("cpu+gpu-unit+cpu-e2e", False),
          "ci": ("full", False), "gpu": ("gpu-smoke", False), "unknown": ("full", False)}
 
-LABEL_TRIGGERED = {"buildkite/k3-multiprocess-test": "full"}
+# label-triggered required check -> labels that start its full run (#6731: 'full', 'force-ci' or 'mp'; the first one is
+# the name shown in the queue). Without one of them the heavy MP suite is bypassed (green in ~5 s) or, on heads older
+# than #6731, never reported.
+LABEL_TRIGGERED = {"buildkite/k3-multiprocess-test": ("full", "force-ci", "mp")}
 REQ_CPU = re.compile(r"^(DCO|Check code quality)$")
 REQ_GPU = re.compile(r"^buildkite/k3-(unit-tests|multiprocess-test)$")
 
@@ -237,11 +240,12 @@ def git(*args):
     return p.stdout if p.returncode == 0 else None
 
 
-def git_scope(tag):
-    """PRs in <tag>..origin/dev from the local clone (squash commits end with '(#n)')."""
+def git_scope(tag, end="origin/dev"):
+    """PRs in <tag>..<end> from the local clone (squash commits end with '(#n)'). end = origin/dev while the target
+    release is not tagged; the target tag once it is (expert review round 2, A1: notes of a shipped release)."""
     if not (LMC / ".git").exists() or not tag or git("rev-parse", "--verify", "-q", tag) is None:
         return None
-    out = git("log", "--format=__C__|%h|%cI|%an|%s", "--name-only", f"{tag}..origin/dev") or ""
+    out = git("log", "--format=__C__|%h|%cI|%an|%s", "--name-only", f"{tag}..{end}") or ""
     prs, cur = [], None
     for ln in out.splitlines():
         if ln.startswith("__C__|"):
@@ -252,9 +256,9 @@ def git_scope(tag):
         elif ln.strip() and cur:
             cur["files"].append(ln.strip())
     in_tag = {int(x) for x in re.findall(r"\(#(\d+)\)\s*$", git("log", "--format=%s", tag) or "", re.M)}
-    head = (git("log", "-1", "--format=%h|%cI", "origin/dev") or "|").strip().split("|")
+    head = (git("log", "-1", "--format=%h|%cI", end) or "|").strip().split("|")
     return dict(tag=tag, tag_sha=(git("rev-parse", "--short", tag + "^{commit}") or "").strip(), head=head[0], head_at=head[1],
-                prs=prs, in_tag=in_tag, repo=os.path.relpath(LMC, WS).replace("\\", "/"))
+                prs=prs, in_tag=in_tag, repo=os.path.relpath(LMC, WS).replace("\\", "/"), end=end)
 
 
 def git_merged_window(hours):
@@ -262,7 +266,7 @@ def git_merged_window(hours):
     head = (git("log", "-1", "--format=%cI", "origin/dev") or "").strip()
     if not head:
         return None
-    w1 = dt(head)
+    w1 = dt(head).astimezone(timezone.utc)   # %cI keeps the committer's offset (+08:00); every "...Z" below must be UTC
     w0 = w1 - timedelta(hours=hours)
     out = git("log", "--format=__C__|%h|%cI|%s", "--name-only", f"--since={w0.isoformat()}", "origin/dev") or ""
     prs, cur = [], None
@@ -350,11 +354,19 @@ def review_pair(m_sha, p_patches, shared, p_sub):
     rerun = same source file (or same class, other methods): no direct clash, but the PR was tested without the merge
     go    = only tests / docs / config shared, or only import lines touched"""
     same_func, same_cls, near, broken, dup_lines, src_files, imp = [], [], [], [], 0, [], []
+    unknown, cfg = [], []   # review M4: a shared source file without a patch is unknown, not "no clash"; shared build / CI config counts
     for f in shared:
+        if re.search(r"(^|/)(pyproject\.toml|setup\.py|setup\.cfg|requirements[^/]*\.txt|CMakeLists\.txt)$|^\.buildkite/|^\.github/workflows/", f):
+            cfg.append(f.rsplit("/", 1)[-1])
         if not f.endswith(SRC_EXT):
             continue
-        mh = parse_hunks(merged_patch(m_sha, f))
-        ph = parse_hunks(p_patches.get(f, ""))
+        mp_, pp_ = merged_patch(m_sha, f), p_patches.get(f, "")
+        if not mp_ or not pp_:
+            unknown.append(f.rsplit("/", 1)[-1])
+            src_files.append(f)
+            continue
+        mh = parse_hunks(mp_)
+        ph = parse_hunks(pp_)
         mc = [h for h in mh if not h["imports_only"]]
         pc = [h for h in ph if not h["imports_only"]]
         if not mc or not pc:
@@ -386,10 +398,11 @@ def review_pair(m_sha, p_patches, shared, p_sub):
     test_hit = [x for x in same_func + near if is_t(x)]
     src_hit = broken or sf_src or nr_src
     # P0 will break · P1 same function · P2 nearby code / same class · P3 same file or same test · P4 no code clash
-    level = "p0" if broken else "p1" if sf_src else "p2" if nr_src else "p3" if (src_files or test_hit) else "p4"
+    level = "p0" if broken else "p1" if sf_src else "p2" if nr_src else "p3" if (src_files or test_hit or cfg) else "p4"
     same_func = [x for x in same_func if not is_t(x)] + [x for x in same_func if is_t(x)]
     return dict(level=level, test_only=bool(test_hit) and not src_hit, same_func=same_func[:3], same_cls=same_cls[:4], near=near[:4], broken=broken[:4], dup_lines=dup_lines,
-                src=src_files, imports=imp, inactive="inactive" if p_sub in ("draft", "old", "conflict") else None)
+                src=src_files, imports=imp, inactive="inactive" if p_sub in ("draft", "old", "conflict") else None,
+                unknown=unknown[:4], config=cfg[:4])
 
 
 def pair_text(r, m, p, sub_label):
@@ -507,8 +520,7 @@ def why_fits(c, m, stable, tag_sha, ver):
     notes = " ".join(n[1] for n in c.get("notes") or [])
     en, vi = [], []
     if c["origin"] == "suggested":
-        en.append(f"Merged {(c.get('at') or '')[5:10]}, after {stable} ({tag_sha}), so it ships in {ver} but the notes miss it.")
-        vi.append(f"Merge {(c.get('at') or '')[5:10]}, sau {stable} ({tag_sha}), nên sẽ ship trong {ver} nhưng release note chưa có.")
+        pass   # round 3 (B_content #48): "merged after the tag, the notes miss it" is said once, in the 3G picker summary
     if "Possibly breaking" in notes:
         en.append(f"It removes or renames something in {d}; users may have to change their setup, so it belongs under 'Breaking changes', not '{sec}'.")
         vi.append(f"Nó xoá hoặc đổi tên một phần trong {dv}; người dùng có thể phải đổi cách cài đặt, nên thuộc 'Breaking changes', không phải '{sec}'.")
@@ -722,6 +734,12 @@ def candidate_list(rm, merged, open_prs, ta, stable, tag_sha=None, files_of=None
                 notes.insert(0, ["bad", "Possibly breaking: add under 'Breaking changes'", "Có thể không tương thích (breaking): thêm vào 'Breaking changes'"])
             sect = {"feature": "Features", "bug": "Bug fixes", "perf": "Features"}.get(x["type"], "section to pick")
             add(x["num"], x["title"], "suggested", sect, notes, x["at"], x["type"], x["risk"])
+    if not rm:   # round 2 D2: the next line has no prep doc yet -> every user-facing PR merged after the stable tag is a candidate
+        for m in merged:
+            if m.get("num") and m.get("type") in ("feature", "bug", "perf"):
+                add(m["num"], m["title"], "suggested", {"feature": "Features", "bug": "Bug fixes", "perf": "Features"}[m["type"]],
+                    [["warn", f"Merged after {stable}: ships in the next line, which has no prep doc yet", f"Merge sau {stable}: sẽ ship ở dòng tiếp theo, dòng này chưa có tài liệu chuẩn bị"]],
+                    m.get("at"), m.get("type"), m.get("risk"))
     listed = {c["num"] for c in out}
     for p in open_prs:
         if p["num"] in listed or p["sub"] != "ready":
@@ -871,7 +889,81 @@ def stage_costs(O):
     for (st, hw), c in cell.items():
         out[f"{st}|{hw}"] = dict(total=round(c["total"] * k), cancelled=round(c["cancelled"] * k), failed=round(c["failed"] * k), runs=round(c["runs"] * k),
                                  top=[[n, round(v * k)] for n, v in c["top"].most_common(3)])
-    return dict(cells=out, stages=[dict(id=i, name=n) for i, n in STAGES3], span_h=round(span, 1))
+    return dict(cells=out, stages=[dict(id=i, name=n) for i, n in STAGES3], span_h=round(span, 1), stamp=sample_stamp(O))
+
+
+WD = [("Mon", "Thứ hai"), ("Tue", "Thứ ba"), ("Wed", "Thứ tư"), ("Thu", "Thứ năm"), ("Fri", "Thứ sáu"), ("Sat", "Thứ bảy"), ("Sun", "Chủ nhật")]
+
+
+def sample_stamp(O):
+    """Round 2 G2: when the 24 h sample was taken, and which weekdays it covers (EN, VI)."""
+    if not O or not O.get("at"):
+        return None
+    to = dt(O["at"])
+    first = min((r["created_at"] for r in O.get("gha") or [] if r.get("created_at")), default=O.get("since"))
+    fr = dt(first) if first else to - timedelta(hours=24)
+    a, b = WD[fr.weekday()], WD[to.weekday()]
+    return dict(at=O["at"], date=O["at"][:10], wd=[f"{a[0]} → {b[0]}" if a != b else a[0], f"{a[1]} → {b[1]}" if a != b else a[1]])
+
+
+_S30 = {}
+
+
+def stage_costs_30d():
+    """Round 2 G2: the same PR-stage cells as stage_costs(), from the baseline CSVs (baseline.py: the folder the CI Baseline tab reads), as
+    job-min per day: mean, median and the lowest / highest 7-day mean (the range shown as the headline).
+    GitHub Actions: gh_jobs_30d.csv exec_min of PR-event jobs (created|CPU). Buildkite: jobs_all_30d.csv wall_min
+    (job-min, not GPU-min, to match the 24 h cells): k3-unit-tests PR builds = created|GPU, k3-multiprocess-test PR
+    builds = approve|GPU, non-PR k3 builds = merge|GPU. Post-merge GitHub Actions runs are not in the 30-day files.
+    Also the 'Run 2 Python versions' saving of the Test workflow, per PR run: version legs x (n - 2) / n."""
+    if "v" in _S30:
+        return _S30["v"]
+    import csv
+    import statistics
+    import baseline   # the same folder as the CI Baseline tab (build_report1130): one window, one set of totals
+    base, src = baseline.folder(), baseline.pick()
+    try:
+        w = json.load(open(os.path.join(base, "window.json"), encoding="utf-8"))
+        d0, d1 = datetime.fromisoformat(w["since"][:10]).date(), datetime.fromisoformat(w["until"][:10]).date()
+        days = [str(d0 + timedelta(days=i)) for i in range((d1 - d0).days)]
+        cells = collections.defaultdict(collections.Counter)
+        runs = collections.defaultdict(list)
+        for r in csv.DictReader(open(os.path.join(base, "gh_jobs_30d.csv"), encoding="utf-8")):
+            if r["event"] not in ("pull_request", "pull_request_target"):
+                continue
+            st, v = (r["started"] or "")[:10], float(r["exec_min"] or 0)
+            cells["created|CPU"][st] += v
+            m = re.match(r"test: (3\.\d+)", r["job"] or "")
+            if r["workflow"] == "Test" and m:
+                runs[r["run_url"]].append((st, m.group(1), v))
+        for r in csv.DictReader(open(os.path.join(base, "jobs_all_30d.csv"), encoding="utf-8")):
+            k = ("approve|GPU" if r["pipeline"] == "k3-multiprocess-test" else "created|GPU") if r["is_pr"] == "1" else "merge|GPU"
+            cells[k][(r["started_at"] or "")[:10]] += float(r["wall_min"] or 0)
+    except (OSError, KeyError, ValueError):
+        _S30["v"] = None
+        return None
+
+    def summ(c):
+        s = [c.get(d, 0.0) for d in days]
+        r7 = [sum(s[i:i + 7]) / 7 for i in range(len(s) - 6)] or [sum(s) / max(1, len(s))]
+        return dict(mean=round(sum(s) / len(s)), median=round(statistics.median(s)), lo=round(min(r7)), hi=round(max(r7)),
+                    dmin=round(min(s)), dmax=round(max(s)))
+    save, legs, n_legs, vers = collections.Counter(), 0.0, 0, set()
+    for L in runs.values():
+        n = len({x[1] for x in L})
+        vers |= {x[1] for x in L}
+        legs += sum(x[2] for x in L)
+        n_legs += len(L)
+        if n > 2:
+            save[L[0][0]] += sum(x[2] for x in L) * (n - 2) / n
+    cs = {k: summ(c) for k, c in cells.items()}
+    if "created|GPU" in cs:
+        cs["created|GPU"]["scope"] = ["k3-unit-tests only; the sample also has the accelerator suites", "chỉ k3-unit-tests; mẫu có thêm các bộ accelerator"]
+    out = dict(window=[days[0], days[-1]], n_days=len(days), src=src, cells=cs,
+               matrix=dict(workflow="Test", runs=len(runs), versions=sorted(vers, key=lambda x: int(x.split(".")[1])), leg_min=r1(legs / max(1, n_legs)),
+                           legs_per_run=r1(n_legs / max(1, len(runs))), **summ(save)))
+    _S30["v"] = out
+    return out
 
 
 def opportunities(cost, O, open_prs, files, snap_nodes):
@@ -1253,6 +1345,8 @@ def optimal_v3(base, prs_a, open_prs, ops, rm, sc, G, coming, cost):
     # ---- actions: reframe the agent-found solutions to the two goals
     acts = []
     span = (cost or {}).get("span_h")
+    sample_stamp_v = sample_stamp(dict(at=(cost or {}).get("at"), since=(cost or {}).get("first") or (cost or {}).get("since"))) if (cost or {}).get("at") else None
+    s30 = stage_costs_30d()
     def act(o, goal, dir_, stage, title=None, benefit=None, guard=None):
         a = dict(o)
         a.update(goal=goal, dir=dir_, stage=stage, guard=guard)
@@ -1260,7 +1354,9 @@ def optimal_v3(base, prs_a, open_prs, ops, rm, sc, G, coming, cost):
             a["why"] = ["Goal 1 link: fewer runner minutes means shorter queues, so PR checks finish sooner. " + o["why"][0],
                         "Liên quan mục tiêu 1: ít phút runner hơn thì hàng đợi ngắn hơn, check của PR xong sớm hơn. " + o["why"][1]]
         if benefit and "job-min" in benefit[0] and span:
-            benefit = [benefit[0] + f" (measured over {span} h)", benefit[1] + f" (đo trong {span} giờ)"]
+            ss = sample_stamp_v or {}
+            benefit = [benefit[0] + f" (one {span} h sample to {ss.get('date', '?')}, {(ss.get('wd') or ['?'])[0]})",
+                       benefit[1] + f" (một mẫu {span} giờ tới {ss.get('date', '?')}, {(ss.get('wd') or ['?', '?'])[1]})"]
         if title:
             a["title"] = title
         a["benefit"] = benefit or (o.get("impact") if o.get("impact") else None)
@@ -1275,6 +1371,17 @@ def optimal_v3(base, prs_a, open_prs, ops, rm, sc, G, coming, cost):
         elif i.startswith("matrix-"):
             act(o, 1, "A", "create", benefit=[f"frees ≈{o['save']} job-min/day", f"giải phóng ≈{o['save']} phút job/ngày"],
                 guard=["Goal 2 guard: the release and nightly still run every Python version.", "Giữ mục tiêu 2: release và nightly vẫn chạy đủ mọi phiên bản Python."])
+            m30 = (s30 or {}).get("matrix")
+            if m30 and i == "matrix-" + m30["workflow"]:
+                # round 2 G2: headline = 30-day range; the 24 h sample stays as a secondary figure
+                w0, w1 = s30["window"]
+                smp = acts[-1]["benefit"]
+                acts[-1]["benefit"] = [f"frees ≈{m30['lo']:,}–{m30['hi']:,} job-min/day (lowest–highest 7-day mean, 30 d {w0} → {w1}; mean {m30['mean']:,}) · secondary: {smp[0]}",
+                                       f"giải phóng ≈{m30['lo']:,}–{m30['hi']:,} phút job/ngày (trung bình 7 ngày thấp nhất–cao nhất, 30 ngày {w0} → {w1}; trung bình {m30['mean']:,}) · phụ: {smp[1]}"]
+                acts[-1]["save"] = m30["mean"]
+                ev = acts[-1].get("evidence") or ["", ""]
+                acts[-1]["evidence"] = [ev[0] + f" 30 d: {m30['runs']:,} PR runs, {m30['legs_per_run']} version legs per run ({', '.join(m30['versions'])}), ≈{m30['leg_min']} job-min per leg.",
+                                        ev[1] + f" 30 ngày: {m30['runs']:,} lần chạy PR, {m30['legs_per_run']} nhánh phiên bản mỗi lần ({', '.join(m30['versions'])}), ≈{m30['leg_min']} phút job mỗi nhánh."]
         elif i == "rerun":
             act(o, 1, "A+B", "create", benefit=[f"frees ≈{o['save']} job-min/day", f"giải phóng ≈{o['save']} phút job/ngày"])
         elif i in ("pregate", "docs-gpu", "create-feedback"):
@@ -1400,8 +1507,8 @@ def analyze():
         req = {nm: worst([s for c_, s in cs if c_ == nm]) or "missing" for nm in REQ_NAMES}
         labs = {x["name"] for x in (n.get("labels") or {}).get("nodes") or []}
         # label-triggered required checks (observed 11-10: MP runs only on PRs labelled 'full'): missing = waiting for the label
-        wait_label = [lb for nm, lb in LABEL_TRIGGERED.items() if req.get(nm) == "missing" and lb not in labs]
-        req_now = {nm: v for nm, v in req.items() if not (nm in LABEL_TRIGGERED and LABEL_TRIGGERED[nm] in wait_label)}
+        wait_label = [lbs[0] for nm, lbs in LABEL_TRIGGERED.items() if req.get(nm) == "missing" and not (set(lbs) & labs)]
+        req_now = {nm: v for nm, v in req.items() if not (nm in LABEL_TRIGGERED and LABEL_TRIGGERED[nm][0] in wait_label)}
         cpu = worst([v for nm, v in req_now.items() if not nm.startswith("buildkite/")]) or "ok"
         gpu = worst([v for nm, v in req_now.items() if nm.startswith("buildkite/")]) or "ok"
         gate = worst([cpu, gpu]) or "ok"
@@ -1457,8 +1564,17 @@ def analyze():
     merged.sort(key=lambda x: x["at"] or "", reverse=True)
     rmp = find_roadmap(stable)
     rm = None
+    shipped_tag = None
     if rmp and rmp.exists():
-        rm = roadmap_check(parse_roadmap(rmp), sc, {p["num"] for p in open_prs})
+        prm = parse_roadmap(rmp)
+        vt = "v" + prm["version"] if prm.get("version") else None
+        if sc and vt and vt != stable and git("rev-parse", "--verify", "-q", vt + "^{commit}") is not None:
+            # A1: the target release is tagged: what it ships is <stable>..<tag>; later merges go to the next line
+            shipped_tag = vt
+            after = {p["num"] for p in sc["prs"]} - {p["num"] for p in (git_scope(stable, vt) or {}).get("prs") or []}
+            sc = git_scope(stable, vt)
+            merged = [m for m in merged if m["num"] not in after]
+        rm = roadmap_check(prm, sc, {p["num"] for p in open_prs})
     cand = [p for p in open_prs if p["sub"] in ("ready", "wait_review", "adapt") or (p["milestone"] or "")]
     cand.sort(key=lambda p: ({"ready": 0, "adapt": 1, "wait_review": 2}.get(p["sub"], 3), p["age_d"] or 0))
     # dev health: last finished build per merge-gate / key pipeline on dev
@@ -1474,6 +1590,7 @@ def analyze():
                   candidates=cand[:40], n_cand=len(cand), open_ci_fail=sum(1 for p in open_prs if p["sub"] == "ci_fail"),
                   n_open=len(open_prs), dev_red=dev_red, roadmap=rm,
                   scope=dict(src="git" if sc else "snapshot", tag_sha=(sc or {}).get("tag_sha"), head=(sc or {}).get("head"),
+                             end=(sc or {}).get("end"), shipped_tag=shipped_tag,
                              head_at=(sc or {}).get("head_at"), repo=(sc or {}).get("repo")))
 
     # ---- 30-day baselines (report days: 60 days -> last 30 vs previous 30)
@@ -1559,6 +1676,7 @@ def analyze():
         hist = load_hist()
     solution_status(v3["actions"], days, hist, {b["key"]: b for b in base})
     v3["stage_costs"] = stage_costs(O)
+    v3["stage_costs_30d"] = stage_costs_30d()
     opt = dict(cost=cost, ops=all_ops, v3=v3, extra_sol=extra_sol, hist_days=[h["date"] for h in hist], sol_file=os.path.relpath(SOL_FILE, WS).replace("\\", "/"),
                sample=dict(n=len(open_prs), total=max(0, (cn.get("open") or 0) - (cn.get("draft") or 0))))
 
@@ -1827,7 +1945,7 @@ def analyze():
         out = {}
         for nm, k in GATES:
             v = (p.get("req") or {}).get(nm) or "missing"
-            out[k] = "label" if (v == "missing" and nm in LABEL_TRIGGERED and LABEL_TRIGGERED[nm] in (p.get("wait_label") or [])) else v
+            out[k] = "label" if (v == "missing" and nm in LABEL_TRIGGERED and LABEL_TRIGGERED[nm][0] in (p.get("wait_label") or [])) else v
         return out
     def clashes(num):
         g = groups.get(num)
@@ -2018,8 +2136,15 @@ def analyze():
              f"{len(gpu_after_cpu_fail)} PR đang mở chạy check GPU trên commit có DCO / lint fail: một cổng CPU chạy trước sẽ chặn được.")
     if opt["ops"]:
         o = opt["ops"][0]
-        rule("optimal", "bad" if (o["save"] or 0) > 1500 else "warn", f"Largest saving: {o['title'][0]} (≈{o['save']} job-min/day).",
-             f"Tiết kiệm lớn nhất: {o['title'][1]} (≈{o['save']} phút job/ngày).")
+        ss = (opt["v3"].get("stage_costs") or {}).get("stamp") or {}
+        m30 = (opt["v3"].get("stage_costs_30d") or {}).get("matrix")
+        if m30 and o["id"] == "matrix-" + m30["workflow"]:
+            w0, w1 = opt["v3"]["stage_costs_30d"]["window"]
+            rule("optimal", "bad" if m30["lo"] > 1500 else "warn", f"Largest saving: {o['title'][0]} (≈{m30['lo']:,}–{m30['hi']:,} job-min/day, 7-day means over 30 d {w0} → {w1}).",
+                 f"Tiết kiệm lớn nhất: {o['title'][1]} (≈{m30['lo']:,}–{m30['hi']:,} phút job/ngày, trung bình 7 ngày trong 30 ngày {w0} → {w1}).")
+        else:
+            rule("optimal", "bad" if (o["save"] or 0) > 1500 else "warn", f"Largest saving: {o['title'][0]} (≈{o['save']} job-min/day, one 24 h sample to {ss.get('date', '?')}).",
+                 f"Tiết kiệm lớn nhất: {o['title'][1]} (≈{o['save']} phút job/ngày, một mẫu 24 giờ tới {ss.get('date', '?')}).")
     kc = overlap["kinds"]
     gc_ = overlap["gcount"]
     rule("overlap", "warn" if gc_.get("p0") or gc_.get("p1") else "info",
@@ -2159,6 +2284,8 @@ tr.ops-flash td{background:color-mix(in oklab,var(--warning) 25%,transparent)!im
 .ops-amx tr.lv-p4 td:first-child{border-left:3px solid var(--good)}
 .ops-cnt{display:inline-block;font-weight:700;font-size:11px;padding:0 6px;border-radius:999px;background:var(--surface-2);margin-bottom:3px}
 .ops-grp td{background:var(--surface-2);padding-top:8px!important}
+.ops-picker>summary,.ops-fold>summary{cursor:pointer;padding:6px 0;font-size:14px}.ops-picker .ops-open{color:var(--series-1)}.ops-fold>summary{font-weight:600;margin-top:10px}
+.ops-picker>summary:focus-visible,.ops-fold>summary:focus-visible{outline:2px solid var(--series-1);outline-offset:2px}
 .ops-pick{width:22px}
 .ops-md{width:100%;box-sizing:border-box;font:12px ui-monospace,Consolas,monospace;background:var(--surface-1);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;padding:8px;margin:6px 0}
 .ops-filter{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0 8px}
@@ -2192,7 +2319,7 @@ section[data-ops="nr-ck"]{border:2px solid var(--series-1)}
 .nr-phases{list-style:none;margin:4px 0 14px;padding:0;display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:6px;overflow-x:auto}
 .nr-ph{all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:100%;display:flex;flex-direction:column;gap:2px;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--surface-1)}
 .nr-ph b{font-size:13px;color:var(--text-primary)}.nr-pn,.nr-ps{font-size:11px;color:var(--text-muted)}.nr-ph .gch{align-self:flex-start;margin-top:4px}
-.nr-ph.cur{border:2px solid var(--series-1);background:var(--surface-2)}.nr-ph.done{border-color:var(--good)}.nr-ph.lock{opacity:.6}.nr-ph.unk{border-style:dashed}
+.nr-ph.cur{border:2px solid var(--series-1);background:var(--surface-2)}.nr-ph.done{border-color:var(--good)}.nr-ph.lock{opacity:.6}.nr-ph.unk{border-style:dashed}.nr-ph.warn{border-color:var(--warning)}.nr-ph.carry{border-color:var(--text-muted);border-style:dashed}
 .nr-ph.sel{box-shadow:0 0 0 2px var(--series-1)}.nr-ph:focus-visible{outline:2px solid var(--series-1);outline-offset:2px}
 .nr-grp{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .nr-grp h3{margin:0;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -2229,7 +2356,8 @@ tr.nr-arow{cursor:pointer}tr.nr-arow:hover td,tr.nr-arow.sel td{background:var(-
 .nr-sel{font:inherit;font-size:12.5px;max-width:100%;padding:3px 6px;border:1px solid var(--border);border-radius:8px;background:var(--surface-1);color:var(--text-primary)}
 .nr-link{all:unset;cursor:pointer;color:var(--series-1);text-decoration:underline;font-size:12px}
 .nr-strip{display:flex;align-items:flex-end;gap:2px;height:60px;min-width:760px}
-.nr-tick{all:unset;flex:1 1 0;min-width:4px;height:34%;border-radius:2px 2px 0 0;cursor:pointer;background:var(--border)}
+.nr-coll > :not(.head){display:none!important}.nr-tog{margin-left:8px;font-size:12px}
+.nr-tick{all:unset;flex:1 1 0;min-width:4px;min-height:24px;height:34%;border-radius:2px 2px 0 0;cursor:pointer;background:var(--border)}
 .nr-tick.scope{background:var(--series-1);height:100%}.nr-tick.hi{background:var(--warning);height:62%}.nr-tick.bk{background:var(--critical);height:80%}
 .nr-tick.after{opacity:.35}.nr-tick.cut{outline:2px solid var(--text-primary);outline-offset:1px}.nr-tick:hover{opacity:1;filter:brightness(1.15)}
 .nr-axis{display:flex;justify-content:space-between;font:11px ui-monospace,Consolas,monospace;color:var(--text-muted);min-width:760px}
@@ -2260,7 +2388,7 @@ JS = r"""
   const table=(cols,rows)=>{const t=el('table',{class:'obs-t'});t.append(el('thead',{},el('tr',{},cols.map(c=>el('th',{class:c[1]||''},c[0])))));const b=el('tbody');rows.forEach(r=>b.append(r));t.append(b);return el('div',{class:'obs-scroll'},t);};
   const TYPE={feature:['Feature','Feature','var(--series-1)'],bug:['Bug fix','Sửa bug','var(--series-2)'],perf:['Perf','Perf','var(--series-3)'],refactor:['Refactor','Refactor','var(--series-4,#8a5cd0)'],ci:['CI / build','CI / build','var(--series-5,#b0753a)'],docs:['Docs','Docs','var(--text-muted)'],test:['Tests','Test','var(--border)'],other:['Other','Khác','var(--surface-2)']};
   const RISK={docs:['docs only','chỉ docs'],tests:['docs / tests','docs / test'],core:['core','core'],ci:['CI / deps','CI / deps'],gpu:['GPU path','đường GPU'],unknown:['no file data','chưa có file']};
-  const SUB={draft:['Draft','Nháp'],wait_full:["Waiting for the 'full' label (starts MP GPU)","Chờ nhãn 'full' (bắt đầu MP GPU)"],ci_missing:['Required check not run','Check bắt buộc chưa chạy'],old:['Older than 30 days','Cũ hơn 30 ngày'],ci_run:['CI running','CI đang chạy'],ci_fail:['Required check failing','Check bắt buộc đang đỏ'],wait_review:['Waiting review','Chờ review'],adapt:['Changes requested (adapt)','Yêu cầu sửa (adapt)'],ready:['Approved, ready','Đã duyệt, sẵn sàng'],conflict:['Merge conflict','Xung đột merge']};
+  const SUB={draft:['Draft','Nháp'],wait_full:["Waiting for a 'full' / 'force-ci' / 'mp' label (starts MP GPU)","Chờ nhãn 'full' / 'force-ci' / 'mp' (bắt đầu MP GPU)"],ci_missing:['Required check not run','Check bắt buộc chưa chạy'],old:['Older than 30 days','Cũ hơn 30 ngày'],ci_run:['CI running','CI đang chạy'],ci_fail:['Required check failing','Check bắt buộc đang đỏ'],wait_review:['Waiting review','Chờ review'],adapt:['Changes requested (adapt)','Yêu cầu sửa (adapt)'],ready:['Approved, ready','Đã duyệt, sẵn sàng'],conflict:['Merge conflict','Xung đột merge']};
   const KIND={semantic:['Shared source file','Chung file nguồn'],race:['Stale CI (race)','CI cũ (race)'],duplicate:['Duplicate?','Trùng?'],touch:['Shared files','Chung file'],flaky:['Flaky','Flaky']};
   const st=s=>el('span',{class:'gch s-'+(s==='none'?'none':s)},s);
   const typeTag=t=>el('span',{class:'obs-lab'},L(TYPE[t]||TYPE.other));
@@ -2286,9 +2414,9 @@ JS = r"""
     s.append(el('h3',{},T('RC checklist','Checklist cắt RC')),el('div',{class:'ops-rules'},S.checks.map(c=>el('div',{class:'ops-rule lv-'+(c.lvl==='ok'?'good':c.lvl)},el('span',{class:'gch '+CL[c.lvl]},ICON[c.lvl]),' ',L(c.t)))));
     const P=S.prep;
     if(P){const od=P.decisions.filter(d=>d.open),ob=P.blockers.filter(b=>b.open);
-      if(od.length||ob.length)s.append(el('details',{},el('summary',{},T(`Open decisions and carry-over blockers (${od.length+ob.length}) from `,`Quyết định còn mở và blocker tồn (${od.length+ob.length}) từ `),el('code',{},P.rel)),
-        table([['ID'],[T('Item','Mục')],[T('State','Trạng thái')]],[...od.map(d=>el('tr',{},el('td',{},d.id),el('td',{},el('span',{class:'obsraw'},d.text)),el('td',{},T('decision open','chưa quyết định')))),
-          ...ob.map(b=>el('tr',{},el('td',{},b.id),el('td',{},el('span',{class:'obsraw'},b.text)),el('td',{},el('span',{class:'obsraw'},b.state))))])));}
+      // the decisions and carry-over blockers are decided in Now · Release Desk (dkDecide / dkBlock); here only their ids + a link (merged 2026-11-24)
+      if(od.length||ob.length){const go=el('button',{type:'button','data-goto':'obs/today'},T('Now · Release Desk','Bây giờ · Release Desk')+' →');
+        s.append(el('div',{class:'ops-src'},T(`Open decisions and carry-over blockers (${od.length+ob.length}) from `,`Quyết định còn mở và blocker tồn (${od.length+ob.length}) từ `),el('code',{},P.rel),': ',el('span',{class:'obsraw'},[...od,...ob].map(x=>x.id).join(', ')),T(' · decided in ',' · quyết tại '),go));}}
     s.append(el('p',{class:'ops-src'},T('Verdict = "not ready" if any checklist item is red, "almost" if only warnings. Inputs: git range (local clone), PR snapshot, Trace Agent proposals, the release list and RELEASE_PREP.md of the target release folder.','Kết luận = "chưa sẵn sàng" nếu có mục đỏ, "gần sẵn sàng" nếu chỉ còn cảnh báo. Đầu vào: khoảng git (clone local), snapshot PR, đề xuất Trace Agent, danh sách release và RELEASE_PREP.md trong thư mục release mục tiêu.')));}
 
   const ORIG={listed:['In notes','Đã có trong note'],suggested:['Suggested','Đề xuất thêm'],open:['Open PR','PR đang mở']};
@@ -2308,8 +2436,8 @@ JS = r"""
   const LVO={none:0,unit:1,conditional:2,required:3};
   function rComing(){const s=sec('coming');if(!s)return;const C=D.coming,R=C.roadmap,CA=C.cands||[],FL=C.flow||[],ver=R&&R.src.version?'v'+R.src.version:T('next release','release tới');
     s.replaceChildren(head('3G',`Release-note PRs by feature · ${ver}`,`PR cho release note theo feature · ${ver}`,
-      `Pick the PRs for the release notes. Each PR is classified by the LMCache feature it changes, where that feature sits on the KV path, and the CPU / GPU tests it needs. Scope = git ${C.stable} (${C.scope.tag_sha||'?'})..origin/dev (${C.scope.head||'?'}, ${day(C.scope.head_at)}).`,
-      `Chọn PR cho release note. Mỗi PR được phân loại theo feature LMCache mà nó thay đổi, vị trí của feature đó trên đường KV, và test CPU / GPU cần chạy. Phạm vi = git ${C.stable} (${C.scope.tag_sha||'?'})..origin/dev (${C.scope.head||'?'}, ${day(C.scope.head_at)}).`));
+      `Pick the PRs for the release notes. Scope = git ${C.stable} (${C.scope.tag_sha||'?'})..origin/dev (${C.scope.head||'?'}, ${day(C.scope.head_at)}).`,
+      `Chọn PR cho release note. Phạm vi = git ${C.stable} (${C.scope.tag_sha||'?'})..origin/dev (${C.scope.head||'?'}, ${day(C.scope.head_at)}).`));
     if(R)s.append(el('p',{class:'obs-note'},T('List source: ','Nguồn danh sách: '),el('code',{},R.src.rel),T(` (saved ${day(R.src.mtime)}). Another source: COMING_RELEASE_SRC=<file>.`,` (lưu ${day(R.src.mtime)}). Nguồn khác: COMING_RELEASE_SRC=<file>.`)));
     // selection: default = PRs already in the list
     let P=picked();if(!P){P={};CA.filter(c=>c.origin==='listed').forEach(c=>P[c.num]=1);}
@@ -2366,7 +2494,12 @@ JS = r"""
     s.append(bar,out,box);draw('add');
     if(!R)s.append(el('div',{class:'ops-empty'},T('No external list yet: put a "Coming in vX" list in release-<next>/ROADMAP.md or set COMING_RELEASE_SRC, then rebuild. Showing suggestions only.','Chưa có danh sách ngoài: đặt danh sách "Coming in vX" vào release-<next>/ROADMAP.md hoặc đặt COMING_RELEASE_SRC, rồi build lại. Chỉ hiện đề xuất.')));
     s.append(el('p',{class:'ops-src'},T('Feature = the area most of the PR\'s source files belong to (the 29 areas of Release Exploration; click one to open its definition). Critical stage = where that feature sits on the KV path. CPU / GPU test level comes from the change class in Quality Gate. Picks are kept in this browser.',
-      'Feature = nhóm mà phần lớn file source của PR thuộc về (29 nhóm của Khám phá Release; bấm để mở định nghĩa). Stage quan trọng = vị trí của feature đó trên đường KV. Mức test CPU / GPU lấy từ loại thay đổi ở Cổng chất lượng. Lựa chọn được lưu trong trình duyệt này.')));}
+      'Feature = nhóm mà phần lớn file source của PR thuộc về (29 nhóm của Khám phá Release; bấm để mở định nghĩa). Stage quan trọng = vị trí của feature đó trên đường KV. Mức test CPU / GPU lấy từ loại thay đổi ở Cổng chất lượng. Lựa chọn được lưu trong trình duyệt này.')));
+    // round 3 (C_ia 3G, A_visual 5.5): a work tool, not status: one summary line, the picker opens on demand; the shared reason is said here once
+    {const kids=[...s.children].slice(1),np=Object.keys(P).length;const det=el('details',{class:'ops-picker','data-ux':'notes-picker'});
+      det.append(el('summary',{},el('b',{},T('Release-note picker','Bộ chọn release note')),' · ',T(`${np} picked`,`${np} đã chọn`),' · ',
+        sug.length?T(`${sug.length} PRs merged after ${C.stable} ship in ${ver} but are not in the notes`,`${sug.length} PR merge sau ${C.stable} sẽ ship trong ${ver} nhưng chưa có trong release note`):T('every user-facing PR is in the notes','mọi PR người dùng thấy được đã có trong note'),
+        ' · ',el('span',{class:'ops-open'},T('open picker ▸','mở bộ chọn ▸'))));det.append(...kids);s.append(det);}}
 
   function rBase(){const s=document.getElementById('optBase');if(!s)return;s.replaceChildren(head('','30-day baseline','Baseline 30 ngày',`Shared baseline for every CI task: ${D.window?D.window.join(' → '):''}, compared with the 30 days before.`,`Baseline chung cho mọi task CI: ${D.window?D.window.join(' → '):''}, so với 30 ngày trước đó.`),
     el('div',{class:'ops-mc'},D.base.map(mcard)));}
@@ -2402,13 +2535,14 @@ JS = r"""
     [['CPU',T('CPU · GitHub Actions','CPU · GitHub Actions')],['GPU',T('GPU · Buildkite (k3 + other accelerators)','GPU · Buildkite (k3 + accelerator khác)')]].forEach(([hw,lab])=>{
       b.append(el('tr',{},el('th',{style:'text-align:left;white-space:nowrap'},lab),SC.stages.map(st_=>{const c=SC.cells[`${st_.id}|${hw}`]||{},sol=A.filter(a=>a.cell&&a.cell[0]===st_.id&&a.cell[1]===hw);
         const pc=x=>c.total?Math.round(100*x/c.total):0;
-        return el('td',{},c.total?el('div',{},el('b',{style:'font-size:18px'},fmt(c.total)),' ',el('span',{class:'meta'},hw==='CPU'?T('job-min/day','phút job/ngày'):T('job-min/day','phút job/ngày'))):el('div',{class:'meta'},hw==='CPU'&&st_.id==='approve'?T('no separate CPU run: review fixes are new pushes, counted in "PR created"','không có lần chạy CPU riêng: sửa theo review là push mới, tính ở "Tạo PR"'):'—'),
+        const c30=(S30()||{cells:{}}).cells[`${st_.id}|${hw}`];
+        return el('td',{},c30?el('div',{},el('b',{style:'font-size:18px'},range30(c30)),' ',el('span',{class:'meta'},T('job-min/day (7-day means, 30 d)','phút job/ngày (trung bình 7 ngày, 30 ngày)')),c.total?el('div',{class:'meta'},T(`sample: ${fmt(c.total)}`,`mẫu: ${fmt(c.total)}`)):null):c.total?el('div',{},el('b',{style:'font-size:18px'},fmt(c.total)),' ',el('span',{class:'meta'},T('job-min/day (sample)','phút job/ngày (mẫu)'))):el('div',{class:'meta'},hw==='CPU'&&st_.id==='approve'?T('no separate CPU run: review fixes are new pushes, counted in "PR created"','không có lần chạy CPU riêng: sửa theo review là push mới, tính ở "Tạo PR"'):'—'),
           c.total?el('div',{class:'meta'},T(`${pc(c.cancelled)}% cancelled · ${pc(c.failed)}% failed`,`${pc(c.cancelled)}% bị huỷ · ${pc(c.failed)}% fail`)):null,
           (c.top||[]).length?el('div',{class:'meta obsraw'},c.top.map(x=>`${x[0]} ${fmt(x[1])}`).join(' · ')):null,
           el('div',{style:'margin-top:6px'},sol.length?sol.map(a_=>el('a',{href:'#',class:'ops-sol '+a_.lvl,onclick:e=>{e.preventDefault();const r=document.getElementById(actAnchor(a_.id));if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.classList.add('ops-flash');setTimeout(()=>r.classList.remove('ops-flash'),1600);}}},L(a_.title))):el('span',{class:'meta'},T('no proposed change','chưa có thay đổi đề xuất'))));})));});
     t.append(b);s.append(el('div',{class:'obs-scroll'},t));
-    s.append(el('p',{class:'ops-src'},T(`PR created = PR-triggered runs (GitHub Actions, k3-unit and accelerator suites). Review → approve = k3-multiprocess-test on PRs, which starts after the 'full' label. After merge = runs on dev pushes, schedules and tags. Window ${SC.span_h} h, scaled to 24 h.`,
-      `Tạo PR = các lần chạy do PR kích hoạt (GitHub Actions, k3-unit và bộ accelerator). Review → duyệt = k3-multiprocess-test trên PR, chạy sau khi gắn nhãn 'full'. Sau merge = các lần chạy khi push dev, theo lịch và tag. Khung ${SC.span_h} giờ, quy về 24 giờ.`)));}
+    s.append(el('p',{class:'ops-src'},T(`PR created = PR-triggered runs (GitHub Actions, k3-unit and accelerator suites). Review → approve = k3-multiprocess-test on PRs, which starts after the 'full' label. After merge = runs on dev pushes, schedules and tags. Large number: 30-day baseline ${(S30()||{window:['?','?']}).window.join(' → ')}, lowest–highest 7-day mean. Sample: ${smpTxt(SC)}, window ${SC.span_h} h, scaled to 24 h.`,
+      `Tạo PR = các lần chạy do PR kích hoạt (GitHub Actions, k3-unit và bộ accelerator). Review → duyệt = k3-multiprocess-test trên PR, chạy sau khi gắn nhãn 'full'. Sau merge = các lần chạy khi push dev, theo lịch và tag. Số lớn: baseline 30 ngày ${(S30()||{window:['?','?']}).window.join(' → ')}, trung bình 7 ngày thấp nhất–cao nhất. Mẫu: ${smpTxt(SC)}, khung ${SC.span_h} giờ, quy về 24 giờ.`)));}
 
   const applied=()=>{try{return JSON.parse(localStorage.getItem('opsApplied')||'{}');}catch(e){return {};}};
   function applyBox(a_){const S=a_.solution,R=a_.result||{},u=U(R.unit),loc=applied()[a_.id];
@@ -2436,30 +2570,42 @@ JS = r"""
     GPU:{created:['Buildkite PR builds that start on every push: k3-unit-tests and the accelerator suites.','Build Buildkite của PR chạy mỗi lần push: k3-unit-tests và các bộ accelerator.'],
       approve:["k3-multiprocess-test (MP GPU, required) starts only after a maintainer adds the 'full' label, usually at approval.","k3-multiprocess-test (MP GPU, bắt buộc) chỉ chạy sau khi maintainer gắn nhãn 'full', thường lúc duyệt."],
       merge:['Buildkite builds on dev after the merge (k3 and accelerator pipelines).','Build Buildkite trên dev sau khi merge (pipeline k3 và accelerator).']}};
-  function goalBox(){const V=((D.opt||{}).v3)||{goals:[]},endAgo=D.window?Math.round((Date.now()-Date.parse(D.window[1]))/864e5):null;
+  function goalBox(){const V=((D.opt||{}).v3)||{goals:[]},endAgo=D.window?Math.floor((Date.now()-Date.parse(D.window[1])-864e5)/864e5):null;  // age from the exclusive end (G8)
     const worst=V.goals.some(g=>g.verdict==='worse')?'critical':V.goals.every(g=>g.verdict==='better')?'good':'warning';
     return el('div',{class:'ops-verdict',style:`border-left-color:var(--${worst})`},
       V.goals.map(g=>el('details',{},el('summary',{},el('b',{},L(g.name)),': ',el('span',{class:'gch '+V3ST[g.verdict][2]},V3ST[g.verdict][3]),' ',L(V3ST[g.verdict])),
         el('div',{class:'ops-rules',style:'margin-top:6px'},g.rows.map(r=>{const v=V3ST[r.state],u=U(r.unit);return el('div',{class:'ops-rule lv-'+(r.state==='better'?'good':r.state==='worse'?'bad':r.state==='watch'?'warn':'info')},
           el('span',{class:'gch '+v[2]},v[3]),' ',L(r.label),': ',el('b',{},`${fmt(r.now)} ${u}`),r.prev!=null?T(` (previous 30 d: ${fmt(r.prev)} ${u})`,` (30 ngày trước: ${fmt(r.prev)} ${u})`):'',r.note?el('span',{class:'meta'},' · '+L(r.note)):null);})))),
-      endAgo>2?el('div',{class:'meta',style:'margin-top:6px;color:var(--text-primary);border-left:3px solid var(--warning);padding-left:6px'},T(`30-day PR numbers end on ${D.window[1]} (${endAgo} days ago): re-run the daily report.`,`Số liệu PR 30 ngày kết thúc ${D.window[1]} (${endAgo} ngày trước): chạy lại báo cáo ngày.`)):null);}
+      endAgo>2?el('div',{class:'meta',style:'margin-top:6px;color:var(--text-primary);border-left:3px solid var(--warning);padding-left:6px'},T(`Goal rows come from the daily PR report, which ends on ${D.window[1]} (${endAgo} d old): re-run the daily report. The cost cards below have their own dates.`,`Các dòng mục tiêu lấy từ báo cáo PR hằng ngày, kết thúc ${D.window[1]} (cũ ${endAgo} ngày): chạy lại báo cáo ngày. Các thẻ chi phí bên dưới có ngày riêng.`)):null);}
+  // round 2 G2: headline = 30-day baseline (range of 7-day means), the 24 h sample is secondary with its date and weekday
+  const S30=()=>(((D.opt||{}).v3)||{}).stage_costs_30d||null;
+  const smpAge=SC=>{const a=SC&&SC.stamp&&SC.stamp.at;return a?Math.round((Date.now()-Date.parse(a))/864e5):null;};
+  const smpTxt=SC=>{const s=(SC&&SC.stamp)||{},g=smpAge(SC);return T(`one 24 h sample to ${s.date||'?'} (${(s.wd||['?'])[0]}${g!=null?`, ${g} d old`:''})`,`một mẫu 24 giờ tới ${s.date||'?'} (${(s.wd||['?','?'])[1]}${g!=null?`, cũ ${g} ngày`:''})`);};
+  const range30=c=>c?`${fmt(c.lo)}–${fmt(c.hi)}`:'';
   function hwActs(hw,st){return (((D.opt||{}).v3)||{}).actions.filter(a=>a.cell&&a.cell[0]===st&&(a.cell[1]===hw||a.cell[1]==='-'));}
   function rOptHW(hw){const I=HWI[hw],V=((D.opt||{}).v3)||{},SC=V.stage_costs,n=I.n;
     // A: goals + cost per stage
     const sA=sec(I.p+'-sum');if(sA){sA.replaceChildren(head(n+'A',L(I.name),L(I.name),
         hw==='CPU'?'CPU runner job-min per PR stage, the proposed changes for each stage, and what each applied change saved.':'Buildkite job-min (GPU and accelerator agents) per PR stage, the proposed changes for each stage, and what each applied change saved.',
         hw==='CPU'?'Phút job runner CPU theo từng giai đoạn PR, thay đổi đề xuất cho mỗi giai đoạn, và mỗi thay đổi đã áp dụng tiết kiệm được bao nhiêu.':'Phút job Buildkite (agent GPU và accelerator) theo từng giai đoạn PR, thay đổi đề xuất cho mỗi giai đoạn, và mỗi thay đổi đã áp dụng tiết kiệm được bao nhiêu.'),goalBox());
-      if(SC){const tot=STG3.reduce((x,[st])=>x+((SC.cells[`${st}|${hw}`]||{}).total||0),0);
-        sA.append(el('div',{class:'ops-flow'},STG3.map(([st,nm])=>{const c=SC.cells[`${st}|${hw}`]||{},k=hwActs(hw,st).length,pc=x=>c.total?Math.round(100*x/c.total):0;
-          return el('div',{class:'ops-fstep'+(c.total?' hit':'')},el('div',{class:'t'},L(nm)),el('div',{class:'v'},c.total?fmt(c.total):'—'),el('div',{class:'meta'},c.total?L(I.unit)+' · '+(tot?T(`${Math.round(100*c.total/tot)}% of ${hw} CI time`,`${Math.round(100*c.total/tot)}% thời gian CI ${hw}`):''):T('no separate run','không có lần chạy riêng')),
-            c.total?el('div',{class:'meta'},T(`${pc(c.cancelled)}% cancelled · ${pc(c.failed)}% failed`,`${pc(c.cancelled)}% bị huỷ · ${pc(c.failed)}% fail`)):null,
+      if(SC){const tot=STG3.reduce((x,[st])=>x+((SC.cells[`${st}|${hw}`]||{}).total||0),0),M=S30();
+        sA.append(el('div',{class:'ops-flow'},STG3.map(([st,nm])=>{const c=SC.cells[`${st}|${hw}`]||{},c30=M&&M.cells[`${st}|${hw}`],k=hwActs(hw,st).length,pc=x=>c.total?Math.round(100*x/c.total):0;
+          return el('div',{class:'ops-fstep'+(c.total||c30?' hit':'')},el('div',{class:'t'},L(nm)),el('div',{class:'v'},c30?range30(c30):c.total?fmt(c.total):'—'),
+            c30&&c30.scope?el('div',{class:'meta'},L(c30.scope)):null,
+            el('div',{class:'meta'},c30?T(`job-min/day · lowest–highest 7-day mean, 30 d · mean ${fmt(c30.mean)}`,`phút job/ngày · trung bình 7 ngày thấp nhất–cao nhất, 30 ngày · trung bình ${fmt(c30.mean)}`):c.total?L(I.unit)+' · '+T('no 30-day data: sample only','không có dữ liệu 30 ngày: chỉ có mẫu'):T('no separate run','không có lần chạy riêng')),
+            c.total?el('div',{class:'meta'},T('Secondary: ','Phụ: ')+smpTxt(SC)+`: ${fmt(c.total)} · `+(tot?T(`${Math.round(100*c.total/tot)}% of the ${hw} sample`,`${Math.round(100*c.total/tot)}% mẫu ${hw}`):'')+' · '+T(`${pc(c.cancelled)}% cancelled · ${pc(c.failed)}% failed`,`${pc(c.cancelled)}% bị huỷ · ${pc(c.failed)}% fail`)):null,
             el('div',{class:'meta'},el('b',{},String(k)),T(k===1?' proposal':' proposals',' đề xuất')));}).flatMap((x,i)=>i?[el('span',{class:'ops-farr'},'→'),x]:[x])));
-        sA.append(el('p',{class:'ops-src'},T(`Window ${SC.span_h} h of CI, scaled to 24 h. ${hw==='GPU'?'GPUs per Buildkite job are not known here, so this is job-min, not GPU-min.':''}`,`Khung ${SC.span_h} giờ CI, quy về 24 giờ. ${hw==='GPU'?'Chưa biết số GPU mỗi job Buildkite, nên đây là phút job.':''}`)));}}
+        const w=M?M.window:['?','?'];
+        sA.append(el('p',{class:'ops-src'},T(`Headline: job-min per day from the 30-day baseline ${w[0]} → ${w[1]} (${(S30()||{}).src||'P1'} CSVs), shown as the lowest–highest 7-day mean. Secondary: ${smpTxt(SC)}, window ${SC.span_h} h, scaled to 24 h. ${hw==='GPU'?'30-day GPU cells cover the k3 pipelines only (accelerator suites are in the sample only). GPUs per job are not applied: job-min, not GPU-min.':'Post-merge GitHub Actions runs are not in the 30-day files: that cell is the sample only.'}`,
+          `Số chính: phút job mỗi ngày từ baseline 30 ngày ${w[0]} → ${w[1]} (CSV ${(S30()||{}).src||'P1'}), ghi dạng trung bình 7 ngày thấp nhất–cao nhất. Số phụ: ${smpTxt(SC)}, khung ${SC.span_h} giờ, quy về 24 giờ. ${hw==='GPU'?'Ô GPU 30 ngày chỉ gồm pipeline k3 (bộ accelerator chỉ có trong mẫu). Chưa nhân số GPU mỗi job: đây là phút job, không phải GPU-phút.':'File 30 ngày không có lần chạy GitHub Actions sau merge: ô đó chỉ có mẫu.'}`)));}}
     // B: per stage: what runs, where the time goes, the agent's solutions with Apply
     const sB=sec(I.p+'-stages');if(sB){sB.replaceChildren(head(n+'B','Proposed changes by PR stage','Thay đổi đề xuất theo giai đoạn PR','For each stage: what runs, where the job-min go, and the proposed CI changes with evidence and rationale. Mark a change as applied to start tracking it.','Mỗi giai đoạn: chạy gì, phút job đi đâu, và thay đổi CI đề xuất kèm bằng chứng và lý do. Đánh dấu đã áp dụng để bắt đầu theo dõi.'));
-      STG3.forEach(([st,nm])=>{const c=(SC&&SC.cells[`${st}|${hw}`])||{},A=hwActs(hw,st);
-        sB.append(el('h3',{style:'margin-top:14px;border-left:3px solid var(--series-1);padding-left:8px'},L(nm),c.total?el('span',{class:'meta'},` · ${fmt(c.total)} ${L(I.unit)}`):null),
-          el('p',{class:'obs-note'},L(STGWHAT[hw][st]),(c.top||[]).length?el('span',{class:'obsraw'},' · '+c.top.map(x=>`${x[0]} ${fmt(x[1])}`).join(' · ')):''));
+      const M=S30();
+      sB.append(el('p',{class:'ops-src'},T(`Data age: open-PR counts ("now") from the snapshot of ${String(D.snap_at||'?').slice(0,16).replace('T',' ')} UTC; 30-day figures ${M?M.window.join(' → '):'—'}; per-workflow minutes and "frees" figures without a 30-day range: ${smpTxt(SC)}.`,
+        `Tuổi dữ liệu: số PR đang mở ("hiện tại") từ snapshot lúc ${String(D.snap_at||'?').slice(0,16).replace('T',' ')} UTC; số 30 ngày ${M?M.window.join(' → '):'—'}; số phút theo workflow và số "giải phóng" không có khoảng 30 ngày: ${smpTxt(SC)}.`)));
+      STG3.forEach(([st,nm])=>{const c=(SC&&SC.cells[`${st}|${hw}`])||{},c30=M&&M.cells[`${st}|${hw}`],A=hwActs(hw,st);
+        sB.append(el('h3',{style:'margin-top:14px;border-left:3px solid var(--series-1);padding-left:8px'},L(nm),c30?el('span',{class:'meta'},` · ${range30(c30)} ${L(I.unit)} (30 d)`+(c.total?T(` · sample ${fmt(c.total)}`,` · mẫu ${fmt(c.total)}`):'')):c.total?el('span',{class:'meta'},` · ${fmt(c.total)} ${L(I.unit)} `+T('(sample)','(mẫu)')):null),
+          el('p',{class:'obs-note'},L(STGWHAT[hw][st]),(c.top||[]).length?el('span',{},T(' · largest in the sample: ',' · lớn nhất trong mẫu: '),el('span',{class:'obsraw'},c.top.map(x=>`${x[0]} ${fmt(x[1])}`).join(' · '))):''));
         if(!A.length){sB.append(el('div',{class:'ops-empty'},T('No proposed change for this stage yet.','Chưa có thay đổi đề xuất cho giai đoạn này.')));return;}
         sB.append(table([[T('Proposed change','Thay đổi đề xuất')],[T('Evidence · rationale','Bằng chứng · lý do')],[T('Expected gain · tracking','Lợi ích dự kiến · theo dõi')]],A.map(a_=>el('tr',{id:actAnchor(hw+'-'+a_.id)},
           el('td',{},el('div',{class:'ttl'},L(a_.title)),el('div',{},el('span',{class:'ops-kind',style:`border-color:${GCOL[a_.goal]}`},T(`Goal ${a_.goal}`,`Mục tiêu ${a_.goal}`)),a_.cell[1]==='-'?el('span',{class:'meta'},T(' · PR flow (CPU and GPU)',' · luồng PR (CPU và GPU)')):null),
@@ -2469,6 +2615,7 @@ JS = r"""
     // C: did it work (this hardware only)
     const sC=sec(I.p+'-res');if(sC){const A=(V.actions||[]).filter(a_=>a_.solution&&a_.solution.applied&&a_.cell&&(a_.cell[1]===hw||a_.cell[1]==='-'));
       sC.replaceChildren(head(n+'C','Before / after','Trước / sau','Each applied change: its tracked metric before → after.','Mỗi thay đổi đã áp dụng: metric theo dõi trước → sau.'));
+      sC.classList.toggle('ux-gone',!A.length);   // round 3 (C_ia P6): an empty "before / after" has no own section
       if(!A.length)sC.append(el('div',{class:'ops-empty'},T('No change applied yet on this side. Use "Mark as applied" above, then run the command it shows.','Chưa áp dụng thay đổi nào ở phần này. Bấm "Đánh dấu đã áp dụng" ở trên, rồi chạy lệnh nó hiện ra.')));
       else sC.append(table([[T('Solution','Giải pháp')],[T('Stage','Giai đoạn')],[T('Applied','Áp dụng')],[T('Metric','Metric')],[T('Before','Trước'),'r'],[T('After','Sau'),'r'],[T('Change','Thay đổi'),'r']],A.map(a_=>{const r=a_.result||{};
         return el('tr',{},el('td',{},L(a_.title)),el('td',{},L((STG3.find(x=>x[0]===a_.cell[0])||[0,['','']])[1])),el('td',{},a_.solution.applied),el('td',{},L(r.metric)),el('td',{class:'r'},`${fmt(r.before)} ${U(r.unit)}`),
@@ -2512,6 +2659,7 @@ JS = r"""
 
   function rOptRes3(){const s=sec('opt-res3');if(!s)return;const O=D.opt||{},A=((O.v3||{}).actions||[]).filter(a=>a.solution&&a.solution.applied);
     s.replaceChildren(head('4D','Did it work?','Đã cải thiện chưa?','Each applied solution: its metric before → after.','Mỗi giải pháp đã áp dụng: metric trước → sau.'));
+    s.classList.toggle('ux-gone',!A.length);   // round 3 (C_ia P6)
     if(!A.length){s.append(el('div',{class:'ops-empty'},T('No solution applied yet. When one is applied, add it to ','Chưa áp dụng giải pháp nào. Khi áp dụng, thêm vào '),el('code',{},O.sol_file||'optimal_solutions.json'),T(' and its before → after appears here.',' và kết quả trước → sau sẽ hiện ở đây.')));return;}
     s.append(table([[T('Solution','Giải pháp')],[T('Applied','Áp dụng')],[T('Metric','Metric')],[T('Before','Trước'),'r'],[T('After','Sau'),'r'],[T('Change','Thay đổi'),'r']],A.map(a=>{const r=a.result||{};
       return el('tr',{},el('td',{},L(a.title)),el('td',{},a.solution.applied,a.solution.ref?el('div',{class:'meta obsraw'},a.solution.ref):null),el('td',{},L(r.metric)),el('td',{class:'r'},`${fmt(r.before)} ${r.unit||''}`),
@@ -2574,8 +2722,8 @@ JS = r"""
   const pst=sub=>{const x=PST[sub]||['open',sub,sub];return `${L(FAM[x[0]])} · ${V()?x[2]:x[1]}`;};
   function rOverlap(){const s=sec('overlap');if(!s)return;const O=D.overlap,G_=O.groups||[],C=O.gcount||{},ST=O.status||{},VC=C.verbs||{};
     s.replaceChildren(head('6A','Rebase risk: open PRs vs merges of the last 24 h','Rủi ro rebase: PR đang mở so với các merge trong 24 giờ qua',
-      'For reviewers: what the merges of the last 24 h mean for PRs waiting for review and for CI that is running now. Click a PR number to open its PR map: what it changes, where that sits on the critical path, and which PRs it links to.',
-      'Cho reviewer: các merge trong 24 giờ qua ảnh hưởng gì tới PR đang chờ review và CI đang chạy. Bấm số PR để mở PR map: PR sửa gì, nằm ở đâu trên critical path, và liên quan tới PR nào.'));
+      'Last 24 h of merges vs open PRs. Click a PR for its map.',
+      'Merge 24 giờ qua so với PR đang mở. Bấm PR để xem map.'));
     // ===== reviewer view (top): decide merge / review / rebase, and cancel CI that tests stale code
     const RV=O.review||{queue:[],running:[],by_merged:[],verbs:{}},RVB={merge:['MERGE','MERGE','s-ok'],full:["ADD 'full'","GẮN 'full'",'s-ok'],review:['REVIEW','REVIEW',''],
       rebase:['REBASE FIRST','REBASE TRƯỚC','s-run'],red:['WAIT FIX','CHỜ SỬA','s-run'],dco:['FIX DCO','SỬA DCO','s-fail'],author:['WAIT AUTHOR','CHỜ TÁC GIẢ','s-none'],
@@ -2624,7 +2772,8 @@ JS = r"""
     // B · review queue
     s.append(el('h3',{style:'margin-top:14px'},T(`B · Ready for review: merge or not (${nq})`,`B · Chờ review: merge hay chưa (${nq})`)),el('p',{class:'meta'},T("Gates = the 4 required checks on the PR's last commit: DCO, Check code quality, k3-unit-tests, k3-multiprocess-test (runs after 'full'). Sorted: can merge first.","Gate = 4 check bắt buộc trên commit cuối của PR: DCO, Check code quality, k3-unit-tests, k3-multiprocess-test (chạy sau khi gắn 'full'). Sắp xếp: merge được lên đầu.")));
     // evidence in 1 click: each shared file opens at its diff in this PR and in the merged PR
-    const clashFiles=(x,c)=>(c.files||[]).length?el('div',{class:'rv-files'},c.files.map(([f,h])=>el('span',{class:'rv-file'},el('code',{class:'obsraw'},f.split('/').pop()),' ',a(`${GH_}/pull/${x.num}/files#diff-${h}`,T('this PR','PR này')+' ↗'),' · ',a(`${GH_}/pull/${c.m}/files#diff-${h}`,'#'+c.m+' ↗')))):null;
+    // per-PR detail (shared files with diff links) lives in the PR Inspector, view 5 (merged 2026-11-24): here a count + button
+    const clashFiles=(x,c)=>(c.files||[]).length?el('div',{class:'rv-files'},el('button',{type:'button',class:'pi-btn','data-pi':'pr:'+x.num,'data-pi-view':'5'},`${c.files.length} ${T('shared files','file chung')} · ${T('Inspect','Xem chi tiết')} →`)):null;
     const clashCell=x=>x.clash.length?x.clash.map(c=>el('div',{class:'rv-cl'},lvchip(c.level),' ',a(`${GH_}/pull/${c.m}`,'#'+c.m),' ',el('span',{class:'meta'},L(c.same)),clashFiles(x,c))):el('span',{class:'meta'},T('no clash','không đụng'));
     const QC=[[T('PR','PR')],[T('Gates','Gate')],[T('Clashes with merged','Đụng PR đã merge')],[T('Decision','Quyết định')]],qMain=RV.queue.filter(x=>x.verb!=='review'||x.clash.length),qRest=RV.queue.filter(x=>x.verb==='review'&&!x.clash.length);
     const qrow=x=>el('tr',{},
@@ -2640,7 +2789,10 @@ JS = r"""
       el('td',{},gates(x.gates)),el('td',{},clashCell(x)),
       el('td',{},rchip(x.verb),el('div',{class:'ops-why'},L(x.why)),x.save?el('div',{class:'meta'},T(`saves ≈${fmt(x.save)} GPU-min`,`tiết kiệm ≈${fmt(x.save)} GPU-phút`)):null)))):el('div',{class:'ops-empty'},T('No PR CI running at snapshot time.','Không có CI của PR đang chạy lúc chụp dữ liệu.')));
     s.append(el('p',{class:'ops-src'},T(`Sources: git origin/dev ${day(O.w0)} → ${day(O.at)} · PR snapshot ${day(O.snap_at)} · open-PR diffs ${day(O.patches_at)}. Rule-based (diff hunks, ≈ line numbers): check P0 / P1 by hand before stopping CI.`,
-      `Nguồn: git origin/dev ${day(O.w0)} → ${day(O.at)} · snapshot PR ${day(O.snap_at)} · diff PR mở ${day(O.patches_at)}. Theo luật (hunk diff, số dòng ≈): kiểm tra tay P0 / P1 trước khi dừng CI.`)));}
+      `Nguồn: git origin/dev ${day(O.w0)} → ${day(O.at)} · snapshot PR ${day(O.snap_at)} · diff PR mở ${day(O.patches_at)}. Theo luật (hunk diff, số dòng ≈): kiểm tra tay P0 / P1 trước khi dừng CI.`)));
+    // round 3 (C_ia 5A / P3): the decision strip stays open; each group A / B / C is a closed <details> whose summary is its heading
+    {let det=null;[...s.children].forEach(ch=>{if(ch.tagName==='H3'){det=el('details',{class:'ops-fold','data-ux':'overlap-group'});ch.before(det);const sm=el('summary',{});sm.append(...ch.childNodes);ch.remove();det.append(sm);return;}
+      if(det&&!ch.classList.contains('ops-src')&&!ch.classList.contains('rv-tip'))det.append(ch);else det=null;});}}
 
   function rCancel(){const s=sec('cancel');if(!s)return;const C=D.overlap.cancel;s.replaceChildren(head('6B','Cancel CI of older dev commits?','Huỷ CI của commit dev cũ?','Dev builds still running when a newer commit lands: cost and risk of cancelling.','Build dev vẫn chạy khi có commit mới hơn: chi phí và rủi ro khi huỷ.'));
     const sum=k=>C.reduce((x,c)=>x+(c[k]||0),0),over=sum('over'),done=sum('over_done'),om=sum('over_min'),fo=sum('failed_over'),oc=sum('over_cancel'),n=sum('n');

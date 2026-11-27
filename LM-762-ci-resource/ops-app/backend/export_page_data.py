@@ -64,7 +64,7 @@ def sources(con, line):
         dict(key="trace_agent", en="Trace Agent findings", vi="Kết quả Trace Agent", at=((ops.get("ta_meta") or {}).get("updated"))),
         dict(key="release_prep", en=f"release-{line}/RELEASE_PREP.md (D1–D4, C1–C6)", vi=f"release-{line}/RELEASE_PREP.md (D1–D4, C1–C6)",
              at=mtime(RELEASE_DIR(line) / "RELEASE_PREP.md")),
-        dict(key="report1130", en="Report 1130 window end", vi="Report 1130: ngày cuối cửa sổ", at=(win[-1] if win else None)),
+        dict(key="report1130", en="CI Baseline: last synced day", vi="Baseline CI: ngày đồng bộ cuối", at=(win[-1] if win else None)),
         dict(key="cpu_tests", en="CPU test map (cpu_tests.json)", vi="Bản đồ test CPU (cpu_tests.json)", at=mtime(OLD / "cpu_tests.json")),
     ]
 
@@ -74,7 +74,7 @@ def main():
     rel = model.rows(con, "SELECT * FROM release ORDER BY COALESCE(published_at, tagged_at) DESC, sort_key DESC")
     latest = max(rel, key=lambda r: r["sort_key"]) if rel else None
     stable = next((r for r in rel if r["kind"] in ("final", "post")), None)
-    prev_final = next((r for r in rel if r["kind"] == "final" and stable and r["tag"] != stable["tag"]), None)
+    prev_final = next((r for r in rel if r["kind"] in ("final", "post") and stable and r["tag"] != stable["tag"]), None)   # R4: the previous final OR post
     rels = {}
     for r in rel[:16]:
         v = model.verdict(con, r["tag"])
@@ -82,7 +82,7 @@ def main():
                               n_expected=v["n_expected"], missing=v["missing"], publish_red=v["publish_red"],
                               runs=[dict(event=x["event"], conclusion=x["conclusion"], status=x["status"], url=x["url"],
                                          created_at=x["created_at"], failed_jobs=x["failed_jobs"]) for x in v["runs"]])
-    focus = [r["tag"] for r in (latest, stable, prev_final) if r]
+    focus = list(dict.fromkeys(r["tag"] for r in (latest, stable, prev_final) if r))   # R4: no duplicate column
     line = latest["line"] if latest else None
     out = dict(
         made=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -91,11 +91,15 @@ def main():
         releases=rels, focus=focus,
         matrix={t: [dict(code=x["code"], label=x["label"], expected=x["expected"], present=x["present"], ok=x["ok"],
                          ref=x["ref"], detail=x["detail"], url=x["url"]) for x in model.matrix(con, t)] for t in focus},
-        good=model.good_target(con), core=list(CORE), lkg=lkg(con),
+        good=model.good_target(con, stable and stable["tag"]), core=list(CORE), lkg=lkg(con),
         hints=model.decision_hints(con, line, latest["tag"]) if latest else {},
         sources=sources(con, line) if line else [],
         # the page's Release Management tabs 'Now · Release Desk' and 'History' (build_desk.py) draw these directly
         overview=model.overview(con), history=model.history(con),
+        # Weekly full build tab (#obs/weekly, build_weekly.py): runs -> device lanes -> Buildkite pipelines -> problems
+        weekly=model.weekly(con),
+        # Before / after CI impact tab (#obs/impact, build_impact.py): merged CI changes #6730 / #6731 / #6854
+        impact=model.ci_impact(con),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     print(f"release_desk.json: latest {out['latest']} · stable {out['stable']} · $GOOD {(out['good'] or {}).get('tag')} · "

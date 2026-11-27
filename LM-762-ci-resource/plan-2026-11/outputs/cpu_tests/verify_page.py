@@ -19,7 +19,7 @@ from pathlib import Path as _Path  # noqa: E402
 # the page sits in Plan/2026-11/, two levels above outputs/cpu_tests/
 PAGE = str(_Path(__file__).resolve().parents[2] / "06_PR_TO_CI_VISUAL.html")
 CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-VIEWS = {"obs": ["today", "hist", "release", "trace", "coming", "opt_cpu", "opt_gpu", "overlap"], "r1130": ["baseline", "cpu", "green", "retry", "prs", "track", "repro", "quality"], "gates": ["guide", "tiers"], "cpu": ["overview", "tiers", "cost", "findings", "explore"], "gpu": ["overview", "tiers", "cost", "findings", "explore"]}
+VIEWS = {"obs": ["today", "hist", "weekly", "impact", "release", "coming", "cost", "overlap", "research"], "r1130": ["baseline", "cpu", "green", "retry", "prs", "track", "repro", "quality"], "gates": ["guide", "tiers"], "cpu": ["overview", "tiers", "cost"], "gpu": ["overview", "tiers", "explore"]}  # merged tabs 2026-11-24; old tabs: check_redirects.py
 
 PROBE = r"""<script>setTimeout(()=>{const r={err:window.__err,tabs:{},landing:location.hash};
 const vis=()=>[...document.querySelectorAll('section[data-view]')].filter(x=>!x.classList.contains('vhide')).map(x=>x.querySelector('h2').textContent);
@@ -47,8 +47,8 @@ r.qa.retired=['now','prs','ci','trend','flaky','gpuload','bug','today'].map(t=>{
 r.qa.idsMissing=['obsBar','obsTrain','obsPub','obsNightly','obsTracer','todaySec','relVerdict','entDrawer','entData','todayData','opsData','r11Data','obsSnap','obsHist','cpuData','gatesData','i18nData'].filter(i=>!document.getElementById(i));
 vizNav.show('obs','trend',false);r.qa.aliasTrend=document.body.dataset.v+'/'+(location.hash.split('/')[1]||'');
 r.traceDup=document.querySelectorAll('#obsTracer .tr-pipe,#obsTracer .tr-stage').length;r.traceClick=[1,2,3,4,5].map(s=>{const n=document.querySelector(`#obsTracer .tr-fnode[data-stage="${s}"]`);if(!n)return 0;n.dispatchEvent(new MouseEvent('click',{bubbles:true}));const i=document.querySelector('#obsTracer .tr-insp');return i&&i.dataset.stage===String(s)?1:0;}).reduce((a,b)=>a+b,0);
-{const rows=[...document.querySelectorAll('#todaySec .tdy-row:not(.hd)')];r.today={rows:rows.length,chips:rows.filter(x=>(x.querySelector('.tdy-v')||{dataset:{}}).dataset.rule).length,ev:rows.filter(x=>x.querySelector('.tdy-ev')).length,tiles:document.querySelectorAll('#todaySec .tdy-tile').length};}
-r.p4={evExt:[...document.querySelectorAll('#todaySec .tdy-ev')].filter(x=>!x.dataset.ent).length,rvFiles:document.querySelectorAll('section[data-ops="overlap"] .rv-file a').length,rvRule:document.querySelectorAll('section[data-ops="overlap"] .tdy-v[data-rule]').length,nrDec:document.querySelectorAll('[data-ops="nr-scope"] .tdy-v[data-rule]').length,relRows:document.querySelectorAll('#relVerdict .rel-row:not(.hd) .tdy-v[data-rule]').length,relFirst:(()=>{const x=document.querySelector('section[data-view="obs"][data-tab="release"]');return x?x.id:'';})()};
+{const rows=[...document.querySelectorAll('#todaySec .tdy-row:not(.hd)')];r.today={rows:rows.length,chips:rows.filter(x=>(x.querySelector('.tdy-v')||{dataset:{}}).dataset.rule).length,ev:rows.filter(x=>x.querySelector('.tdy-ev')).length,tiles:document.querySelectorAll('#todaySec .tdy-tile').length,kpi:document.querySelectorAll('#todaySec .tdy-kpi').length};}
+r.p4={evExt:[...document.querySelectorAll('#todaySec .tdy-ev')].filter(x=>!x.dataset.ent).length,rvFiles:document.querySelectorAll('section[data-ops="overlap"] [data-pi][data-pi-view="5"]').length,rvRule:document.querySelectorAll('section[data-ops="overlap"] .tdy-v[data-rule]').length,nrDec:document.querySelectorAll('[data-ops="nr-scope"] .tdy-v[data-rule]').length,nrStart:[...document.querySelectorAll('[data-ops="nr-ck"] .nr-next b')].some(b=>/^(Start|Bắt đầu) \d/.test(b.textContent.trim()))||!!document.querySelector('[data-ops="nr-ck"] .nr-next[data-nr="rc"]'),relRows:document.querySelectorAll('#relVerdict .rel-row:not(.hd) .tdy-v[data-rule]').length,relFirst:(()=>{const x=document.querySelector('section[data-view="obs"][data-tab="release"]');return x?x.id:'';})()};
 vizNav.show('r1130','baseline',false);{const hit=document.querySelector('section[data-r11="baseline"] .r11-cost svg rect[fill="transparent"]');if(hit)hit.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:120,clientY:120}));const t=document.getElementById('r11tip');r.r11={tipInRoot:!!(t&&t.closest('.viz-root')),tipNull:/null/.test(t?t.textContent:'null'),tipText:t?t.textContent.slice(0,60):'',sw:document.querySelectorAll('section[data-r11="baseline"] .r11-sw').length,cpuSw:document.querySelectorAll('section[data-r11="cpu"] .r11-sw').length,never:document.querySelectorAll('section[data-r11="retry"] .r11-nr').length,ext:!!document.querySelector('section[data-r11="baseline"] .r11-ext')};if(t)t.style.display='none';}
 if(window.ENT)location.hash='#e/feature/vllm';
 I18N.setLang('vi');document.getElementById('vAll').click();document.querySelectorAll('#fm tr.ar').forEach(x=>x.click());
@@ -56,9 +56,11 @@ setTimeout(()=>{if(window.ENT){const L=[...document.querySelectorAll('[data-ent]
   r.ent={links:L.length,bad:[...new Set(L.filter(e=>!ENT.has(e.dataset.ent)).map(e=>e.dataset.ent))].slice(0,8),kinds:[...new Set(L.map(e=>e.dataset.ent.split(':')[0]))].sort(),
    route:dr.classList.contains('on')&&(dr.querySelector('.ent-id')||{}).textContent==='vllm'&&location.hash==='#e/feature/vllm',routeDown:dr.querySelectorAll('.ent-nb').length,health:document.querySelectorAll('#entHealth tbody tr').length};
   const p=L.find(e=>e.dataset.ent.startsWith('pr:')&&ENT.out(e.dataset.ent).some(x=>x.rel==='changes'));
-  if(p){p.click();r.ent.card=dr.classList.contains('on')&&(dr.querySelector('.ent-id')||{}).textContent==='#'+p.dataset.ent.slice(3);const f=dr.querySelector('.ent-nb[data-open^="feature:"]');
-   if(f){f.click();const t=dr.querySelector('.ent-nb[data-open^="test:"]');if(t){t.click();r.ent.trip=(dr.querySelector('.ent-kind')||{}).textContent+' '+dr.querySelectorAll('.ent-nb').length;}}
-   document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));r.ent.esc=!dr.classList.contains('on')&&!/^#e\//.test(location.hash);p.click();}}
+  if(p){p.click();const pi=document.getElementById('piDrawer');  // a PR link opens the PR Inspector (2026-11-24), not the entity card
+   r.ent.card=!!pi&&pi.classList.contains('on')&&((pi.querySelector('#piTitle')||{}).textContent||'').startsWith('#'+p.dataset.ent.slice(3)+' ');
+   document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));const fk=(ENT.out(p.dataset.ent).find(x=>x.rel==='changes')||{}).b;
+   if(fk){openEntity(fk);const t=dr.querySelector('.ent-nb[data-open^="test:"]');if(t){t.click();r.ent.trip=(dr.querySelector('.ent-kind')||{}).textContent+' '+dr.querySelectorAll('.ent-nb').length;}}
+   document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));r.ent.esc=!dr.classList.contains('on')&&!pi.classList.contains('on')&&!/^#e\//.test(location.hash);}}
  const SKIP='code,pre,script,style,[data-ent^="ci:"],.r11-lab,.r11-wf,#mm,.p,.det-files,#slow .l,.tf-body .doc,.tt td,#nr td.p,.lang,.obsraw,.obs-set input';
  const left=new Set();const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
  while(n=w.nextNode()){const t=n.nodeValue.trim();const p=n.parentElement;if(!t||!p||p.closest(SKIP))continue;
@@ -136,10 +138,10 @@ def main():
         and bool(e2.get("trip")) and e2.get("health", 0) > 10 and {"pr", "feature", "test", "build"} <= set(e2.get("kinds") or [])
     td = r.get("today") or {}
     print("today:", td, "| landing:", r.get("landing"))
-    ok &= r.get("landing") == "#obs/today" and td.get("tiles") == 4 and td.get("rows", 0) >= 1 and td.get("chips") == td.get("rows") and td.get("ev") == td.get("rows")
+    ok &= r.get("landing") == "#obs/today" and td.get("kpi") == 1 and td.get("rows", 0) >= 1 and td.get("chips") == td.get("rows") and td.get("ev") == td.get("rows")
     p4 = r.get("p4") or {}
     print("p4:", p4)
-    ok &= p4.get("evExt") == td.get("rows") and p4.get("rvFiles", 0) > 0 and p4.get("rvRule", 0) > 0 and p4.get("nrDec", 0) > 0 and p4.get("relRows", 0) > 0 and p4.get("relFirst") == "relVerdict"
+    ok &= p4.get("evExt") == td.get("rows") and p4.get("rvFiles", 0) > 0 and p4.get("rvRule", 0) > 0 and (p4.get("nrDec", 0) > 0 or p4.get("nrStart") is True) and p4.get("relRows", 0) > 0 and p4.get("relFirst") == "relVerdict"
     # every generator's CSS block must be in the page (blocks nested in OBS CSS vanish when build_observe runs alone)
     css = src[src.find("<style>"):src.find("</style>")]
     miss_css = [k for k in ("CPU-TESTS", "GATES", "ONBOARD", "OBS", "OPS", "R1130", "I18N", "TODAY", "ENTUI", "NAV") if f"/* {k}:CSS:START */" not in css]

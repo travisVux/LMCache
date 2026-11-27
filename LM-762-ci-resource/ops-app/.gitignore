@@ -1,0 +1,11 @@
+# host runtime state (never commit)
+releases/
+logs/
+backups/
+deploy/ops-app.env
+data/ops.db-shm
+data/ops.db-wal
+dist/check-harness.html
+pages-out/
+pages-placeholder/
+deploy/cloudflare-credentials.txt

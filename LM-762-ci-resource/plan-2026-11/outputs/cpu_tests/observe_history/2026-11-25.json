@@ -1,0 +1,27 @@
+{
+ "at": "2026-11-25T16:43:10Z",
+ "day": "2026-11-25",
+ "prs": {
+  "open": 746,
+  "draft": 235,
+  "approved": 29,
+  "changes": 12,
+  "merged_unreleased": 53,
+  "since": "v0.5.8",
+  "approved_gate_fail": 0
+ },
+ "dev": {},
+ "queue": {},
+ "load": {
+  "bk_running": null,
+  "bk_waiting": null,
+  "gha_queued": 9,
+  "gha_running": 19
+ },
+ "nightly": "failure",
+ "release": {
+  "latest": "v0.5.8",
+  "stable": "v0.5.8",
+  "publish": "failure"
+ }
+}

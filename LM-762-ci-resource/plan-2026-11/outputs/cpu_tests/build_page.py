@@ -176,7 +176,7 @@ HTML = r"""
 <!-- CPU-TESTS:START -->
 <section class="card" id="cpu">
   <div class="head"><h2>9 · CPU tests: what they check, why they exist, how they are set up</h2>
-  <p class="sub">Fast-fail needs to know what each CPU test protects. Source: GitHub Actions <b>Test</b> run <code>42189301949</code> (PR commit <code>05d8eb84</code>, 2026-11-06), job <code>test: 3.12</code>. Every test name, pass/skip and time comes from the pytest log (<code>log_cli=true</code>); "what it checks" comes from the test docstrings. Feature areas and "why" are my grouping.</p></div>
+  <p class="sub">Fast-fail needs to know what each CPU test protects. Source: GitHub Actions <b>Test</b> run <code>42189301949</code> (PR commit <code>05d8eb84</code>, 2026-11-06 snapshot), job <code>test: 3.12</code>; workflow config as on dev 2026-11-27. Every test name, pass/skip and time comes from the pytest log (<code>log_cli=true</code>); "what it checks" comes from the test docstrings. Feature areas and "why" are my grouping.</p></div>
   <div class="tiles" id="cpuTiles"></div>
 </section>
 
@@ -186,13 +186,13 @@ HTML = r"""
   <table class="cpu-jobs">
     <thead><tr><th>Job (workflow)</th><th>When it runs</th><th>What it runs</th><th>Setup</th><th class="r">Time</th><th>Blocks</th></tr></thead>
     <tbody>
-      <tr><td><b>test: 3.10 … 3.14</b><br><small>test.yml</small></td><td>PR to <code>dev</code> / <code>release-**</code> touching <code>**.py</code>, <code>pyproject.toml</code>, <code>requirements/**</code>. Also called by <code>publish.yml</code> on release.</td><td><code>pytest -m "not (cuda or musa or xpu or npu or neuron or rbln)"</code> from repo root → <b>everything in this section</b> (tests/ + examples/)</td><td>free disk 136 s · <code>pip install vllm</code> + requirements + <code>NO_GPU_EXT=1 pip install -e .</code> 200 s · FFmpeg</td><td class="r">≈19 min<br><small>× 5 versions</small></td><td>Release publish (needs <code>test</code> success)</td></tr>
+      <tr><td><b>test: 3.11 … 3.14</b><br><small>test.yml</small></td><td>Started by Check code quality (#6730) on PRs touching <code>**.py</code>, <code>pyproject.toml</code>, <code>requirements/**</code>; drafts run 3.12 only. Also called by <code>publish.yml</code> on release.</td><td><code>pytest -m "not (cuda or musa or xpu or npu or neuron or rbln)"</code> from repo root → <b>everything in this section</b> (tests/ + examples/)</td><td>free disk 136 s · <code>pip install vllm</code> + requirements + <code>NO_GPU_EXT=1 pip install -e .</code> 200 s · FFmpeg</td><td class="r">≈19 min<br><small>× 4 versions</small></td><td>Release publish (needs <code>test</code> success)</td></tr>
       <tr><td><b>gRPC native server tests</b><br><small>test.yml</small></td><td>same filter as above</td><td>4 files: grpc_native_server, grpc_transport, grpc_real_server, worker_liveness</td><td>Python 3.12 + <code>pygrpc-native==0.7.0</code> (native gRPC only installed here)</td><td class="r">≈4 min</td><td>—</td></tr>
       <tr><td><b>Token dropping: allocator (vLLM 0.25.1)</b><br><small>test.yml</small></td><td>token-drop paths changed</td><td><code>tests/v1/test_token_drop_allocator_adapter.py</code></td><td>pinned <code>vllm==0.25.1</code> (asserts the version)</td><td class="r">short</td><td>—</td></tr>
       <tr><td><b>raw-block temp-file tests</b><br><small>test.yml</small></td><td><code>rust/raw_block/**</code>, raw-block adapters changed</td><td>raw_block test_device, test_core, multiprocess test_raw_block_l2_adapter</td><td>Rust toolchain + <code>maturin build</code> of the raw-block extension</td><td class="r">short</td><td>—</td></tr>
       <tr><td><b>Rust unit tests</b><br><small>test.yml</small></td><td>same as raw-block</td><td><code>cargo test</code> for <code>rust/raw_block</code></td><td>Rust toolchain</td><td class="r">short</td><td>—</td></tr>
       <tr><td><b>HF3FS connector native tests</b><br><small>test.yml</small></td><td>HF3FS C++ sources changed</td><td>C++ connector against an SDK double (<code>tests/native/storage_backends/hf3fs/run_tests.py</code>)</td><td>libabsl-dev</td><td class="r">short</td><td>—</td></tr>
-      <tr><td><b>CPU device</b> (7 legs)<br><small>cpu_device.yml</small></td><td>PR, lmcache sources changed</td><td>Real <b>vLLM CPU</b> + LMCache server end to end: server bench (2 modes) + vLLM e2e (3 transfer modes) + cache-hit checks — see 9e</td><td>vLLM CPU nightly (resolved pinned), LMCache CPU install, model from GitHub release tarball; Ubuntu 22.04 + macOS; opt-125m + DeepSeek-V2-Lite (dummy, 2 layers); zmq / grpc / grpc-aio / grpc-native</td><td class="r">10.6–16 min<br><small>per leg</small></td><td>—</td></tr>
+      <tr><td><b>CPU device</b> (6 legs)<br><small>cpu_device.yml</small></td><td>PR, lmcache sources changed</td><td>Real <b>vLLM CPU</b> + LMCache server end to end: server bench (2 modes) + vLLM e2e (3 transfer modes) + cache-hit checks — see 9e</td><td>vLLM CPU nightly (resolved pinned), LMCache CPU install, model from GitHub release tarball; Ubuntu 22.04 + macOS; opt-125m + DeepSeek-V2-Lite (dummy, 2 layers); grpc / grpc-aio / grpc-native</td><td class="r">10.6–16 min<br><small>per leg</small></td><td>—</td></tr>
     </tbody>
   </table>
 </section>
@@ -219,10 +219,10 @@ HTML = r"""
   <div class="head"><h2>9d · Test case explorer</h2>
   <p class="sub">Every file and test function that ran on CPU. Search matches path, test name and docstring. Open a file to see its docstring, setup tags and each test with its docstring (runs = parametrized cases).</p></div>
   <div class="ex-bar">
-    <input type="search" id="exQ" placeholder="Search: eviction, lora, shm, restart, quota…">
-    <select id="exA"><option value="">All feature areas</option></select>
+    <label class="ux-sr" for="exQ">Search tests</label><input type="search" id="exQ" placeholder="Search: eviction, lora, shm, restart, quota…">
+    <label class="ux-sr" for="exA">Feature area</label><select id="exA"><option value="">All feature areas</option></select>
     <label><input type="checkbox" id="exSk"> only files with skips</label>
-    <select id="exSort"><option value="area">Sort: by area</option><option value="secs">Sort: slowest first</option><option value="tests">Sort: most tests</option></select>
+    <label class="ux-sr" for="exSort">Sort tests</label><select id="exSort"><option value="area">Sort: by area</option><option value="secs">Sort: slowest first</option><option value="tests">Sort: most tests</option></select>
     <span class="ex-count" id="exN"></span>
   </div>
   <div id="exList"></div>
@@ -244,7 +244,7 @@ HTML = r"""
       <tr><td class="k">P3 · 11</td><td>Request B (different prompt).</td><td>No false hit.</td></tr>
     </tbody>
   </table>
-  <p class="note">Last 100 runs of this workflow: 44 success · 10 failure · 22 cancelled · 10 action_required · 14 other/in progress (gh run list, 2026-11-06).</p>
+  <p class="note">6 legs on dev (2026-11-27): Ubuntu + macOS × opt-125m / DeepSeek-V2-Lite over grpc, plus Ubuntu grpc-aio and grpc-native.</p>
 </section>
 
 <section class="card">
@@ -261,7 +261,7 @@ HTML = r"""
       <tr><td class="n">1</td><td>The CPU <b>Test</b> job is not a merge-required check, but <code>publish.yml</code> needs it. A flaky CPU test blocks a <b>release</b>, not a merge.</td><td>publish.yml <code>needs.test.result == 'success'</code>; required checks list (task C)</td><td>Decide: make it required (then it must be stable) or keep it advisory + rerun policy for release.</td></tr>
       <tr><td class="n">2</td><td>Matrix fail-fast already works: when one Python version fails, the others are cancelled.</td><td>40 failed runs: each version shows ~30 "cancelled" (default <code>fail-fast: true</code>)</td><td>Nothing to add inside the matrix. Gain is in cross-workflow cancel (task C).</td></tr>
       <tr><td class="n">3</td><td>Failures are not Python-version specific. Four classes: dev-wide broken test (<code>tests/cli/test_profiling.py</code>, 2 tests, 20/25 sampled failures), real PR bugs (lazy_offload AttributeError), port collision (<code>ZMQError: Address already in use</code>), missing module.</td><td>gh run logs, 2026-11-04 → 06; 11-05: 43 fail / 41 pass</td><td>"Remove flaky" = quarantine list for classes 1+3 only; keep real-bug failures blocking.</td></tr>
-      <tr><td class="n">4</td><td>Each version costs ≈19 min: 136 s free disk + 200 s install + 751 s pytest. 5 versions ≈ 95 runner-min per push.</td><td>job 127850987819 step timings</td><td>PR: run 2 versions (oldest + newest), release: all 5.</td></tr>
+      <tr><td class="n">4</td><td>Each version costs ≈19 min: 136 s free disk + 200 s install + 751 s pytest. 4 versions ≈ 76 runner-min per push (drafts: 3.12 only).</td><td>job 127850987819 step timings</td><td>PR: run 2 versions (oldest + newest), release: all 4.</td></tr>
       <tr><td class="n">5</td><td>A unit test calls the real internet: <code>test_create_workload.py</code> → huggingface.co (401 responses).</td><td>13 HTTP requests in the log during that file</td><td>Mock the tokenizer download; network = flake source.</td></tr>
       <tr><td class="n">6</td><td>The biggest storage-logic suites skip on CPU only because no accelerator is present: <code>test_l1_manager.py</code> (2,532 lines), <code>test_prefetch_controller.py</code> (1,927), <code>test_distributed_storage_manager.py</code> (1,279), <code>test_store_controller.py</code> (802) ≈ 6.5k lines of host-side logic tests that only run on GPU CI.</td><td>module-level <code>pytest.skip</code> on <code>torch_dev.is_available()</code></td><td>Input for task 2 (CPU logic tests): make host-memory logic run with CPU tensors.</td></tr>
       <tr><td class="n">7</td><td>The slowest file is slow because of fixed waits: 14 tests in <code>test_prefix_suffix_tuner.py</code> each take exactly 5.0 s (warmup / two-pass ordering / full run) = 70 s.</td><td>gaps of 5.007 s between results in the log</td><td>Inject a short timeout in tests; easy −1 min per version.</td></tr>
@@ -298,7 +298,7 @@ JS = r"""
     [fmt(T.passed),'tests on CPU (GHA, advisory)','required GPU unit pod: 10,258','cpu/explore'],
     [`${D.areas.length} areas`,`${T.files} test files`,'feature matrix','cpu/tiers'],
     ['18 vs 49 min','CPU job vs required GPU unit pod','same tests · early-fail chance','cpu/cost'],
-    ['≈95 min','runner time per push','5 Python versions','cpu/cost'],
+    ['≈76 min','runner time per push','4 Python versions (drafts: 3.12)','cpu/cost'],
     [`${T.notrun} files`,'excluded from CPU',`${T.cand} CPU-portable (≈${(T.candloc/1000).toFixed(1)}k lines)`,'cpu/tiers'],
   ];
   const tw=$('#cpuTiles'); tiles.forEach(([v,l,s,g],i)=>{const t=el('div',{class:'tile'+(i===0?' hl':'')});if(g){t.dataset.goto=g;t.tabIndex=0;t.setAttribute('role','link');}t.append(el('div',{class:'v'},v),el('div',{class:'l'},l),el('div',{class:'s'},s));tw.appendChild(t);});
@@ -385,7 +385,7 @@ JS = r"""
 
 __JSADD__
   // not run
-  $('#nrSub').textContent=`${T.notrun} test files (+${T.helpers} helper files): deselected by an accelerator marker or skipped at module level. ${T.cand} are CPU-portable: excluded only by a device guard, no GPU tensors in the body.`;
+  $('#nrSub').textContent=`${T.notrun} test files (+${T.helpers} helper files) that never run on the CPU job.`;   // the CPU-portable takeaway is in gates.py DESC
   function drawNR(){const nb=$('#nr tbody');nb.replaceChildren();const oc=$('#nrCand').checked,oh=$('#nrHelp').checked;
     D.notrun.filter(n=>(!oc||n[5])&&(oh||!n[6])).forEach(n=>{const r=el('tr',{class:n[5]?'cand':''});
       const p=el('td',{class:'p'},n[0]);if(n[4])p.title=n[4];const c=el('td',{class:'cd'});if(n[5])c.appendChild(el('span',{class:'badge fix'},'✓ portable'));
@@ -442,9 +442,20 @@ import build_today  # noqa: E402  (v2: Today tab + verdict per release, decision
 build_today.main()
 import build_desk  # noqa: E402  (2026-11-15: Now · Release Desk + History tabs from ops-app)
 build_desk.main()
+import build_weekly  # noqa: E402  (2026-11-26: Weekly full build tab #obs/weekly from ops-app collect_weekly.py)
+build_weekly.main()
+import build_impact  # noqa: E402  (2026-11-26: CI impact tab #obs/impact, before / after #6730 #6731 #6854)
+build_impact.main()
 import build_entity_ui  # noqa: E402  (v2: entity card + linkify + link health)
 build_entity_ui.main()
 import build_pr_map  # noqa: E402  (2026-11-16: PR map overlay: critical path + feature matrix + linked PRs; 6A click + drawer button)
 build_pr_map.main()
+import build_pr_inspector  # noqa: E402  (2026-11-24: PR Inspector drawer: forward / backward, 5 views, checklist + gates)
+build_pr_inspector.main()
+import build_research  # noqa: E402  (2026-11-24: Research intake: research_intake/inbox -> 3 report contexts)
+build_research.main()
+import build_ux  # noqa: E402  (2026-11-24: UX layer: design system, decision banner, search, keyboard, print view)
+build_ux.main()
 import build_i18n  # noqa: E402
 build_i18n.main()
+build_ux.sync_p1()   # 2026-11-25 expert review C2: hard-coded P1 figures follow the data

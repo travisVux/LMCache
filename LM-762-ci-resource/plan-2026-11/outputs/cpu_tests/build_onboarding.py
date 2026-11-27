@@ -188,33 +188,24 @@ JS = r"""
 
   function rRunbook(){
     const w=$('#obRunbook');if(!w)return;w.replaceChildren();
-    w.append(el('div',{class:'ob-subh',style:'margin-top:0'},T('1 · Merge Gate vs Release Gate & 2 Critical Audit Findings','1 · Cổng Merge vs Cổng Release & 2 Phát hiện Kiểm toán Sống còn')));
+    // TL;DR only: the per-job list is the table "1 · Merge & release gates" right below; findings live in #cpu/findings
+    w.append(el('div',{class:'ob-subh',style:'margin-top:0'},T('1 · Merge gate vs release gate (TL;DR)','1 · Cổng merge vs cổng release (TL;DR)')));
     const gates=el('div',{class:'ob-gates'});
     gates.append(
       el('div',{class:'ob-gbox merge'},
-        el('h3',{},T('🛑 Merge Gate (Buildkite GPU + GitHub)','🛑 Cổng Merge (Buildkite GPU + GitHub)'),el('span',{class:'badge req'},T('Required','Bắt buộc'))),
-        el('div',{},T('Blocks every PR into dev: DCO + Check code quality (< 1m) + k3-unit-tests (1 GPU pod, 25m queue + 24m run, 10,258 tests, --maxfail=1) + k3-multiprocess-test (~35 GPU E2E jobs, 87m p50).',
-                      'Chặn cứng mọi PR gộp vào dev: DCO + Check code quality (< 1p) + k3-unit-tests (1 GPU pod, chờ 25p + chạy 24p, 10,258 test, --maxfail=1) + k3-multiprocess-test (~35 job E2E GPU, 87p p50).')),
-        el('div',{style:'margin-top:6px'},
-          el('b',{},T('⚠️ Audit Trap #1: ','⚠️ Lỗ hổng #1: ')),
-          T('8,994 of 10,258 tests on the GPU pod (87.7%) are pure CPU tests — wasting 12.5 GPU-min/PR. ',
-            '8,994 / 10,258 test trên GPU pod (87.7%) là test CPU thuần — lãng phí 12.5 phút GPU/PR. '),
-          el('a',{class:'xlink',onclick:()=>window.vizNav&&vizNav.show('gates','overview')},T('Gates table →','Bảng cổng →'))
-        )
+        el('h3',{},T('🛑 Merge gate','🛑 Cổng merge'),el('span',{class:'badge req'},T('Required','Bắt buộc'))),
+        el('div',{},T('Draft PR: DCO, Check code quality and GHA Test on py3.12 only; no Buildkite GPU job runs. Ready PR: DCO, Check code quality, k3-unit-tests and k3-multiprocess-test must pass (the heavy MP suite is bypassed unless labelled), and MP smoke runs as advisory.',
+                      'PR nháp: DCO, Check code quality và GHA Test chỉ trên py3.12; không chạy job GPU Buildkite nào. PR ready: phải pass DCO, Check code quality, k3-unit-tests và k3-multiprocess-test (bộ MP nặng được bỏ qua nếu không gắn nhãn), còn MP smoke chạy để tham khảo.'))
       ),
       el('div',{class:'ob-gbox rel'},
-        el('h3',{},T('🚀 Release Gate (GitHub Actions CPU)','🚀 Cổng Release (GitHub Actions CPU)'),el('span',{class:'badge rel'},T('Blocks release','Chặn release'))),
-        el('div',{},T('Blocks PyPI wheels & Docker images (publish.yml), advisory on PRs: Test py3.10–3.14 runs 9,326 CPU unit tests across 540 files (~19m × 5) and finishes ~30 min before the GPU pod starts.',
-                      'Chặn phát hành PyPI wheel & Docker image (publish.yml), chỉ tham khảo ở PR: Test py3.10–3.14 chạy 9,326 test CPU trên 540 file (~19p × 5), xong trước GPU pod ~30 phút.')),
-        el('div',{style:'margin-top:6px'},
-          el('b',{},T('🚨 Audit Trap #2: ','🚨 Lỗ hổng #2: ')),
-          T('327 critical vLLM MP connector unit tests run ONLY here because k3 GPU pod has no vLLM installed! ',
-            '327 unit test cầu nối vLLM MP CHỈ chạy tại đây vì k3 GPU pod không cài vLLM (bị skip âm thầm)! '),
-          el('a',{class:'xlink',onclick:()=>window.vizNav&&vizNav.show('cpu','findings')},T('10 Findings & fixes →','10 Phát hiện & cách sửa →'))
-        )
+        el('h3',{},T('🚀 Release gate','🚀 Cổng release'),el('span',{class:'badge rel'},T('Blocks release','Chặn release'))),
+        el('div',{},T('publish.yml builds the PyPI wheels and Docker images only if GHA Test passes on py3.11–3.14. On PRs that job is advisory, so a red GHA Test does not block the merge but does block the next release.',
+                      'publish.yml chỉ build PyPI wheel và Docker image khi GHA Test pass trên py3.11–3.14. Ở PR job này chỉ tham khảo, nên GHA Test đỏ không chặn merge nhưng sẽ chặn release tiếp theo.'))
       )
     );
     w.append(gates);
+    w.append(el('div',{class:'sd',style:'margin:-6px 0 14px;font-size:12px'},
+      el('a',{class:'xlink',onclick:()=>window.vizNav&&vizNav.show('cpu','findings')},T('Known gaps in these gates → Findings','Lỗ hổng đã biết của các cổng → Phát hiện'))));
 
     w.append(el('div',{class:'ob-subh'},T('2 · Run & Debug Tests Locally on Any Laptop (No GPU Needed)','2 · Chạy & Debug Test trên Máy Cá Nhân (Không cần GPU)')));
     const cmdGrid=el('div',{class:'ob-cmd-list'});

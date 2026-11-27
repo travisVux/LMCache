@@ -1,0 +1,254 @@
+{
+ "made": "2026-11-27 07:30",
+ "schema": "lmcache.research_report/v1",
+ "contexts": [
+  "CI Validation",
+  "LMCache optimization",
+  "New product feature"
+ ],
+ "reports": [
+  {
+   "schema": "lmcache.research_report/v1",
+   "id": "rr-sample-feature-p2p-store-policy",
+   "context": "New product feature",
+   "sample": true,
+   "title": "Sample: P2P store policy with write flags across two nodes",
+   "created_at": "2026-11-24T06:20:00Z",
+   "source": {
+    "app": "research-app (sample)",
+    "run_id": "sample-feat-0003",
+    "pipeline": "8-gpu"
+   },
+   "pr": {
+    "number": 6624,
+    "title": "(sample) P2P store policy and write flags",
+    "state": "open"
+   },
+   "features": [
+    "F08",
+    "F10"
+   ],
+   "areas": [
+    "p2p",
+    "l2"
+   ],
+   "summary": "Illustrative report. A new P2P store policy lets a peer write KV chunks with explicit write flags; the report checks correctness of peer reads and the cost of the extra writes.",
+   "environment": {
+    "gpus": 4,
+    "gpu_model": "H100 80GB",
+    "engine": "vllm",
+    "engine_version": "0.13.0",
+    "model": "Qwen3-8B",
+    "lmcache_commit": "6ed33c9b"
+   },
+   "benchmark": {
+    "name": "p2p_write (2 nodes x 2 GPU)",
+    "runs": 6,
+    "metrics": [
+     {
+      "name": "peer read correctness",
+      "unit": "%",
+      "baseline": 100,
+      "candidate": 100,
+      "better": "higher"
+     },
+     {
+      "name": "store throughput",
+      "unit": "GB/s",
+      "baseline": 9.8,
+      "candidate": 9.1,
+      "better": "higher"
+     },
+     {
+      "name": "TTFT p50 (peer hit)",
+      "unit": "ms",
+      "baseline": 420,
+      "candidate": 398,
+      "better": "lower"
+     }
+    ]
+   },
+   "ci": {
+    "gates": [
+     {
+      "name": "k3-multiprocess-test",
+      "result": "not_run"
+     },
+     {
+      "name": "k3-unit-tests",
+      "result": "passed"
+     }
+    ]
+   },
+   "verdict": "inconclusive",
+   "_file": "samples/rr-sample-feature-p2p-store-policy.json"
+  },
+  {
+   "schema": "lmcache.research_report/v1",
+   "id": "rr-sample-opt-whole-chunk-prefetch",
+   "context": "LMCache optimization",
+   "sample": true,
+   "title": "Sample: whole_chunk prefetch policy lowers warm TTFT on long_doc_qa",
+   "created_at": "2026-11-24T06:10:00Z",
+   "source": {
+    "app": "research-app (sample)",
+    "run_id": "sample-opt-0002",
+    "pipeline": "8-gpu"
+   },
+   "pr": {
+    "number": 6572,
+    "title": "(sample) whole_chunk fetching policy",
+    "state": "merged"
+   },
+   "features": [
+    "F05",
+    "F06",
+    "F11"
+   ],
+   "areas": [
+    "smcore",
+    "blend"
+   ],
+   "summary": "Illustrative report. Warm requests on long_doc_qa read whole chunks from L2 instead of per-row reads; time to first token and L2 reads per request were measured against the dev baseline.",
+   "hypothesis": "Fewer, larger L2 reads cut warm TTFT without lowering the hit rate.",
+   "environment": {
+    "gpus": 2,
+    "gpu_model": "H100 80GB",
+    "engine": "vllm",
+    "engine_version": "0.13.0",
+    "model": "Llama-3.1-8B-Instruct",
+    "lmcache_commit": "180dfc55"
+   },
+   "benchmark": {
+    "name": "long_doc_qa (warm)",
+    "runs": 10,
+    "metrics": [
+     {
+      "name": "TTFT p50",
+      "unit": "ms",
+      "baseline": 812,
+      "candidate": 655,
+      "better": "lower"
+     },
+     {
+      "name": "TTFT p90",
+      "unit": "ms",
+      "baseline": 1240,
+      "candidate": 1010,
+      "better": "lower"
+     },
+     {
+      "name": "cache hit rate",
+      "unit": "%",
+      "baseline": 91.2,
+      "candidate": 91.0,
+      "better": "higher"
+     },
+     {
+      "name": "L2 reads per request",
+      "unit": "reads",
+      "baseline": 148,
+      "candidate": 37,
+      "better": "lower"
+     }
+    ]
+   },
+   "verdict": "improves",
+   "artifacts": [
+    {
+     "label": "PR",
+     "url": "https://github.com/LMCache/LMCache/pull/6572"
+    }
+   ],
+   "_file": "samples/rr-sample-opt-whole-chunk-prefetch.json"
+  },
+  {
+   "schema": "lmcache.research_report/v1",
+   "id": "rr-sample-ci-mp-pipeline-parity",
+   "context": "CI Validation",
+   "sample": true,
+   "title": "Sample: MP pipeline change keeps every conditional workload green on 8 GPUs",
+   "created_at": "2026-11-24T06:00:00Z",
+   "source": {
+    "app": "research-app (sample)",
+    "run_id": "sample-ci-0001",
+    "pipeline": "8-gpu"
+   },
+   "pr": {
+    "number": 5172,
+    "title": "(sample) multiprocess pipeline change",
+    "state": "open"
+   },
+   "features": [
+    "F01",
+    "F04"
+   ],
+   "areas": [
+    "build",
+    "transport"
+   ],
+   "summary": "Illustrative report. The Research App re-ran the k3-multiprocess-test workloads touched by the PR on the 8-GPU pipeline and compared pass rate and wall time with the dev baseline.",
+   "hypothesis": "The pipeline edit changes only the conditions of three steps; the set of workloads that run on a PR stays the same.",
+   "environment": {
+    "gpus": 8,
+    "gpu_model": "H100 80GB",
+    "engine": "vllm",
+    "engine_version": "0.13.0",
+    "model": "Qwen3-8B",
+    "lmcache_commit": "ae31b644"
+   },
+   "benchmark": {
+    "name": "k3-multiprocess-test workloads (PR scope)",
+    "runs": 5,
+    "metrics": [
+     {
+      "name": "workloads passed",
+      "unit": "of 31",
+      "baseline": 31,
+      "candidate": 31,
+      "better": "higher"
+     },
+     {
+      "name": "pipeline wall time p50",
+      "unit": "min",
+      "baseline": 87,
+      "candidate": 84,
+      "better": "lower"
+     },
+     {
+      "name": "retries",
+      "unit": "jobs",
+      "baseline": 3,
+      "candidate": 2,
+      "better": "lower"
+     }
+    ]
+   },
+   "ci": {
+    "gates": [
+     {
+      "name": "k3-multiprocess-test",
+      "result": "passed"
+     },
+     {
+      "name": "k3-unit-tests",
+      "result": "passed"
+     },
+     {
+      "name": "cpu_e2e_validation",
+      "result": "passed"
+     }
+    ]
+   },
+   "verdict": "neutral",
+   "artifacts": [
+    {
+     "label": "pipeline file",
+     "url": "https://github.com/LMCache/LMCache/blob/dev/.buildkite/k3_tests/multiprocess/pipeline.yml"
+    }
+   ],
+   "_file": "samples/rr-sample-ci-mp-pipeline-parity.json"
+  }
+ ],
+ "rejected": []
+}

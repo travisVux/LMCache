@@ -119,6 +119,12 @@ class GhPrs(Source):
         node["fetched_at"] = now()
         return node, len(node["commit_nodes"]), node.get("updatedAt"), pr_is_final(node, node["fetched_at"])
 
+    def recent_ok(self, lake, key):
+        """--max-age: an open PR fetched recently is kept when every check suite in the copy had concluded
+        (a new push moves updatedAt = the watermark, so it is fetched anyway)."""
+        doc = lake.read(self.name, key)
+        return bool(doc) and _all_concluded(doc.get("commit_nodes") or [])
+
 
 def pr_is_final(node, fetched):
     vals = [x for x in (node.get("updatedAt"), node.get("closedAt"), _suite_last(node.get("commit_nodes") or [])) if x]

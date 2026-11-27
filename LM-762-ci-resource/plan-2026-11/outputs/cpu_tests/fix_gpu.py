@@ -2,6 +2,7 @@
 
 Applies REVIEW_ponytail.md F1-F3, F6-F8, F14-F19 + renumbering + shorter text.
 Each replacement is skipped if already applied, so re-running is safe.
+Not part of build_page.py: the targets below were synced with dev on 2026-11-27 (py3.11–3.14, 6 cpu_device legs, MP smoke).
 """
 from pathlib import Path as _Path  # noqa: E402
 # the page sits in Plan/2026-11/, two levels above outputs/cpu_tests/
@@ -64,16 +65,16 @@ rep('<div class="f">Core-only PR: 518 → ~3 GPU-min per build</div>', '<div cla
 
 # ---- F1/F2/F14: staircase ----
 rep("    {id:'L1', name:'L1 unit', hw:'CPU', cost:'GHA py3.10–3.13', h:14, c:'series-3', d:'tests/v1/** — no CUDA markers'},",
-    "    {id:'L1', name:'L1 unit · CPU', hw:'GHA, advisory', cost:'≈19 min × 5 py', h:14, c:'series-3', d:'GHA test.yml py3.10–3.14, 9,326 tests, not required. Same tests as L1 GPU pod → early-fail signal for it'},")
+    "    {id:'L1', name:'L1 unit · CPU', hw:'GHA, advisory', cost:'≈19 min × 4 py', h:14, c:'series-3', d:'GHA test.yml py3.11–3.14 (drafts: 3.12 only), 9,326 tests, not required. Same tests as L1 GPU pod → early-fail signal for it'},")
 rep("    {id:'CE', name:'CPU E2E', hw:'CPU, 8 cores', cost:'3.6 min p50', h:26, c:'series-3', d:'vLLM-CPU + opt-125m, 3 transfer modes. Caught PR #5383'},",
-    "    {id:'CE', name:'CPU E2E', hw:'CPU, 8 cores', cost:'3.6 min p50', h:26, c:'series-3', d:'REQUIRED: Buildkite cpu_e2e_validation in k3-multiprocess-test (3 transfer modes, caught PR #5383). GHA cpu_device.yml runs the same script, advisory'},\n    {id:'L1G', name:'L1 unit · GPU pod', hw:'1 GPU, required', cost:'25 min queue + 24 min', h:34, c:'series-1', d:'REQUIRED: Buildkite k3-unit-tests. All tests/ incl. cuda-marked, --maxfail=1, 10,257 tests. Only place for GPU kernel + 6.5k lines of storage tests today'},")
+    "    {id:'CE', name:'CPU E2E', hw:'CPU, 8 cores', cost:'3.6 min p50', h:26, c:'series-3', d:'Buildkite cpu_e2e_validation in k3-multiprocess-smoke on every ready PR (3 transfer modes, caught PR #5383). GHA cpu_device.yml runs the same script (6 legs), advisory'},\n    {id:'L1G', name:'L1 unit · GPU pod', hw:'1 GPU, required', cost:'25 min queue + 24 min', h:34, c:'series-1', d:'REQUIRED: Buildkite k3-unit-tests. All tests/ incl. cuda-marked, --maxfail=1, 10,257 tests. Only place for GPU kernel + 6.5k lines of storage tests today'},")
 
 # ---- glossary rows ----
 rep('''<tr><td class="k"><i style="background:var(--series-3)"></i>L1 unit</td><td>Run one function or class alone, with fake inputs</td><td>CPU · minutes (GHA, py3.10–3.13)</td><td>logic bugs inside one module: hashing, lookup, locks, config</td><td><code>test_store_and_lookup</code> in <code>tests/v1/multiprocess/test_cache_server.py</code></td><td><span class="pill yes">yes</span></td></tr>''',
-    '''<tr><td class="k"><i style="background:var(--series-3)"></i>L1 unit · CPU</td><td>One function or class alone, fake inputs</td><td>CPU · ≈19 min × py3.10–3.14 (GHA, advisory)</td><td>logic bugs in one module: hashing, lookup, locks, config</td><td><code>test_hash_tokens_deterministic</code> in <code>tests/v1/multiprocess/test_token_hasher.py</code></td><td><span class="pill yes">yes · not required</span></td></tr>
+    '''<tr><td class="k"><i style="background:var(--series-3)"></i>L1 unit · CPU</td><td>One function or class alone, fake inputs</td><td>CPU · ≈19 min × py3.11–3.14 (GHA, advisory)</td><td>logic bugs in one module: hashing, lookup, locks, config</td><td><code>test_hash_tokens_deterministic</code> in <code>tests/v1/multiprocess/test_token_hasher.py</code></td><td><span class="pill yes">yes · not required</span></td></tr>
       <tr><td class="k"><i style="background:var(--series-1)"></i>L1 unit · GPU pod</td><td>Same unit suite + cuda-marked tests, on 1 GPU</td><td>1 GPU · 25 min queue + 24 min (k3-unit-tests)</td><td>GPU kernels, storage suites that need a device today</td><td><code>test_store_and_lookup</code> in <code>tests/v1/multiprocess/test_cache_server.py</code> (cuda)</td><td><span class="pill yes">yes · required</span></td></tr>''')
 rep('''<td><code>cpu_e2e_validation</code> with opt-125m (caught PR #5383)</td><td><span class="pill yes">yes</span></td></tr>''',
-    '''<td><code>cpu_e2e_validation</code> (Buildkite, required) · same script in GHA <code>cpu_device.yml</code> (advisory)</td><td><span class="pill yes">yes · required</span></td></tr>''')
+    '''<td><code>cpu_e2e_validation</code> (Buildkite MP smoke) · same script in GHA <code>cpu_device.yml</code> (advisory)</td><td><span class="pill yes">yes · not required yet</span></td></tr>''')
 rep('<td><span class="pill no">XPU only, not CUDA</span></td>', '<td><span class="pill no">XPU only, not CUDA</span> <small style="color:var(--text-muted)">(CPU MLA dummy in GHA cpu_device, advisory)</small></td>')
 
 # ---- F7/F8: matrix ----
@@ -108,7 +109,7 @@ rep("""    L1:N('L1 unit tests','One function or class alone, fake inputs. CPU (
         K('register / unregister KV cache','test_register_unregister_kv_cache :401',[fRegister()]),
         K('store fails closed on incomplete block ids','test_store_fails_closed_on_incomplete_block_ids :455',[fPrepStore()]),
       ]),""",
-    """    L1:N('L1 unit · CPU (GHA, advisory)','One function or class alone, fake inputs. GHA test.yml py3.10–3.14, not required','.github/workflows/test.yml',[
+    """    L1:N('L1 unit · CPU (GHA, advisory)','One function or class alone, fake inputs. GHA test.yml py3.11–3.14, not required','.github/workflows/test.yml',[
       TC('test_token_hasher.py','tests/v1/multiprocess/test_token_hasher.py',[
         K('same tokens → same hash','test_hash_tokens_deterministic :69',[fHash()]),
         K('different tokens → different hash','test_hash_tokens_different_input :74',[fHash()]),
@@ -136,7 +137,7 @@ rep("""      TC('~60 more files in tests/v1/multiprocess/','tests/v1/multiproces
     ],{t:'tier',g:'gpu'}),
 """)
 rep("    CE:N('CPU E2E','Real vLLM (CPU) + LMCache + opt-125m. CPU 8 cores, ~3.6 min','.github/scripts/run-cpu-e2e-validation.sh',[",
-    "    CE:N('CPU E2E','Required: Buildkite cpu_e2e_validation (in k3-multiprocess-test), ~3.6 min. Same script in GHA cpu_device.yml (advisory)','.github/scripts/run-cpu-e2e-validation.sh',[")
+    "    CE:N('CPU E2E','Buildkite cpu_e2e_validation (in k3-multiprocess-smoke, every ready PR), ~3.6 min. Same script in GHA cpu_device.yml (advisory)','.github/scripts/run-cpu-e2e-validation.sh',[")
 rep("""    ['docs','markdown, docs/, examples/',['L0']],
     ['tests_only','tests/**, tools/**',['L0','L1']],
     ['other_platform','XPU / ROCm / MUSA code',['L0','L1']],

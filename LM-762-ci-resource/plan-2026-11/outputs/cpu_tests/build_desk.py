@@ -6,9 +6,8 @@ Report 1130) are not touched.
       data age per source with STALE, D1–D4 with evidence, blockers (publish errors, missing artifacts, dev red + LKG,
       open bugs, carry-over) with owner and copy-able commands, dev gate pipelines. The Today action inbox follows
       (build_today.py, same tab).
-  Weekly full suite (#obs/today, section 4): verdict of the newest WEEKLY_FULL=true build, counts, failing jobs,
-      compare link to the last green weekly commit, run strip (ops-app collect_weekly.py).
-  History (#obs/hist): KPI cards, nightly, weekly full suite, publish.yml per week, dev gate pass rate, release cycle, failing jobs.
+  Weekly full build: moved to its own tab #obs/weekly (build_weekly.py, 2026-11-26); Today keeps one banner row (ux_ui.py).
+  History (#obs/hist): KPI cards, nightly, publish.yml per week, dev gate pass rate, release cycle, failing jobs.
 Reads release_desk.json (ops-app export: 'overview' + 'history' + 'lkg'), local only. Run after build_today.py.
 """
 import json
@@ -27,7 +26,6 @@ HTML = r"""
 <section class="card" data-view="obs" data-tab="today" id="dkDecide"><div class="head"><h2 id="dkDecideH">Decide</h2><p class="sub" id="dkDecideSub"></p></div><div id="dkDecideB"></div></section>
 <section class="card" data-view="obs" data-tab="today" id="dkBlock"><div class="head"><h2 id="dkBlockH">Blocking the next RC</h2><p class="sub" id="dkBlockSub"></p></div><div id="dkBlockB"></div></section>
 <section class="card" data-view="obs" data-tab="today" id="dkGates"><div class="head"><h2 id="dkGatesH">dev gate pipelines</h2><p class="sub" id="dkGatesSub"></p></div><div id="dkGatesB"></div></section>
-<section class="card" data-view="obs" data-tab="today" id="dkWeekly"><div class="head"><h2 id="dkWeeklyH">Weekly full suite</h2><p class="sub" id="dkWeeklySub"></p></div><div id="dkWeeklyB"></div></section>
 <section class="card" data-view="obs" data-tab="hist" id="dkHist"><div class="head"><h2 id="dkHistH">History</h2><p class="sub" id="dkHistSub"></p></div><div id="dkHistB"></div></section>
 <!-- DESK:HTML:END -->
 """
@@ -102,9 +100,9 @@ JS = r"""
   const a=(u,t)=>u?`<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`:t;
   const AG=Object.fromEntries((O.ages||[]).map(x=>[x.key,x]));
   const fmtAge=h=>h==null?'?':h<1?'<1 h':h<48?Math.round(h)+' h':Math.round(h/24)+' d';
-  const stale=k=>{const x=AG[k];return x&&x.stale?`<span class="dk-stale" title="${esc(x.label)} · ${esc(x.at||'')}">STALE (${Math.round(x.age_h/24)}d)</span>`:'';};
+  const stale=k=>'';   // round 3 (A_visual 4.6): no per-row age; the section's one-line summary carries it once
   const copy=(c,tag)=>c?`<button type="button" class="dk-copy" data-cmd="${esc(c)}" title="${esc(c)}">${T('copy cmd','copy lệnh')}${tag?' · '+raw(tag):''}</button>`:'';
-  const owner=o=>o&&o.who?`<span class="dk-mute">Owner: <b class="obsraw">${esc(o.who)}</b>${o.how==='author'?' ('+T('author','tác giả')+')':''}</span>`:'';
+  const owner=o=>o&&o.who?`<span class="dk-mute">${T('Owner','Phụ trách')}: <b class="obsraw">${esc(o.who)}</b>${o.how==='author'?' ('+T('author','tác giả')+')':''}</span>`:'';
   const set=(id,h,sub,body)=>{const e=document.getElementById(id);if(!e)return;e.querySelector('h2').textContent=h;e.querySelector('.sub').textContent=sub;e.querySelector('div[id$="B"]').innerHTML=body;};
   const VERD=k=>({red:T('Not ready for the next RC','Chưa sẵn sàng cho RC tiếp'),amber:T('Ready with open items','Sẵn sàng, còn việc mở'),green:T('Ready','Sẵn sàng')})[k];   // a function: language can change
   const KIND={publish:['red','Publish failed','Publish lỗi'],artifact:['red','Missing artifact (PyPI / Docker / GitHub)','Thiếu artifact (PyPI / Docker / GitHub)'],
@@ -120,11 +118,11 @@ JS = r"""
     return `<div><span class="dk-st ${O.status}">${esc(VERD(O.status))}</span></div><div class="dk-phase">${esc(T(O.phase.en,O.phase.vi))}</div>`+ages+
       `<div class="dk-hero">`+
       tile(T('Stable (users have)','Stable (người dùng đang dùng)'),a(O.stable&&O.stable.url,raw(O.stable&&O.stable.tag||'–')),day(O.stable&&O.stable.at)+' · '+ago(O.stable&&O.stable.at))+
-      tile(T('Rollback target ($GOOD)','Bản rollback ($GOOD)'),a(g&&g.url,raw(g&&g.tag||'–')),
+      tile(T('Rollback target','Bản rollback'),a(g&&g.url,raw(g&&g.tag||'–')),
         `<span title="${esc(T('Rule: newest final/post tag whose core artifacts are present and correct: ','Luật: tag final/post mới nhất có đủ artifact lõi: ')+((g&&g.core)||[]).join(', '))}">${T('newest final/post with core artifacts OK ⓘ','final/post mới nhất có đủ artifact lõi ⓘ')}</span>`+
         (g&&g.gaps.length?'<br>'+T('not core, missing: ','ngoài lõi, thiếu: ')+raw(g.gaps.join(', ')):''),'rb')+
       tile(T('Latest tag','Tag mới nhất'),a(O.latest&&O.latest.url,raw(O.latest&&O.latest.tag||'–')),day(O.latest&&O.latest.at)+' · '+ago(O.latest&&O.latest.at))+
-      tile(T('Open decisions','Quyết định còn mở'),`${openD.length} / ${O.decisions.length}`,`${openD.filter(d=>d.hint).length} ${T('look decided in practice','có vẻ đã quyết trên thực tế')}`)+
+      tile(T('Open decisions','Quyết định còn mở'),`${openD.length} / ${O.decisions.length}`,`${openD.filter(d=>d.hint).length} ${T('already decided in practice (⚑)','thực tế đã quyết (⚑)')}`)+
       tile(T('Blocking','Đang chặn'),nb,esc(kinds))+`</div>`;
   }
   function decide(){
@@ -157,40 +155,6 @@ JS = r"""
         `<td>${g.last.state==='passed'?'<span class="dk-chip green">passed</span>':'<span class="dk-chip red">failed</span>'} ${a(g.last.url,'#'+g.last.number)}</td>`+
         `<td class="dk-mute">${T('last green','xanh cuối')}: ${day(g.last_pass)}${lk.red_builds?' · '+lk.red_builds+' '+T('red builds since','build đỏ từ đó'):''}</td></tr>`;}).join('')+`</tbody></table></div>`;
   }
-  // ── Weekly full suite (k3-multiprocess-test, WEEKLY_FULL=true; ops-app collect_weekly.py)
-  const WV={pass:['green','passed','đạt'],fail:['red','failed','không đạt'],no_verdict:['red','no verdict','không có kết luận'],running:['gray','running','đang chạy']};
-  // A pass where some job only passed on a retry is amber: an intermittent correctness bug can hide there.
-  const wflaky=r=>r.verdict==='pass'&&(r.flaky||0)>0;
-  const wchip=r=>{if(wflaky(r))return `<span class="dk-chip amber">${T('passed · '+r.flaky+' flaky','đạt · '+r.flaky+' chập chờn')}</span>`;
-    const v=WV[r.verdict]||['gray',r.verdict,r.verdict];return `<span class="dk-chip ${v[0]}">${T(v[1],v[2])}</span>`;};
-  const wcls=r=>wflaky(r)?'a':r.verdict==='pass'?'p':r.verdict==='running'?'':'f';
-  const sha=s=>s?String(s).slice(0,10):'–';
-  function weekly(){
-    const W=O.weekly||{},L=W.latest,R=W.reference,runs=W.runs||[];
-    const ref=R?`<p class="dk-mute">${T('Reference (last full dev build before the weekly run):','Mốc tham chiếu (build dev đủ bộ cuối cùng trước khi có weekly):')} ${a(R.url,'#'+R.number)} · ${day(R.created_at)} · ${R.passed}/${R.required} ${T('test jobs passed','job test đạt')} · ${T('no verdict step then, so skips were not checked.','khi đó chưa có bước verdict, nên chưa kiểm tra skip.')}</p>`:'';
-    if(!L)return `<div><span class="dk-chip gray">${T('No weekly run yet','Chưa có lần chạy weekly')}</span> <span class="dk-mute">${T('Schedule','Lịch')}: ${raw(W.schedule||'')} · ${a(W.pipeline_url,'k3-multiprocess-test ↗')}</span></div>`+ref;
-    const age=(Date.now()-Date.parse(L.created_at))/864e5;
-    const miss=age>8?`<span class="dk-stale">${T('no run in '+Math.round(age)+' days','không có lần chạy trong '+Math.round(age)+' ngày')}</span>`:'';
-    const tile=(k,v,d)=>`<div class="dk-tile"><div class="k">${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`;
-    const n=x=>x==null?'–':x;
-    const P=W.last_pass;
-    let since='';
-    if(L.verdict!=='pass'&&L.verdict!=='running'){
-      since=P?`<span class="dk-hint">⚑ ${T('The regression came in between the last green weekly and this run:','Lỗi xuất hiện giữa lần weekly xanh cuối và lần này:')} ${a('https://github.com/LMCache/LMCache/compare/'+P.commit_sha+'...'+L.commit_sha,raw(sha(P.commit_sha)+'…'+sha(L.commit_sha))+' ↗')}</span>`
-        :`<span class="dk-hint">⚑ ${T('No green weekly run yet: fix this run to set the baseline.','Chưa có lần weekly xanh nào: sửa lần này để có baseline.')}</span>`;}
-    const probs=L.problems||[];
-    const ptab=probs.length?`<div class="dk-scroll" style="margin-top:10px"><table class="dk-t"><thead><tr><th>Job</th><th>${T('state','trạng thái')}</th></tr></thead><tbody>`+
-      probs.map(p=>`<tr><td class="obsraw">${esc(p.label)}</td><td><span class="dk-chip red">${esc(p.state)}</span></td></tr>`).join('')+`</tbody></table></div>`:'';
-    const strip=[...runs].reverse().map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><i class="${wcls(r)}" title="${esc(day(r.created_at))} #${r.number} ${esc(r.verdict)}"></i></a>`).join('');
-    return `<div>${wchip(L)} ${a(L.url,'#'+L.number)} <span class="dk-mute">${day(L.created_at)} · ${ago(L.created_at)} · ${raw(L.trigger||'')} · ${raw(L.branch||'')} @ ${raw(sha(L.commit_sha))}</span>${miss}</div>`+since+
-      `<div class="dk-hero" style="margin-top:10px">`+
-      tile(T('Required jobs','Job bắt buộc'),n(L.required),`${T('passed','đạt')} ${n(L.passed)} · ${T('flaky','chập chờn')} ${n(L.flaky)}`)+
-      tile(T('Not passed','Không đạt'),(L.failed||0)+(L.missing||0)+(L.skipped||0),`${T('failed','fail')} ${n(L.failed)} · ${T('missing','thiếu')} ${n(L.missing)} · ${T('skipped','bỏ qua')} ${n(L.skipped)}`)+
-      tile(T('Known skips','Skip đã biết'),n(L.allowed_skip),T('in allowed-skips.txt: coverage we do not have','trong allowed-skips.txt: phần không được test'))+
-      tile(T('Last green weekly','Weekly xanh cuối'),P?a(P.url,'#'+P.number):'–',P?day(P.created_at):T('none yet','chưa có'))+
-      tile(T('Red streak','Chuỗi đỏ'),W.red_streak||0,T('weekly runs since the last green','lần weekly từ lần xanh cuối'))+`</div>`+
-      ptab+`<div class="dk-grp">${T('Last runs, oldest → newest','Các lần gần nhất, cũ → mới')}</div><div class="dk-strip">${strip}</div>`+ref;
-  }
   // ── History
   function spark(v,c){v=v.filter(x=>x!=null);if(v.length<2)return '';const W=160,Hh=34,mx=Math.max(...v),mn=Math.min(...v),r=mx-mn||1;
     return `<svg viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}"><polyline fill="none" stroke="${c}" stroke-width="2" points="${v.map((x,i)=>`${(i/(v.length-1))*W},${Hh-3-((x-mn)/r)*(Hh-6)}`).join(' ')}"/></svg>`;}
@@ -214,33 +178,28 @@ JS = r"""
         (d!=null?`<span class="dk-d ${good==null?'flat':good?'good':'bad'}">${d>0?'▲':d<0?'▼':'='} ${Math.abs(Math.round(d*10)/10)}</span>`:'')+
         ` <span class="dk-mute">${l?day(l.day):''} · n=${s.length}</span><div>${spark(s.map(x=>x.value),M)}</div></div>`;}).join('');
     const nf=[...H.nightly].reverse().findIndex(n=>n.conclusion==='success');
-    const night=H.nightly.map(n=>`<a href="${esc(n.url)}" target="_blank" rel="noopener"><i class="${n.conclusion==='success'?'p':n.conclusion==='failure'?'f':''}" title="${esc(n.day)} ${esc(n.conclusion||'')}"></i></a>`).join('');
+    const night=H.nightly.map(n=>`<a href="${esc(n.url)}" target="_blank" rel="noopener" aria-label="${esc(n.day)} ${esc(n.conclusion||'')}" title="${esc(n.day)} ${esc(n.conclusion||'')}"><i class="${n.conclusion==='success'?'p':n.conclusion==='failure'?'f':''}" aria-hidden="true"></i></a>`).join('');
     const wk={};H.publish_weekly.forEach(r=>{const w=(wk[r.week]=wk[r.week]||{week:r.week,ok:0,failed:0,cancelled:0});w.ok+=r.ok;w.failed+=r.failed;w.cancelled+=r.cancelled;});
     const pipes={};H.gates.forEach(g=>(pipes[g.pipeline]=pipes[g.pipeline]||[]).push(g));
     const heat=Object.entries(pipes).map(([p,ds])=>`<tr><td><b class="obsraw">${esc(p)}</b></td><td><div class="dk-strip">${ds.map(d=>{const c=d.pass_pct==null?M:d.pass_pct>=90?G:d.pass_pct>=50?A:R;
       return `<i style="background:${c};opacity:1" title="${esc(d.day)}: ${d.passed}/${d.passed+d.failed}"></i>`;}).join('')}</div></td><td class="dk-mute">${ds.length} ${T('days','ngày')}</td></tr>`).join('');
     const cyc=H.cycle.map(c=>`<tr><td><b class="obsraw">${esc(c.line)}</b></td><td>${day(c.first_rc_at)}</td><td>${day(c.final_at)}</td><td>${c.n_rc}</td><td>${c.n_post}</td><td>${c.rc_to_final_days!=null?c.rc_to_final_days+' '+T('d','ngày'):T('in progress','đang làm')}</td></tr>`).join('');
     const jobs=H.failing_jobs.map(j=>`<tr><td class="obsraw">${esc(j.name)}</td><td>${j.failures}</td><td class="dk-mute">${day(j.last_at)}</td><td>${j.last_error?`<span class="dk-err obsraw" title="${esc(j.last_error)}">${esc(j.last_error.length>160?j.last_error.slice(0,160)+'…':j.last_error)}</span>`:''}</td></tr>`).join('');
-    const HW=(H.weekly&&H.weekly.runs)||[];
-    const wstrip=HW.length?[...HW].reverse().map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><i class="${wcls(r)}" title="${esc(day(r.created_at))} #${r.number} ${esc(r.verdict)}"></i></a>`).join(''):`<span class="dk-mute">${T('No weekly run yet.','Chưa có lần chạy weekly.')}</span>`;
-    const wpass=HW.filter(r=>r.verdict==='pass').length,wdone=HW.filter(r=>r.verdict!=='running').length;
     return `<h3 class="dk-h3">${T('Key numbers per day','Chỉ số chính theo ngày')}</h3><p class="dk-mute">${T('▲▼ = change vs the previous snapshot day; green = better.','▲▼ = thay đổi so với ngày snapshot trước; xanh = tốt hơn.')}</p><div class="dk-grid">${cards}</div>`+
       `<div class="dk-grid" style="margin-top:12px"><div class="dk-card"><h3>${T('Nightly image build','Build image nightly')}</h3><p class="def">${T('Last 30 runs, oldest → newest.','30 run gần nhất, cũ → mới.')} ${nf===-1?`<b>${T('No success in this window.','Không có lần thành công nào trong khoảng này.')}</b>`:T('Failures since last success','Số lần fail từ lần xanh cuối')+': <b>'+nf+'</b>'}</p><div class="dk-strip">${night}</div></div>`+
-      `<div class="dk-card"><h3>${T('Weekly full suite','Bộ test đầy đủ hằng tuần')}</h3><p class="def">${T('k3-multiprocess-test with WEEKLY_FULL=true, last 26 runs, oldest → newest. Green = every required job passed.','k3-multiprocess-test với WEEKLY_FULL=true, 26 lần gần nhất, cũ → mới. Xanh = mọi job bắt buộc đều đạt.')} ${wdone?T('Green','Xanh')+': <b>'+wpass+' / '+wdone+'</b>':''}</p><div class="dk-strip">${wstrip}</div></div>`+
       `<div class="dk-card"><h3>${T('publish.yml per week','publish.yml theo tuần')}</h3><p class="def">${T('All events. Green ok · red failed · gray cancelled.','Mọi event. Xanh ok · đỏ fail · xám cancelled.')}</p>${bars(Object.values(wk),['ok','failed','cancelled'],[G,R,M],s=>s.week.slice(5))}</div></div>`+
       `<h3 class="dk-h3">${T('dev gate pass rate per day (30 days)','Tỉ lệ xanh của gate trên dev theo ngày (30 ngày)')}</h3><p class="dk-mute">${T('Green ≥ 90 % · amber ≥ 50 % · red < 50 %.','Xanh ≥ 90 % · vàng ≥ 50 % · đỏ < 50 %.')}</p><div class="dk-scroll"><table class="dk-t"><tbody>${heat}</tbody></table></div>`+
       `<div class="dk-grid" style="margin-top:12px"><div class="dk-card"><h3>${T('Release cycle','Chu kỳ release')}</h3><p class="def">${T('First RC → final tag, per line.','Từ RC đầu tiên → tag final, theo từng bản.')}</p><div class="dk-scroll"><table class="dk-t"><thead><tr><th>Line</th><th>rc1</th><th>final</th><th>#rc</th><th>#post</th><th>${T('days','ngày')}</th></tr></thead><tbody>${cyc}</tbody></table></div></div>`+
       `<div class="dk-card"><h3>${T('Jobs that fail most','Job fail nhiều nhất')}</h3><p class="def">${T('publish / nightly jobs, with the last error line read.','Job publish / nightly, kèm dòng lỗi cuối cùng đã đọc.')}</p><div class="dk-scroll"><table class="dk-t"><thead><tr><th>Job</th><th>#</th><th>${T('last','gần nhất')}</th><th>${T('error','lỗi')}</th></tr></thead><tbody>${jobs}</tbody></table></div></div></div>`;
   }
   function render(){
-    set('dkWhere','0 · '+T('Where we are','Đang ở đâu'),T('Release Desk: registry facts (PyPI, Docker Hub, GitHub) from ops-app, local runs only. STALE = source older than 48 h.','Release Desk: dữ kiện registry (PyPI, Docker Hub, GitHub) từ ops-app, chỉ chạy local. STALE = nguồn cũ hơn 48 giờ.'),where());
-    set('dkDecide','1 · '+T('Decide','Cần quyết')+' · v'+(O.line||''),T(`From release-${O.line}/RELEASE_PREP.md. ⚑ = facts suggest it was already decided: write the choice in the doc.`,`Từ release-${O.line}/RELEASE_PREP.md. ⚑ = dữ kiện cho thấy đã quyết trên thực tế: ghi lựa chọn vào tài liệu.`),decide());
-    set('dkBlock','2 · '+T('Blocking the next RC','Đang chặn RC tiếp theo'),T('Publish errors (first error line) → missing artifacts → dev red + last-known-good → open bugs → carry-over. Copy a command to act.','Lỗi publish (dòng lỗi đầu tiên) → thiếu artifact → dev đỏ + lần xanh cuối → bug còn mở → việc mang sang. Copy lệnh để làm.'),blocks());
-    set('dkGates','3 · '+T('dev gate pipelines','Pipeline gate trên dev'),T('Last 10 finished dev builds, oldest → newest. Must be green before an RC. The Today action inbox follows.','10 build dev gần nhất, cũ → mới. Phải xanh trước khi cắt RC. Hộp việc hôm nay ở ngay dưới.'),gates());
-    set('dkWeekly','4 · '+T('Weekly full suite','Bộ test đầy đủ hằng tuần'),T('Every multiprocess test + DSV4 full-size (TP=4) on dev, Sun 20:00 UTC. Red = a required job failed, did not run, or was skipped. Check it at stand-up.','Toàn bộ test multiprocess + DSV4 bản đầy đủ (TP=4) trên dev, CN 20:00 UTC. Đỏ = job bắt buộc fail, không chạy, hoặc bị bỏ qua. Xem ở stand-up.'),weekly());
+    set('dkWhere','0 · '+T('Where we are','Đang ở đâu'),'',where());
+    set('dkDecide','1 · '+T('Decisions','Cần quyết')+' · v'+(O.line||''),T('⚑ = looks decided: write it down.','⚑ = có vẻ đã quyết: ghi vào tài liệu.'),decide());
+    set('dkBlock','2 · '+T('Blocking the next rc','Đang chặn rc tiếp theo'),T('Most urgent first. Copy a command to act.','Gấp nhất ở trên. Chép lệnh để xử lý.'),blocks());
+    set('dkGates','3 · '+T('Dev gates','Gate trên dev'),T('Last 10 builds. Green before an rc.','10 build gần nhất. Phải xanh trước khi cắt rc.'),gates());
     set('dkHist',T('History','Xu hướng'),T('Trends from the ops-app history store (ops.db) and the daily snapshots.','Xu hướng từ kho lịch sử ops-app (ops.db) và snapshot hằng ngày.'),hist());
     // order on the Now tab: desk sections first, then the Today inbox (build_today.py)
-    const td=document.getElementById('todaySec');if(td){['dkWhere','dkDecide','dkBlock','dkGates','dkWeekly'].forEach(id=>{const s=document.getElementById(id);if(s)td.before(s);});}
+    const td=document.getElementById('todaySec');if(td){['dkWhere','dkDecide','dkBlock','dkGates'].forEach(id=>{const s=document.getElementById(id);if(s)td.before(s);});}
   }
   document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.dk-copy[data-cmd]');if(!b)return;const c=b.dataset.cmd,was=b.innerHTML;
     const done=()=>{b.textContent=T('copied','đã copy');setTimeout(()=>{b.innerHTML=was;},1500);};

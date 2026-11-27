@@ -17,6 +17,7 @@ import subprocess
 import sys
 import time
 import urllib.parse
+import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -125,6 +126,11 @@ def bk(path, tries=8):
         try:
             r = urllib.request.Request("https://api.buildkite.com/v2/" + path, headers={"Authorization": "Bearer " + TOK})
             return json.load(urllib.request.urlopen(r, timeout=40))
+        except urllib.error.HTTPError as e:
+            last = e
+            # 429: collectors share one Buildkite rate limit when refresh.ps1 runs them in parallel; wait for the reset
+            reset = e.headers.get("RateLimit-Reset") if e.code == 429 else None
+            time.sleep(min(int(reset) + 1, 65) if reset and reset.isdigit() else 1 + i)
         except Exception as e:  # noqa: BLE001 - connection resets are common here
             last = e
             time.sleep(1 + i)
@@ -171,13 +177,16 @@ def collect_github():
     def keep(x):
         name = x.get("name") or x.get("context") or ""
         done_ok = (x.get("status") == "COMPLETED" and x.get("conclusion") in green) or x.get("state") == "SUCCESS"
-        return any(r.search(name) for r in gate_rx) or not done_ok
+        # review 2026-11-26: also keep the green k3-multiprocess-smoke (#6731, the PR's MP signal when the heavy suite is
+        # bypassed); it is not a gate chip, so without this a passed smoke would look "not reported" in the PR Inspector
+        return any(r.search(name) for r in gate_rx) or name == "buildkite/k3-multiprocess-smoke" or not done_ok
     if G.get("prs_gql"):
         for n in G["prs_gql"]["nodes"]:
             for c in n["commits"]["nodes"]:
                 r = c["commit"].get("statusCheckRollup")
                 if r:
-                    r["contexts"]["nodes"] = [{k: v for k, v in x.items() if v is not None and k != "targetUrl" or k == "targetUrl" and "k3-unit" in (x.get("context") or "")}
+                    r["contexts"]["nodes"] = [{k: v for k, v in x.items() if v is not None and k not in ("targetUrl", "detailsUrl")
+                                               or k in ("targetUrl", "detailsUrl") and v and ("k3-unit" in (x.get("context") or "") or x.get("conclusion") not in green and x.get("state") != "SUCCESS")}
                                               for x in r["contexts"]["nodes"] if keep(x)]
     # step 2: needs the release list
     rel = G.get("releases") or []
@@ -244,7 +253,25 @@ def main():
     G = collect_github()
     print("collect buildkite ...")
     B = collect_buildkite()
-    snap = dict(at=datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"), via="collector",
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    bk_at = now if B else None
+    if not B:   # no token: keep the last Buildkite data, dated (expert review round 2, W1)
+        try:
+            prev = json.load(open(OUT, encoding="utf-8"))
+            if prev.get("bk"):
+                B, bk_at = prev["bk"], prev.get("bk_at") or prev.get("at")
+                print(f"buildkite: no token, keeping the Buildkite data of {bk_at}")
+        except (OSError, ValueError):
+            pass
+    if not G.get("prs_gql"):   # GitHub GraphQL failed: never replace good PR data with nothing
+        try:
+            prev = json.load(open(OUT, encoding="utf-8"))
+            if (prev.get("gh") or {}).get("prs_gql"):
+                print("github: PR query failed, keeping the previous snapshot")
+                return
+        except (OSError, ValueError):
+            pass
+    snap = dict(at=now, via="collector", bk_at=bk_at,
                 gh=G, bk=B, errors=ERRORS, mode=dict(gql=bool(G.get("prs_gql")), bk=bool(B)))
     s = json.dumps(snap, ensure_ascii=False, separators=(",", ":"))
     open(OUT, "w", encoding="utf-8").write(s)

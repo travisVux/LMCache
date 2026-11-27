@@ -1,0 +1,86 @@
+{
+ "schema": "lmcache.research_report/v1",
+ "id": "rr-sample-ci-mp-pipeline-parity",
+ "context": "CI Validation",
+ "sample": true,
+ "title": "Sample: MP pipeline change keeps every conditional workload green on 8 GPUs",
+ "created_at": "2026-11-24T06:00:00Z",
+ "source": {
+  "app": "research-app (sample)",
+  "run_id": "sample-ci-0001",
+  "pipeline": "8-gpu"
+ },
+ "pr": {
+  "number": 5172,
+  "title": "(sample) multiprocess pipeline change",
+  "state": "open"
+ },
+ "features": [
+  "F01",
+  "F04"
+ ],
+ "areas": [
+  "build",
+  "transport"
+ ],
+ "summary": "Illustrative report. The Research App re-ran the k3-multiprocess-test workloads touched by the PR on the 8-GPU pipeline and compared pass rate and wall time with the dev baseline.",
+ "hypothesis": "The pipeline edit changes only the conditions of three steps; the set of workloads that run on a PR stays the same.",
+ "environment": {
+  "gpus": 8,
+  "gpu_model": "H100 80GB",
+  "engine": "vllm",
+  "engine_version": "0.13.0",
+  "model": "Qwen3-8B",
+  "lmcache_commit": "ae31b644"
+ },
+ "benchmark": {
+  "name": "k3-multiprocess-test workloads (PR scope)",
+  "runs": 5,
+  "metrics": [
+   {
+    "name": "workloads passed",
+    "unit": "of 31",
+    "baseline": 31,
+    "candidate": 31,
+    "better": "higher"
+   },
+   {
+    "name": "pipeline wall time p50",
+    "unit": "min",
+    "baseline": 87,
+    "candidate": 84,
+    "better": "lower"
+   },
+   {
+    "name": "retries",
+    "unit": "jobs",
+    "baseline": 3,
+    "candidate": 2,
+    "better": "lower"
+   }
+  ]
+ },
+ "ci": {
+  "gates": [
+   {
+    "name": "k3-multiprocess-test",
+    "result": "passed"
+   },
+   {
+    "name": "k3-unit-tests",
+    "result": "passed"
+   },
+   {
+    "name": "cpu_e2e_validation",
+    "result": "passed"
+   }
+  ]
+ },
+ "verdict": "neutral",
+ "artifacts": [
+  {
+   "label": "pipeline file",
+   "url": "https://github.com/LMCache/LMCache/blob/dev/.buildkite/k3_tests/multiprocess/pipeline.yml"
+  }
+ ]
+}

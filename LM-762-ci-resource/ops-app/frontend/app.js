@@ -327,6 +327,8 @@
     ["now", "rm", "Now", "Bây giờ", "now"],
     ["history", "rm", "Trends", "Xu hướng", "history"],
     ["today", "rm", "Today inbox", "Hộp việc hôm nay", [["", "obs/today"]]],
+    ["weekly", "rm", "Weekly full build", "Weekly full build", [["", "obs/weekly"]]],
+    ["impact", "rm", "CI impact", "Tác động CI", [["", "obs/impact"]]],
     ["releases", "rm", "Releases", "Releases", [["", "obs/release"]]],
     ["trace", "rm", "Release trace", "Truy vết release", [["", "obs/trace"]]],
     ["coming", "rm", "Next release", "Release tới", [["", "obs/coming"]]],
@@ -340,9 +342,9 @@
       ["gpu-overview", "gpu/overview", "Overview", "Tổng quan", "GPU"], ["gpu-workloads", "gpu/tiers", "Workloads", "Workload", "GPU"],
       ["gpu-cost", "gpu/cost", "Cost & time", "Chi phí & thời gian", "GPU"], ["gpu-findings", "gpu/findings", "Findings", "Phát hiện", "GPU"],
       ["gpu-mindmap", "gpu/explore", "Mindmap", "Mindmap", "GPU"]]],
-    ["r1130", "ref", "Report 1130", "Report 1130", [
-      ["baseline", "r1130/baseline", "GPU baseline", "Baseline GPU"], ["cpu", "r1130/cpu", "CPU baseline", "Baseline CPU"],
-      ["green", "r1130/green", "Time to green", "Thời gian tới xanh"], ["retry", "r1130/retry", "Ran again", "Chạy lại"],
+    ["r1130", "ref", "CI Baseline", "Baseline CI", [
+      ["baseline", "r1130/baseline", "GPU Usage", "Tiêu thụ GPU"], ["cpu", "r1130/cpu", "CPU Usage", "Tiêu thụ CPU"],
+      ["green", "r1130/green", "Time to green", "Thời gian tới xanh"], ["retry", "r1130/retry", "Retry & Waste", "Chạy lại & Lãng phí"],
       ["prs", "r1130/prs", "Per PR", "Theo PR"], ["track", "r1130/track", "Track vs baseline", "So với baseline"],
       ["repro", "r1130/repro", "Reproduce", "Tái lập"], ["quality", "r1130/quality", "Data quality", "Chất lượng dữ liệu"]]],
   ];

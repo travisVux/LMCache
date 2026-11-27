@@ -7,11 +7,15 @@ Run from LM-762-ci-resource/etl/ :
   python -X utf8 etl.py backfill --since 2026-09-01 --until 2026-10-17          # same as update, for an older range
   python -X utf8 etl.py retry                                    # re-run only failed partitions (add --dead for given-up ones)
   python -X utf8 etl.py ingest-legacy ../plan-2026-11/outputs/P1           # load an old P1 folder into the lake
+  python -X utf8 etl.py ingest-cache [../ops-app/data/ci_impact_cache] [--p1 ../plan-2026-11/outputs/P1_2026-10-17] [--dry-run]
+        # load the ops-app CI impact cache (Buildkite builds, GitHub Actions run jobs) into the lake; read only, idempotent
   python -X utf8 etl.py export   --since 2026-10-17 --until 2026-11-16 --out ../plan-2026-11/outputs/P1_2026-10-17
   python -X utf8 etl.py window   --since 2026-10-17 --until 2026-11-16 --out ../plan-2026-11/outputs/P1_2026-10-17
         # = update + export + transforms (build_jobs_table, sample_fail_logs, aggregate, build_pr_table)
 
 Options: --dry-run (plan only) · --source NAME (one source only; repeatable) · --refresh (refetch even final partitions) · --limit N (first N partitions, for a test)
+         --max-age DAYS (keep an open PR fetched less than DAYS ago if unchanged and all its checks concluded)
+Env: ETL_GH_MIN_REMAINING=N  sleep until the GitHub reset when fewer than N calls are left (default 60)
 Dates are UTC days; --until is exclusive. The lake lives in etl/lake/ (override with ETL_LAKE).
 """
 import argparse
@@ -27,6 +31,7 @@ sys.path.insert(0, HERE)
 
 from core.lake import Lake, now  # noqa: E402
 from core.pipeline import run  # noqa: E402
+from core.http import BK, GH  # noqa: E402
 from sources import SOURCES, BY_NAME  # noqa: E402
 import sinks  # noqa: E402
 
@@ -47,11 +52,13 @@ def cmd_update(a, lake, only_failed=False):
     for src in [BY_NAME[n] for n in a.source] if a.source else SOURCES:
         try:
             total[src.name] = run(src, ctx, day(a.since), day(a.until), refresh=a.refresh, retry_dead=getattr(a, "dead", False),
-                                  only_failed=only_failed, limit=a.limit, command=" ".join(sys.argv[1:]), dry_run=getattr(a, "dry_run", False))
+                                  only_failed=only_failed, limit=a.limit, command=" ".join(sys.argv[1:]), dry_run=getattr(a, "dry_run", False),
+                                  max_age=timedelta(days=a.max_age) if getattr(a, "max_age", None) else None)
         except Exception as e:  # noqa: BLE001  planning failed (e.g. the PR search): later sources still run on what the lake has
             print(f"[{src.name}] planning failed: {type(e).__name__}: {e}", flush=True)
             total[src.name] = dict(error=str(e))
     print("summary:", total, flush=True)
+    print(f"api calls so far: github {GH.calls} · buildkite {BK.calls}", flush=True)
     return total
 
 
@@ -94,7 +101,7 @@ def cmd_transform(a, lake):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["status", "update", "backfill", "retry", "ingest-legacy", "export", "window"])
+    ap.add_argument("command", choices=["status", "update", "backfill", "retry", "ingest-legacy", "ingest-cache", "export", "window"])
     ap.add_argument("folder", nargs="?")
     ap.add_argument("--since")
     ap.add_argument("--until")
@@ -103,6 +110,8 @@ def main():
     ap.add_argument("--refresh", action="store_true")
     ap.add_argument("--dead", action="store_true", help="retry: also partitions that failed max_attempts times")
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--max-age", type=float, help="gh_prs: keep a not-final PR fetched less than this many days ago when unchanged and every check concluded")
+    ap.add_argument("--p1", action="append", default=[], help="ingest-cache: P1 export folder(s) for node / raw_log_url and log evidence")
     ap.add_argument("--dry-run", action="store_true", help="plan only: how many partitions would be fetched and why")
     a = ap.parse_args()
     lake = Lake(os.environ.get("ETL_LAKE") or os.path.join(HERE, "lake"))
@@ -126,6 +135,10 @@ def main():
             print("no failed partitions")
     elif a.command == "ingest-legacy":
         print("ingested:", sinks.ingest_legacy(lake, os.path.abspath(a.folder)))
+    elif a.command == "ingest-cache":
+        folder = os.path.abspath(a.folder or os.path.join(HERE, "..", "ops-app", "data", "ci_impact_cache"))
+        print("ingest-cache" + (" (dry run)" if a.dry_run else "") + ":",
+              sinks.ingest_cache(lake, folder, [os.path.abspath(p) for p in a.p1], dry_run=a.dry_run), flush=True)
     elif a.command == "export":
         cmd_export(a, lake)
     elif a.command == "window":

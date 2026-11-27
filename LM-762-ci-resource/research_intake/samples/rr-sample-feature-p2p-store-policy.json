@@ -1,0 +1,75 @@
+{
+ "schema": "lmcache.research_report/v1",
+ "id": "rr-sample-feature-p2p-store-policy",
+ "context": "New product feature",
+ "sample": true,
+ "title": "Sample: P2P store policy with write flags across two nodes",
+ "created_at": "2026-11-24T06:20:00Z",
+ "source": {
+  "app": "research-app (sample)",
+  "run_id": "sample-feat-0003",
+  "pipeline": "8-gpu"
+ },
+ "pr": {
+  "number": 6624,
+  "title": "(sample) P2P store policy and write flags",
+  "state": "open"
+ },
+ "features": [
+  "F08",
+  "F10"
+ ],
+ "areas": [
+  "p2p",
+  "l2"
+ ],
+ "summary": "Illustrative report. A new P2P store policy lets a peer write KV chunks with explicit write flags; the report checks correctness of peer reads and the cost of the extra writes.",
+ "environment": {
+  "gpus": 4,
+  "gpu_model": "H100 80GB",
+  "engine": "vllm",
+  "engine_version": "0.13.0",
+  "model": "Qwen3-8B",
+  "lmcache_commit": "6ed33c9b"
+ },
+ "benchmark": {
+  "name": "p2p_write (2 nodes x 2 GPU)",
+  "runs": 6,
+  "metrics": [
+   {
+    "name": "peer read correctness",
+    "unit": "%",
+    "baseline": 100,
+    "candidate": 100,
+    "better": "higher"
+   },
+   {
+    "name": "store throughput",
+    "unit": "GB/s",
+    "baseline": 9.8,
+    "candidate": 9.1,
+    "better": "higher"
+   },
+   {
+    "name": "TTFT p50 (peer hit)",
+    "unit": "ms",
+    "baseline": 420,
+    "candidate": 398,
+    "better": "lower"
+   }
+  ]
+ },
+ "ci": {
+  "gates": [
+   {
+    "name": "k3-multiprocess-test",
+    "result": "not_run"
+   },
+   {
+    "name": "k3-unit-tests",
+    "result": "passed"
+   }
+  ]
+ },
+ "verdict": "inconclusive"
+}

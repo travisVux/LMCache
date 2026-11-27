@@ -6,6 +6,8 @@ _TOKEN = None
 
 def _token():
     global _TOKEN
+    if _TOKEN is None and os.environ.get("BUILDKITE_API_TOKEN"):   # the refresh loads it from ops-app.env (common.ps1)
+        _TOKEN = os.environ["BUILDKITE_API_TOKEN"]
     if _TOKEN is None:
         p = os.path.expanduser(r"~\.claude.json.bak-buildkite")
         d = json.load(open(p, encoding="utf-8"))

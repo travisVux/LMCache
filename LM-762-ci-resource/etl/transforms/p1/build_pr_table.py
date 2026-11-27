@@ -236,7 +236,7 @@ def main():
                        retry_type=r["retry_type"], cls=s.get("cls") or ("infra" if r["exit_status"] in ("128", "255", "-1", "100") else "unknown"),
                        evidence=s.get("sig") or ("exit " + r["exit_status"] if r["exit_status"] in ("128", "255", "-1", "100") else "no log read"),
                        evidence_line=s.get("line", ""), lost_min=float(r["wall_min"] or 0), lost_gpu_min=float(r["gpu_min"] or 0), unit="GPU-min",
-                       link=r["build_url"]))
+                       link=r["build_url"], at=r["build_created"]))   # at = when the first attempt's build / suite was created (range filter)
     # 2) a new build of the same commit after a failed one (Buildkite rebuild, label event, or re-sync)
     for (slug, sha), bs in by_sha.items():
         bs = sorted((b for b in bs if inwin(b["created"]) and b["state"] in ("passed", "failed", "canceled")), key=lambda b: b["created"])
@@ -250,7 +250,7 @@ def main():
                            first_state="failed", exit_status=",".join(sorted({r["exit_status"] for r in fj})), then=nxt["state"],
                            retry_type="rebuild" if nxt["rebuilt_from"] else "new trigger", cls=s.get("cls") or ("infra" if fj and all(r["exit_status"] in ("128", "255", "-1", "100") for r in fj) else "unknown"),
                            evidence=s.get("sig") or "no log read", evidence_line=s.get("line", ""),
-                           lost_min=round(sum(float(r["wall_min"] or 0) for r in fj), 1), lost_gpu_min=round(sum(float(r["gpu_min"] or 0) for r in fj), 1), unit="GPU-min", link=b["url"]))
+                           lost_min=round(sum(float(r["wall_min"] or 0) for r in fj), 1), lost_gpu_min=round(sum(float(r["gpu_min"] or 0) for r in fj), 1), unit="GPU-min", link=b["url"], at=b["created"]))
     for j in gjobs:  # 3) GitHub Actions job re-run (an earlier attempt of the same job in the same workflow run)
         if not j["replaced"] or j["conclusion"] not in BAD:
             continue
@@ -258,7 +258,7 @@ def main():
                        first_state=j["conclusion"].lower(), exit_status="", then=(j["next_conclusion"] or "").lower().replace("success", "passed"),
                        retry_type="re-run", cls="infra" if j["conclusion"] == "STARTUP_FAILURE" else "unknown",
                        evidence="startup_failure" if j["conclusion"] == "STARTUP_FAILURE" else "GitHub logs not read",
-                       evidence_line="", lost_min=j["exec_min"] or 0, lost_gpu_min=0, unit="job-min", link=j["run_url"]))
+                       evidence_line="", lost_min=j["exec_min"] or 0, lost_gpu_min=0, unit="job-min", link=j["run_url"], at=j["suite_created"]))
     write("retry_events_30d.csv", ev)
 
     q = dict(q)

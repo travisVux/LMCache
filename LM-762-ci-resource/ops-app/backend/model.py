@@ -11,8 +11,9 @@ import json
 import os
 import re
 from datetime import datetime, timezone
+from pathlib import Path
 
-from config import DEV_GATE_PIPELINES, OLD, RELEASE_DIR, REPO, parse_tag
+from config import ARTIFACT_DECISION, DEV_GATE_PIPELINES, GATING_ARTIFACTS, OLD, PLATFORM_JOB, RELEASE_DIR, REPO, WATCH_DAYS, parse_tag
 
 VERDICT_TEXT = {
     "shipped": ("Shipped", "Đã phát hành đủ"),
@@ -183,44 +184,124 @@ def overview(con):
     for d in decs:
         d["hint"] = hints.get(d["code"])
     bl = blockers(con, line, latest["tag"] if latest else None)
-    status = "red" if any(b["kind"] in ("publish", "ci", "pr") for b in bl) else ("amber" if bl else "green")
     snaps = rows(con, "SELECT source, MAX(taken_at) taken_at FROM snapshot GROUP BY source ORDER BY taken_at DESC")
     enrich_blockers(con, bl)
-    return dict(ages=source_ages(con, line), good=good_target(con), ready=ready_queue(con),
+    bl = merge_publish_blockers(bl)
+    ages = source_ages(con, line)
+    stale_src = {a["key"] for a in ages if a["stale"]}
+    open_dec = {d["code"] for d in decs if (d.get("status") or "open") == "open" and not d.get("hint")}
+    rel_tags = {r["tag"]: r for r in rel}
+    rec = recorded_decisions(con)
+    for b in bl:
+        tv = title_vi(b.get("title"))
+        if tv:
+            b["title_vi"] = tv   # expert review R2: evidence older than 48 h cannot decide the verdict on its own
+        b["stale"] = b.get("src") in stale_src
+        apply_policy(b, open_dec, line, rel_tags)
+        r = rec.get(b["id"])
+        if r:   # round 2 A4 / B5 / D-1: a recorded decision; known issue / accepted gap no longer gates this line
+            b["decided"] = dict(action=r["action"], by=r["decided_by"], at=r["decided_at"], reason=r["reason"])
+            if r["action"] in ("known_issue", "accept"):
+                b.update(gating=False, policy="decided")
+    deciding = [b for b in bl if not b["stale"] and b.get("gating", True)]
+    status = "red" if any(b["kind"] in ("publish", "ci", "pr") for b in deciding) else ("amber" if deciding else "green")
+    if status == "green" and any(b["stale"] and b["kind"] in ("ci", "pr") for b in bl):
+        status = "unverified"
+    # what decides first: gating and fresh, then gating but old, then known issues / waiting on a decision
+    bl.sort(key=lambda b: (not b.get("gating", True), b["stale"]))
+    shipped = bool(latest and stable and latest["tag"] == stable["tag"] and latest["kind"] in ("final", "post"))
+    watch = None
+    if shipped and stable["published_at"]:
+        t0 = datetime.fromisoformat(stable["published_at"].replace("Z", "+00:00"))
+        until = t0.timestamp() + WATCH_DAYS * 86400
+        nxt = ".".join(line.split(".")[:-1] + [str(int(line.split(".")[-1]) + 1)]) if line and line.split(".")[-1].isdigit() else None
+        watch = dict(until=datetime.fromtimestamp(until, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                     over=datetime.now(timezone.utc).timestamp() > until, next_line=nxt,
+                     next_prep=bool(nxt and (RELEASE_DIR(nxt) / "RELEASE_PREP.md").is_file()))
+    return dict(ages=ages, good=good_target(con, stable and stable["tag"]), ready=ready_queue(con), shipped=shipped, watch=watch,
+        policy=dict(gating=sorted(GATING_ARTIFACTS), decision=ARTIFACT_DECISION, platform=PLATFORM_JOB, watch_days=WATCH_DAYS),
         stable=stable and dict(tag=stable["tag"], at=stable["published_at"], url=stable["url"]),
         latest=latest and dict(tag=latest["tag"], at=latest["published_at"], kind=latest["kind"], url=latest["url"]),
         line=line, phase=phase, status=status, decisions=decs, blockers=bl,
-        releases=releases(con), focus=[t for t in (latest and latest["tag"], stable and stable["tag"]) if t],
+        releases=releases(con), focus=list(dict.fromkeys(t for t in (latest and latest["tag"], stable and stable["tag"]) if t)),
         matrix={t: matrix(con, t) for t in {latest and latest["tag"], stable and stable["tag"]} if t},
-        dev_gates=dev_gates(con), weekly=weekly(con), sources=snaps, verdict_text=VERDICT_TEXT)
+        dev_gates=dev_gates(con), weekly=weekly_badge(con), sources=snaps, verdict_text=VERDICT_TEXT)
 
 
-# ───────────── weekly full suite ─────────────
-def weekly(con, limit=12):
-    """Weekly full-suite runs on dev (newest first) + the pre-weekly reference build. See collect_weekly.py."""
-    q_weekly = """SELECT w.*, b.commit_sha, b.branch, b.created_at, b.finished_at, b.url, b.state
-                  FROM weekly_run w JOIN bk_build b ON b.pipeline=w.pipeline AND b.number=w.number
-                  WHERE w.kind=? AND b.branch='dev' ORDER BY b.created_at DESC LIMIT ?"""
-    q_ref = """SELECT w.*, b.commit_sha, b.branch, b.created_at, b.finished_at, b.url, b.state
-               FROM weekly_run w JOIN bk_build b ON b.pipeline=w.pipeline AND b.number=w.number
-               WHERE w.kind=? ORDER BY b.created_at DESC LIMIT ?"""
-    runs = rows(con, q_weekly, "weekly", limit)
-    ref = rows(con, q_ref, "reference", 1)
-    for r in runs + ref:
-        r["problems"] = json.loads(r["problems"] or "[]")
-    done = [r for r in runs if r["verdict"] != "running"]
-    last_pass = next((r for r in done if r["verdict"] == "pass"), None)
-    red = 0
-    for r in done:
-        if r["verdict"] == "pass":
-            break
-        red += 1
-    has_scheduled = any(r.get("trigger") == "schedule" for r in runs)
-    sched_text = ("Sun 20:00 UTC (cron 0 20 * * 0)" if has_scheduled
-                  else "Pending admin setup (proposed: Sun 20:00 UTC, cron 0 20 * * 0)")
-    return dict(runs=runs, latest=runs[0] if runs else None, last_pass=last_pass, red_streak=red,
-                reference=ref[0] if ref else None, schedule=sched_text,
-                pipeline_url="https://buildkite.com/lmcache/k3-multiprocess-test")
+# ───────────── weekly full build (GitHub Actions weekly_full_build.yml; collect_weekly.py) ─────────────
+WEEKLY_DEVICES = ["cuda", "xpu", "amd", "rbln"]
+WEEKLY_WF_URL = f"https://github.com/{REPO}/actions/workflows/weekly_full_build.yml"
+
+
+def weekly(con, weeks=12, limit=30):
+    """Runs of the last `weeks` weeks (newest first), each with device lanes -> Buildkite pipelines -> problems."""
+    meta = {r["key"]: r["value"] for r in rows(con, "SELECT key, value FROM weekly_gha_meta")}
+    runs = rows(con, """SELECT * FROM weekly_gha_run WHERE created_at >= strftime('%Y-%m-%dT%H:%M:%SZ','now',?)
+                        ORDER BY created_at DESC LIMIT ?""", f"-{weeks * 7} day", limit)
+    ids = [r["run_id"] for r in runs]
+    q = ",".join("?" * len(ids)) or "NULL"
+    lanes, pipes, probs = {}, {}, {}
+    for x in rows(con, f"SELECT * FROM weekly_gha_problem WHERE run_id IN ({q}) ORDER BY run_id, device, slug, idx", *ids):
+        probs.setdefault((x["run_id"], x["device"], x["slug"]), []).append(
+            {k: x[k] for k in ("kind", "label", "state", "exit_status", "url", "job_id", "detail")})
+    for x in rows(con, f"SELECT * FROM weekly_gha_pipeline WHERE run_id IN ({q}) ORDER BY run_id, device, ord", *ids):
+        pipes.setdefault((x["run_id"], x["device"]), []).append(dict(
+            slug=x["slug"], name=x["name"], number=x["number"], url=x["url"], state=x["state"],
+            retried=json.loads(x["retried"] or "[]"), problems=probs.get((x["run_id"], x["device"], x["slug"]), [])))
+    for x in rows(con, f"SELECT * FROM weekly_gha_lane WHERE run_id IN ({q})", *ids):
+        lanes.setdefault(x["run_id"], {})[x["device"]] = dict(
+            state=x["state"], conclusion=x["conclusion"], job_url=x["url"], job_id=x["job_id"], started=x["started_at"],
+            completed=x["completed_at"], artifact=x["artifact_name"], report=bool(x["report"]), timed_out=bool(x["timed_out"]),
+            commit=x["commit_sha"], branch=x["branch"], earlier_reports=x["earlier_reports"] or 0, earlier_failed=x["earlier_failed"] or 0,
+            log_notes=json.loads(x["log_notes"] or "[]"), pipelines=pipes.get((x["run_id"], x["device"]), []))
+    out = []
+    for r in runs:
+        out.append(dict(run_id=r["run_id"], number=r["run_number"], attempt=r["attempt"], event=r["event"], verdict=r["verdict"],
+                        url=r["url"], created_at=r["created_at"], first_job_at=r["first_job_at"], last_job_at=r["last_job_at"],
+                        head_sha=r["head_sha"], head_branch=r["head_branch"], prepare=r["prepare_conclusion"],
+                        lanes=lanes.get(r["run_id"], {})))
+    cron = meta.get("cron") or "0 8 * * 0"
+    return dict(runs=out, devices=WEEKLY_DEVICES, weeks=weeks, collected_at=meta.get("collected_at"), workflow_url=WEEKLY_WF_URL,
+                repo=REPO, schedule=dict(text=f"Sun 08:00 UTC (cron {cron})" if cron == "0 8 * * 0" else f"cron {cron}", cron=cron,
+                                         enabled=None if "schedule_enabled" not in meta else meta["schedule_enabled"] == "1"))
+
+
+def ci_impact(con):
+    """CI impact by improvement version (collect_ci_impact.py, ci_versions.json): versions v0 (baseline) .. vN,
+    metric definitions and one value per metric x version (value, N, state, change vs v0 and vs the previous version).
+    None before the first collect."""
+    try:
+        vs = rows(con, "SELECT * FROM ci_impact_version ORDER BY ord")
+        ds = rows(con, "SELECT * FROM ci_impact_def ORDER BY ord")
+        vals = rows(con, "SELECT * FROM ci_impact_value")
+        meta = {r["key"]: json.loads(r["value"]) for r in rows(con, "SELECT key, value FROM ci_impact_meta")}
+    except Exception:  # noqa: BLE001  (tables not created yet: old database)
+        return None
+    if not vs or not ds:
+        return None
+    for v in vs:
+        v["title"] = [v.pop("title_en"), v.pop("title_vi")]
+        v["prs"] = json.loads(v["prs"] or "[]")
+    by = {}
+    for x in vals:
+        try:
+            x["note"] = json.loads(x["note"]) if x["note"] else None   # [en, vi]
+        except ValueError:
+            x["note"] = [x["note"], x["note"]]
+        by.setdefault(x.pop("key"), {})[x.pop("version")] = x
+    for d in ds:
+        d["label"] = [d.pop("label_en"), d.pop("label_vi")]
+        d["after_only"] = bool(d["after_only"])
+        d["values"] = by.get(d["key"], {})
+    return dict(meta, versions=vs, metrics=ds)
+
+
+def weekly_badge(con):
+    """One line for the Today banner: the newest weekly run that has a verdict (or is running)."""
+    r = one(con, """SELECT run_id, run_number, verdict, created_at, url FROM weekly_gha_run
+                    WHERE verdict != 'cancelled' ORDER BY created_at DESC LIMIT 1""")
+    last = one(con, "SELECT MAX(created_at) at FROM weekly_gha_run") or {}
+    return dict(latest=r, last_run_at=last.get("at"))
 
 
 # ───────────── history (analysis) ─────────────
@@ -239,7 +320,7 @@ def history(con):
                         'ops_hist.tot.GPU_failed','ops_hist.tot.GPU_cancelled','ops_hist.tot.GPU_total')
                        ORDER BY day""")
     return dict(cycle=cyc, nightly=list(reversed(nightly)), publish_weekly=list(reversed(pub)), gates=gates,
-                failing_jobs=jobs, kpi=kpi, weekly=weekly(con, 26))
+                failing_jobs=jobs, kpi=kpi)   # weekly full build: its own tab (#obs/weekly), model.weekly()
 
 
 def release_detail(con, tag):
@@ -302,7 +383,7 @@ def source_ages(con, line=None):
         dict(key="ops_ci_24h", label="ops_ci_24h.json (CI last 24 h)", at=_jget("ops_ci_24h.json", "at")),
         dict(key="trace_agent", label="Trace Agent", at=(_jget("ops_tabs.json", "ta_meta") or {}).get("updated")),
         dict(key="report1130", label="report1130.json (window end)", at=_jget("report1130.json", "until")),
-        dict(key="release_prep", label=f"release-{line}/RELEASE_PREP.md", at=_mtime(RELEASE_DIR(line) / "RELEASE_PREP.md") if line else None),
+        dict(key="release_prep", label=f"release-{line}/RELEASE_PREP.md", at=_prep_date(RELEASE_DIR(line) / "RELEASE_PREP.md") if line else None),
     ]
     for x in out:
         x["age_h"] = _age_h(x["at"])
@@ -310,13 +391,25 @@ def source_ages(con, line=None):
     return out
 
 
+def _prep_date(p):
+    """'Prepared YYYY-MM-DD' (or 'Updated …') inside the doc; the file time only when the doc names no date (R6)."""
+    try:
+        m = re.findall(r"^(?:Prepared|Updated|Last updated)[: ]+(\d{4}-\d{2}-\d{2})", p.read_text(encoding="utf-8"), re.M)
+    except OSError:
+        return None
+    return (max(m) + "T00:00:00Z") if m else _mtime(p)
+
+
 # ───────────── rollback target ─────────────
 CORE = ("pypi:lmcache", "gh:main", "docker:vllm-openai")
 
 
-def good_target(con):
-    """$GOOD = newest final/post tag whose core artifacts (wheel, GitHub release, main image) are present and correct."""
+def good_target(con, current=None):
+    """$GOOD = newest final/post tag OLDER than the current stable whose core artifacts (wheel, GitHub release, main
+    image) are present and correct: you roll back FROM the current stable, never to it (R4)."""
     for r in rows(con, "SELECT * FROM release WHERE kind IN ('final','post') ORDER BY COALESCE(published_at, tagged_at) DESC"):
+        if current and r["tag"] == current:
+            continue
         m = {x["code"]: x for x in matrix(con, r["tag"])}
         if all(m.get(c) and m[c]["ok"] for c in CORE):
             gaps = [x["label"] for x in m.values() if x["expected"] and x["present"] is not None and not x["ok"]]
@@ -333,7 +426,100 @@ def owner(con, pr):
     return dict(who=au, how="author") if au else None
 
 
+CLONE = Path(__file__).resolve().parents[3] / "third_party" / "LMCache"   # local clone (CODEOWNERS)
+
+
+def codeowners_of(path):
+    """Owners of one repo path from .github/CODEOWNERS of the local clone (last matching rule wins). Round 2 A4 / B5."""
+    f = CLONE / ".github" / "CODEOWNERS"
+    hit = None
+    if not f.is_file():
+        return []
+    for ln in f.read_text(encoding="utf-8", errors="replace").splitlines():
+        ln = ln.split("#", 1)[0].strip()
+        if not ln:
+            continue
+        pat, *own = ln.split()
+        rx = re.escape(pat.lstrip("/")).replace(r"\*\*", ".*").replace(r"\*", "[^/]*")
+        rx = ("^" if pat.startswith("/") else "(^|/)") + rx + ("" if pat.endswith("/") else "($|/)")
+        if re.search(rx, path):
+            hit = own
+    return [o.lstrip("@") for o in hit or []]
+
+
+def recorded_decisions(con):
+    """Latest recorded decision per blocker (decide.py, append-only table release_decision)."""
+    try:
+        return {r["blocker_id"]: r for r in rows(con, "SELECT * FROM release_decision ORDER BY decided_at, id")}
+    except Exception:  # noqa: BLE001 - table not created yet (no decision recorded so far)
+        return {}
+
+
+VI_PHRASES = [   # round 2 E4: blocker titles in Vietnamese (the English title stays the source of truth)
+    (r"uploaded (\S+) instead \(a pre-release: pip install of this package gets a dev build\)", r"đã upload \1 thay vì bản đúng (bản pre-release: pip install gói này sẽ ra bản dev)"),
+    (r"uploaded (\S+) instead", r"đã upload \1 thay vì bản đúng"),
+    (r"^dev red on (.+)$", r"dev đỏ ở \1"),
+    (r" — missing$", " — thiếu"),
+]
+
+
+def title_vi(t):
+    v = t or ""
+    for rx, rp in VI_PHRASES:
+        v = re.sub(rx, rp, v)
+    return v if v != t else None
+
+
+def decide_cmd(bid):
+    return f'python -X utf8 ops-app/backend/decide.py record {bid} --action post1|upload|known_issue|accept --reason "..." --by <name>'
+
+
 SRC_OF_KIND = {"publish": "ops_db", "artifact": "ops_db", "ci": "observe_snapshot", "pr": "trace_agent", "carryover": "release_prep"}
+
+
+def apply_policy(b, open_dec, line, rel_tags):
+    """Gating policy (config.GATING_ARTIFACTS): platform wheels and optional images are known issues, an artifact whose need is
+    an open decision waits on it, a blocker that belongs to another (older) line does not decide this line."""
+    aid = (b.get("id") or "").split(":artifact:")[-1] if ":artifact:" in (b.get("id") or "") else None
+    if b["kind"] == "artifact" and aid:
+        dec = ARTIFACT_DECISION.get(aid)
+        if dec and dec in open_dec:
+            b.update(gating=False, policy="decision", policy_ref=dec)
+        elif aid not in GATING_ARTIFACTS:
+            b.update(gating=False, policy="known_issue")
+    elif b["kind"] == "publish" and re.search(PLATFORM_JOB, b.get("code") or ""):
+        b.update(gating=False, policy="known_issue")
+    elif b["kind"] == "pr":
+        m = re.search(r"\b(v\d+\.\d+\.\d+\S*)", (b.get("fact") or "") + " " + (b.get("title") or ""))
+        if m and m.group(1) in rel_tags and rel_tags[m.group(1)]["line"] != line:
+            b.update(gating=False, policy="other_line", policy_ref=m.group(1))
+    b.setdefault("gating", True)
+    return b
+
+
+def merge_publish_blockers(bl):
+    """The push run and the release run of one tag fail the same job: one blocker, both runs as evidence (R9).
+    A failed publish job of a FINAL tag cannot be fixed by rerunning the same commit (R3): no rerun command."""
+    out, seen = [], {}
+    for b in bl:
+        if b["kind"] != "publish":
+            out.append(b); continue
+        tag = (b.get("title") or "").split(" ")[0]
+        k = (tag, b.get("code"))
+        if k in seen:
+            first = seen[k]
+            first["runs"] = first.get("runs", [first.get("evidence")]) + [b.get("evidence")]
+            first["title"] = re.sub(r" publish \((release|push)\):", " publish (push + release):", first["title"])
+            continue
+        seen[k] = b
+        if re.fullmatch(r"v\d+\.\d+\.\d+(\.post\d+)?", tag):
+            b.pop("cmd", None)
+            b["next"] = dict(en=f"{tag} is a final tag: a rerun builds the same commit and fails again. Options: {tag}.post1 with the fix, "
+                                 "an out-of-band upload of this artifact, or a known issue in the release notes.",
+                             vi=f"{tag} là tag final: chạy lại sẽ build cùng commit và lỗi lại. Lựa chọn: ra {tag}.post1 có bản sửa, "
+                                "upload riêng artifact này, hoặc ghi known issue trong release note.")
+        out.append(b)
+    return out
 
 
 def enrich_blockers(con, bl):
@@ -346,6 +532,18 @@ def enrich_blockers(con, bl):
         if b["kind"] == "pr" and n:
             b["owner"] = owner(con, int(n.group(1)))
             b["cmd"] = f"gh pr view {n.group(1)} --repo {REPO} --web"
+        if b["kind"] in ("artifact", "publish") and not b.get("owner"):   # round 2 A4 / B5: who acts on a publish gap
+            own = codeowners_of(".github/workflows/publish.yml")
+            if own:
+                b["owner"] = dict(who=", ".join(own[:4]) + (f" +{len(own) - 4}" if len(own) > 4 else ""), how="codeowners")
+        tag = (b.get("title") or "").split(":")[0].split(" ")[0]
+        if b["kind"] == "artifact" and re.fullmatch(r"v\d+\.\d+\.\d+(\.post\d+)?", tag) and not b.get("next"):
+            b["next"] = dict(en=f"{tag} is a final tag: decide between {tag}.post1 with the fix, an out-of-band upload of this artifact, "
+                                "or a known issue in the release notes, and record it.",
+                             vi=f"{tag} là tag final: chọn giữa {tag}.post1 có bản sửa, upload riêng artifact này, "
+                                "hoặc known issue trong release note, rồi ghi lại quyết định.")
+        if b["kind"] in ("artifact", "publish"):
+            b["decide_cmd"] = decide_cmd(b["id"])
     return bl
 
 

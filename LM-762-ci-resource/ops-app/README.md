@@ -38,6 +38,8 @@ python -X utf8 export_static.py     # dist/: shell + api/*.json + legacy.html + 
 cd .. && python -X utf8 tests/check_app.py [--lang en]   # every hash: console errors at 1280 px, overflow at a real 390 px
 ```
 
+Production on a host (TLS, auth, scheduled refresh, atomic publish, rollback, backup): see [`deploy/README.md`](deploy/README.md).
+
 Rebuild the page first when its data changed (`plan-2026-11/outputs/cpu_tests/build_page.py`, then `verify_page.py`); `build_today.py` refreshes `release_desk.json` from ops.db.
 
 ## Folders

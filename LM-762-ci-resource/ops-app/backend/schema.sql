@@ -156,6 +156,88 @@ CREATE TABLE IF NOT EXISTS weekly_run (
   PRIMARY KEY (pipeline, number),
   FOREIGN KEY (pipeline, number) REFERENCES bk_build(pipeline, number)
 );
+-- weekly_run above is the first design (Buildkite meta-data weekly-full=true); kept for history, no longer filled.
+
+-- Weekly full build, GitHub Actions design (2026-11-26, collect_weekly.py): workflow weekly_full_build.yml on dev,
+-- one job per device lane (CUDA, XPU, later AMD / RBLN); each lane uploads report.json
+-- (.github/scripts/weekly_full_build.py) = Buildkite child pipelines and the problems that fail the run.
+-- verdict: passed / failed / timed_out / running / cancelled.  Re-runs replace the rows of a run (latest attempt).
+CREATE TABLE IF NOT EXISTS weekly_gha_run (
+  run_id       INTEGER PRIMARY KEY,       -- GitHub Actions run id
+  run_number   INTEGER,
+  attempt      INTEGER,
+  event        TEXT,                      -- schedule / workflow_dispatch
+  status       TEXT,
+  conclusion   TEXT,
+  verdict      TEXT NOT NULL,
+  head_branch  TEXT,
+  head_sha     TEXT,
+  created_at   TEXT,
+  started_at   TEXT,                      -- start of the latest attempt
+  updated_at   TEXT,
+  first_job_at TEXT,                      -- wall time = first job start .. last job end
+  last_job_at  TEXT,
+  prepare_conclusion TEXT,                -- "Prepare ci-weekly-full branch" job
+  url          TEXT,
+  snapshot_id  INTEGER REFERENCES snapshot(id)
+);
+CREATE INDEX IF NOT EXISTS ix_wgr_created ON weekly_gha_run(created_at);
+-- state: passed / failed / timed_out / running / cancelled / not_run
+CREATE TABLE IF NOT EXISTS weekly_gha_lane (
+  run_id        INTEGER NOT NULL,
+  device        TEXT NOT NULL,            -- cuda / xpu / amd / rbln
+  job_id        INTEGER,
+  job_name      TEXT,
+  status        TEXT,
+  conclusion    TEXT,
+  state         TEXT NOT NULL,
+  started_at    TEXT,
+  completed_at  TEXT,
+  url           TEXT,
+  artifact_name TEXT,
+  artifact_id   INTEGER,
+  report        INTEGER,                  -- 1 = report.json read (live or from the cache)
+  report_passed INTEGER,
+  timed_out     INTEGER,
+  commit_sha    TEXT,
+  branch        TEXT,
+  earlier_reports INTEGER,                -- reports of earlier attempts of this lane (re-runs)
+  earlier_failed  INTEGER,
+  log_notes     TEXT,                     -- JSON list
+  snapshot_id   INTEGER REFERENCES snapshot(id),
+  PRIMARY KEY (run_id, device)
+);
+CREATE TABLE IF NOT EXISTS weekly_gha_pipeline (
+  run_id   INTEGER NOT NULL,
+  device   TEXT NOT NULL,
+  slug     TEXT NOT NULL,                 -- Buildkite pipeline
+  name     TEXT,
+  number   INTEGER,                       -- Buildkite build number
+  url      TEXT,
+  state    TEXT,
+  retried  TEXT,                          -- JSON list of job labels that passed only after a retry
+  ord      INTEGER,
+  PRIMARY KEY (run_id, device, slug)
+);
+-- kind: build / failed / soft_failed / not_run / missing / suite_skipped / workload_skipped
+CREATE TABLE IF NOT EXISTS weekly_gha_problem (
+  run_id      INTEGER NOT NULL,
+  device      TEXT NOT NULL,
+  slug        TEXT NOT NULL,
+  idx         INTEGER NOT NULL,
+  kind        TEXT,
+  label       TEXT,
+  state       TEXT,
+  exit_status INTEGER,
+  url         TEXT,
+  job_id      TEXT,
+  detail      TEXT,
+  PRIMARY KEY (run_id, device, slug, idx)
+);
+CREATE TABLE IF NOT EXISTS weekly_gha_meta (
+  key   TEXT PRIMARY KEY,                 -- collected_at, schedule_enabled, cron, workflow, weeks
+  value TEXT
+);
 
 -- ───────────── code changes ─────────────
 CREATE TABLE IF NOT EXISTS pr (
@@ -244,6 +326,18 @@ CREATE TABLE IF NOT EXISTS blocker (
   snapshot_id INTEGER REFERENCES snapshot(id)
 );
 
+-- Release decisions recorded by a person (backend/decide.py, expert review round 2). Append-only; the newest row per
+-- blocker is the one the page shows. known_issue / accept make the blocker non-gating.
+CREATE TABLE IF NOT EXISTS release_decision (
+  id          INTEGER PRIMARY KEY,
+  blocker_id  TEXT NOT NULL,
+  line        TEXT,
+  action      TEXT NOT NULL CHECK (action IN ('post1','upload','known_issue','accept','yank','rerun')),
+  reason      TEXT NOT NULL CHECK (length(trim(reason)) > 0),
+  decided_by  TEXT NOT NULL CHECK (length(trim(decided_by)) > 0),
+  decided_at  TEXT NOT NULL
+);
+
 -- Verdict history: what the page concluded about a release, per snapshot.
 CREATE TABLE IF NOT EXISTS release_verdict (
   snapshot_id INTEGER NOT NULL REFERENCES snapshot(id),
@@ -308,3 +402,107 @@ SELECT j.name, COUNT(*) AS failures, MAX(r.created_at) AS last_at,
          WHERE j2.name=j.name AND j2.error_line IS NOT NULL ORDER BY r2.created_at DESC LIMIT 1) AS last_error
 FROM wf_job j JOIN wf_run r ON r.run_id=j.run_id
 WHERE j.conclusion='failure' GROUP BY j.name;
+
+-- ───────────── living knowledge base (PR Inspector phase C, 2026-11-24) ─────────────
+-- RFC (one per PR) and FRS (one per code area / feature) generated from local PR analysis (kb.py).
+-- A version is never overwritten: a fact change (CI pipeline, gates, tests, PRs) creates a proposal with a diff;
+-- a person accepts or rejects it (kb.py accept / reject). Human edits are new versions with author='human'.
+CREATE TABLE IF NOT EXISTS kb_doc (
+  doc_id          TEXT PRIMARY KEY,          -- 'frs:smcore' | 'rfc:6572'
+  kind            TEXT NOT NULL CHECK (kind IN ('rfc','frs')),
+  subject         TEXT NOT NULL,             -- entity key: 'feature:smcore' | 'pr:6572'
+  title           TEXT,
+  status          TEXT NOT NULL DEFAULT 'draft',   -- draft | reviewed
+  current_version INTEGER NOT NULL DEFAULT 0,
+  created_at      TEXT NOT NULL,
+  updated_at      TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS kb_version (
+  doc_id      TEXT NOT NULL REFERENCES kb_doc(doc_id),
+  version     INTEGER NOT NULL,
+  body_md     TEXT NOT NULL,                 -- the document (markdown)
+  facts_json  TEXT NOT NULL,                 -- the facts it was generated from
+  facts_hash  TEXT NOT NULL,
+  author      TEXT NOT NULL,                 -- 'generator' | 'human'
+  reason      TEXT,
+  created_at  TEXT NOT NULL,
+  PRIMARY KEY (doc_id, version)
+);
+
+-- links PR <-> feature <-> CI gate <-> RFC/FRS <-> bug / error analysis
+CREATE TABLE IF NOT EXISTS kb_link (
+  doc_id  TEXT NOT NULL REFERENCES kb_doc(doc_id),
+  ref     TEXT NOT NULL,                     -- 'pr:6572' 'feature:smcore' 'gate:k3-unit-tests' 'bug:sig/test_failed' 'F05' 'analysis:3'
+  rel     TEXT NOT NULL,                     -- about | covers | gated_by | spec_of | risk | analyses | changes
+  PRIMARY KEY (doc_id, ref, rel)
+);
+
+CREATE TABLE IF NOT EXISTS kb_proposal (
+  proposal_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+  doc_id         TEXT NOT NULL REFERENCES kb_doc(doc_id),
+  base_version   INTEGER NOT NULL,
+  trigger        TEXT NOT NULL,              -- ci_change | gate_change | feature_change | pr_change | test_change
+  changes_json   TEXT NOT NULL,              -- [{fact, before, after}]
+  diff           TEXT NOT NULL,              -- unified diff of body_md (base -> proposed)
+  new_body_md    TEXT NOT NULL,
+  new_facts_json TEXT NOT NULL,
+  new_facts_hash TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'open',   -- open | accepted | rejected | superseded
+  created_at     TEXT NOT NULL,
+  decided_at     TEXT
+);
+
+-- bug / error analysis (backward direction of the Inspector): a failure signature or a dev regression and its suspects
+CREATE TABLE IF NOT EXISTS kb_analysis (
+  analysis_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+  ref           TEXT NOT NULL UNIQUE,        -- 'bug:sig/test_failed' | 'reg:k3-unit-tests/14727'
+  summary       TEXT,
+  suspects_json TEXT NOT NULL,               -- [{pr, commit, features, functions, why}]
+  updated_at    TEXT NOT NULL
+);
+
+DROP VIEW IF EXISTS v_kb_open_proposals;
+CREATE VIEW v_kb_open_proposals AS
+SELECT p.proposal_id, p.doc_id, d.kind, d.subject, p.base_version, p.trigger, p.created_at
+FROM kb_proposal p JOIN kb_doc d ON d.doc_id = p.doc_id WHERE p.status = 'open';
+
+-- Before / after CI impact of the merged CI changes (#6730, #6731, #6854), filled by collect_ci_impact.py (tab #obs/impact).
+-- One row per metric; before / after use the same method (ci_impact.py). status: ok / collecting / insufficient / new / no_data.
+CREATE TABLE IF NOT EXISTS ci_impact_metric (
+  key        TEXT PRIMARY KEY,
+  ord        INTEGER,
+  family     TEXT,                       -- gpu / mp / gha / rel
+  label_en   TEXT,
+  label_vi   TEXT,
+  unit       TEXT,
+  better     TEXT,                       -- down / up / info
+  before     REAL,
+  after      REAL,
+  n_before   INTEGER,
+  n_after    INTEGER,
+  min_n      INTEGER,
+  status     TEXT,
+  delta      REAL,
+  delta_pct  REAL,
+  note       TEXT,
+  after_only INTEGER
+);
+CREATE TABLE IF NOT EXISTS ci_impact_meta (
+  key   TEXT PRIMARY KEY,                -- collected_at, before, after, cutoffs, heavy_reasons, decisions, weekly, scope (JSON values)
+  value TEXT
+);
+
+-- 2026-11-26 v2: CI improvement versions (ci_versions.json). v0 = baseline; each version = [its start, next start).
+CREATE TABLE IF NOT EXISTS ci_impact_version (
+  id TEXT PRIMARY KEY, ord INTEGER, title_en TEXT, title_vi TEXT, prs TEXT, since TEXT, until TEXT, days REAL
+);
+CREATE TABLE IF NOT EXISTS ci_impact_def (
+  key TEXT PRIMARY KEY, ord INTEGER, family TEXT, label_en TEXT, label_vi TEXT, unit TEXT, better TEXT, min_n INTEGER,
+  after_only INTEGER, headline INTEGER
+);
+CREATE TABLE IF NOT EXISTS ci_impact_value (
+  key TEXT NOT NULL, version TEXT NOT NULL, value REAL, n INTEGER, status TEXT,
+  d_base REAL, d_base_pct REAL, d_prev REAL, d_prev_pct REAL, note TEXT,
+  PRIMARY KEY (key, version)
+);

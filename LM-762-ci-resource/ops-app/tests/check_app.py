@@ -19,10 +19,10 @@ from pathlib import Path
 
 CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 DIST = Path(__file__).resolve().parents[1] / "dist"
-HASHES = ["now", "history", "today", "releases", "trace", "coming", "ci-cost/cpu", "ci-cost/gpu", "rebase-risk",
+HASHES = ["now", "history", "today", "weekly", "impact", "releases", "trace", "coming", "ci-cost/cpu", "ci-cost/gpu", "rebase-risk",
           "gates/guide", "gates/tiers", "tests/cpu-overview", "tests/cpu-explorer", "tests/gpu-overview", "tests/gpu-mindmap",
           "r1130/baseline", "r1130/prs", "r1130/quality"]
-HARNESS = "__check_harness.html"
+HARNESS = "check-harness.html"   # no leading "__": the server refuses those names
 MISSING = set()
 HARNESS_HTML = """<!doctype html><html><body style="margin:0"><iframe id="f" style="width:390px;height:1400px;border:0"></iframe><pre id="R"></pre>
 <script>
@@ -43,6 +43,18 @@ def serve():
         def log_message(self, *a):
             pass
 
+        def do_GET(self):   # the app server's refresh status API (server.py): idle, no run yet
+            if self.path.split("?")[0] in ("/api/refresh/status", "/api/sync-status"):
+                body = (b'{"running": false, "last": null, "progress": null}' if "refresh" in self.path else
+                        b'{"sync_id": 1, "label": "check", "sync_status": "synced", "partial_errors": [], "in_sync": true}')
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            super().do_GET()
+
         def log_error(self, fmt, *a):   # a 404 of a file the page needs is a defect: report it
             MISSING.add(self.path.split("?")[0])
     handler = functools.partial(Quiet, directory=str(DIST))
@@ -60,8 +72,12 @@ def chrome(args, timeout=120):
 CONSOLE = re.compile(r'CONSOLE[:(]\d+\)?\] "(.*?)", source: (\S+)')
 
 
-def desktop(base, h, lang, shot):
-    args = ["--enable-logging=stderr", "--v=0", "--window-size=1280,1400", "--dump-dom", f"{base}/shell.html?lang={lang}#{h}"]
+# review 6.6: the page people open (index.html: data loader + every tab), not only the shell around it
+INDEX_HASHES = ["obs/today", "obs/release", "obs/desk", "r1130/baseline", "gates/tiers"]
+
+
+def desktop(base, h, lang, shot, page="shell.html"):
+    args = ["--enable-logging=stderr", "--v=0", "--window-size=1280,1400", "--dump-dom", f"{base}/{page}?lang={lang}#{h}"]
     out = chrome(args)
     # every console message counts: the shell and the page log nothing on a healthy load
     errs = [f"{m.group(1)[:160]} @ {m.group(2).split('/')[-1].split('?')[0]}" for m in CONSOLE.finditer(out.stderr)]
@@ -86,12 +102,27 @@ def main():
     ap.add_argument("hashes", nargs="*", default=HASHES)
     ap.add_argument("--lang", default="vi")
     ap.add_argument("--shot")
+    ap.add_argument("--base", help="check a running server instead of dist/ (e.g. http://127.0.0.1:8765); "
+                                   "needs --site: the folder that server serves, for the same-origin 390 px harness")
+    ap.add_argument("--site", type=Path, help="with --base: the site folder behind that URL (e.g. releases/<CURRENT>/site)")
     a = ap.parse_args()
+    global DIST
+    if a.base:
+        if not a.site:
+            print("--base needs --site")
+            return 1
+        DIST = a.site
     if not (DIST / "shell.html").exists():
         print("run backend/export_static.py first")
         return 1
     (DIST / HARNESS).write_text(HARNESS_HTML, encoding="utf-8")
-    srv, base = serve()
+    if a.base:
+        class _NoServer:
+            def shutdown(self):
+                pass
+        srv, base = _NoServer(), a.base.rstrip("/")
+    else:
+        srv, base = serve()
     bad = 0
     try:
         for h in a.hashes:
@@ -107,6 +138,13 @@ def main():
             print(f"{h:22s} {'OK ' if ok else 'BAD'} console={len(errs)} mobile={'no result' if mob is None else ('overflow ' + '; '.join(over) if over else 'ok')}")
             for e in errs[:4]:
                 print("    ", e)
+        if not a.hashes or a.hashes == HASHES:   # the full run also opens the main page directly
+            for h in INDEX_HASHES:
+                errs = desktop(base, h, a.lang, None, page="index.html")
+                bad += bool(errs)
+                print(f"{'index#' + h:22s} {'OK ' if not errs else 'BAD'} console={len(errs)}")
+                for e in errs[:4]:
+                    print("    ", e)
     finally:
         srv.shutdown()
         miss = sorted(m for m in MISSING if not m.endswith("favicon.ico"))

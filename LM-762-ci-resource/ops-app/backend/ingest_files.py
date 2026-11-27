@@ -144,9 +144,16 @@ def from_observe_snapshot(con):
     return n
 
 
+def iso_mtime(t):
+    import datetime as _dt
+    return _dt.datetime.fromtimestamp(t, _dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def from_report_cache(con):
     rc = OLD / "report_cache"
-    snap = new_snapshot(con, "file:report_cache/")
+    # review 2.4: the newest file time is the collection time, so re-reading unchanged files reuses the snapshot
+    mt = max((p.stat().st_mtime for p in rc.glob("*.json")), default=None)
+    snap = new_snapshot(con, "file:report_cache/", iso_mtime(mt) if mt else None)
     n = 0
     for f, wid in (("publish.json", WF_PUBLISH), ("nightly.json", WF_NIGHTLY)):
         for r in load(rc / f) or []:
@@ -244,7 +251,7 @@ def from_release_prep(con, line):
     f = RELEASE_DIR(line) / "RELEASE_PREP.md"
     if not f.exists():
         return 0
-    snap = new_snapshot(con, f"file:release-{line}/RELEASE_PREP.md")
+    snap = new_snapshot(con, f"file:release-{line}/RELEASE_PREP.md", iso_mtime(f.stat().st_mtime))
     a, b, c = (int(x) for x in line.split("."))
     upsert(con, "release_line", dict(line=line, major=a, minor=b, patch=c), ["line"])
     n = 0

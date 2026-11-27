@@ -1,0 +1,78 @@
+{
+ "schema": "lmcache.research_report/v1",
+ "id": "rr-sample-opt-whole-chunk-prefetch",
+ "context": "LMCache optimization",
+ "sample": true,
+ "title": "Sample: whole_chunk prefetch policy lowers warm TTFT on long_doc_qa",
+ "created_at": "2026-11-24T06:10:00Z",
+ "source": {
+  "app": "research-app (sample)",
+  "run_id": "sample-opt-0002",
+  "pipeline": "8-gpu"
+ },
+ "pr": {
+  "number": 6572,
+  "title": "(sample) whole_chunk fetching policy",
+  "state": "merged"
+ },
+ "features": [
+  "F05",
+  "F06",
+  "F11"
+ ],
+ "areas": [
+  "smcore",
+  "blend"
+ ],
+ "summary": "Illustrative report. Warm requests on long_doc_qa read whole chunks from L2 instead of per-row reads; time to first token and L2 reads per request were measured against the dev baseline.",
+ "hypothesis": "Fewer, larger L2 reads cut warm TTFT without lowering the hit rate.",
+ "environment": {
+  "gpus": 2,
+  "gpu_model": "H100 80GB",
+  "engine": "vllm",
+  "engine_version": "0.13.0",
+  "model": "Llama-3.1-8B-Instruct",
+  "lmcache_commit": "180dfc55"
+ },
+ "benchmark": {
+  "name": "long_doc_qa (warm)",
+  "runs": 10,
+  "metrics": [
+   {
+    "name": "TTFT p50",
+    "unit": "ms",
+    "baseline": 812,
+    "candidate": 655,
+    "better": "lower"
+   },
+   {
+    "name": "TTFT p90",
+    "unit": "ms",
+    "baseline": 1240,
+    "candidate": 1010,
+    "better": "lower"
+   },
+   {
+    "name": "cache hit rate",
+    "unit": "%",
+    "baseline": 91.2,
+    "candidate": 91.0,
+    "better": "higher"
+   },
+   {
+    "name": "L2 reads per request",
+    "unit": "reads",
+    "baseline": 148,
+    "candidate": 37,
+    "better": "lower"
+   }
+  ]
+ },
+ "verdict": "improves",
+ "artifacts": [
+  {
+   "label": "PR",
+   "url": "https://github.com/LMCache/LMCache/pull/6572"
+  }
+ ]
+}

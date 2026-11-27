@@ -135,18 +135,22 @@ def collect_docker():
 
 # ───────────── artifact matrix ─────────────
 def wrong_version(vs, p, tag_time):
-    """Exact version missing: name the same-line version uploaded closest to the tag (the build made it, but wrong)."""
+    """Exact version missing: name the version uploaded closest to the tag, within 24 h (the build made it, but under the
+    wrong version). Any version counts, not only the same line: the v0.5.8 run uploaded lmcache-cli 0.5.9.dev0 (review R5)."""
     if not tag_time:
         return "not on PyPI"
     t0 = dt.datetime.fromisoformat(tag_time.replace("Z", "+00:00"))
     best = None
     for v, up in vs.items():
-        if not up or not v.startswith(p["line"]):
+        if not up:
             continue
         h = abs((dt.datetime.fromisoformat(up.replace("Z", "+00:00")) - t0).total_seconds()) / 3600
         if h <= 24 and (best is None or h < best[1]):
             best = (v, h)
-    return f"uploaded {best[0]} instead" if best else "not on PyPI"
+    if not best:
+        return "not on PyPI"
+    dev = re.search(r"\.dev\d*|a\d|b\d|rc\d", best[0])
+    return f"uploaded {best[0]} instead" + (" (a pre-release: pip install of this package gets a dev build)" if dev else "")
 
 
 def artifact_rows(tag, p, gh_tags, pypi, docker, tag_time=None):

@@ -378,18 +378,19 @@ JS = r"""<!-- PRMAP:JS:START -->
     pause.title=T('Animate the flows (off by default)','Chạy hiệu ứng dòng chảy (mặc định tắt)');pLab();
     ov.scrollTop=0; return true;
   }
+  const WS=window.WSTACK||(window.WSTACK=(function(){const S=[];const z=()=>S.forEach((x,i)=>{x.el.style.zIndex=String(80+i);});const drop=el=>{const i=S.findIndex(x=>x.el===el);if(i>=0)S.splice(i,1);};const live=()=>{for(let i=S.length-1;i>=0;i--){if(S[i].el.isConnected&&S[i].on())return S[i];S.splice(i,1);}return null;};addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const t=e.target;if(t&&t.closest&&t.closest('input,textarea,select'))return;const top=live();if(!top)return;e.preventDefault();e.stopImmediatePropagation();top.close();},true);return{push(el,close,on){drop(el);S.push({el,close,on:on||(()=>el.classList.contains('on'))});el.inert=false;z();},pop(el){drop(el);el.style.zIndex='';z();},top(){const t=live();return t&&t.el;},has(el){return S.some(x=>x.el===el);}};})());
   function open(num,push){
     num=String(num).replace(/^#|^pr:/,'');
     if(!ENT.get('pr:'+num)) return false;
     if(!ov.classList.contains('on')){opener=document.activeElement;stack=[];}
     else if(push!==false&&cur&&cur!==num) stack.push(cur);
     if(window.closeEntity) closeEntity();
-    render(num); ov.classList.add('on'); ov.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+    render(num); ov.classList.add('on'); ov.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; WS.push(ov,close);
     document.getElementById('pmClose').focus({preventScroll:true}); return true;
   }
   function close(){
     if(!ov.classList.contains('on')) return;
-    ov.classList.remove('on'); ov.setAttribute('aria-hidden','true'); document.body.style.overflow=''; cur=null; stack=[];
+    ov.classList.remove('on'); ov.setAttribute('aria-hidden','true'); document.body.style.overflow=''; WS.pop(ov); cur=null; stack=[];
     if(opener&&opener.isConnected&&opener.focus) opener.focus({preventScroll:true}); opener=null;
   }
   window.openPrMap=open; window.closePrMap=close;
@@ -415,7 +416,9 @@ JS = r"""<!-- PRMAP:JS:START -->
     const a=e.target.closest('[data-ent^="pr:"],a[href*="/pull/"]'); if(!a) return;
     const m=(a.getAttribute('data-ent')||'').match(/^pr:(\d+)$/)||(a.getAttribute('href')||'').match(/\/pull\/(\d+)(?:$|[/?#])/);
     if(!m||(a.getAttribute('href')||'').includes('/files')||!ENT.get('pr:'+m[1])) return;
-    e.preventDefault(); e.stopPropagation(); open(m[1]);
+    e.preventDefault(); e.stopPropagation();
+    if(window.piOpen&&window.piOpen('pr:'+m[1],{view:5})) return;   // PR Inspector (semantic conflict view); the map is a button in it
+    open(m[1]);
   },true);
   // every tab: "PR map" button in the PR card of the entity drawer
   const eh=document.getElementById('entHead');

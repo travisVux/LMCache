@@ -42,7 +42,11 @@ JS = r"""
     return undefined;
   }
   // whitespace inside a text node is collapsed before the lookup: a formatter that wraps the HTML must not break the translation
-  function t(s){ if(lang!=='vi'||typeof s!=='string') return s; const k=s.trim(); if(!k) return s; let v=tr(k); if(v===undefined&&/\s{2,}|\n/.test(k)) v=tr(k.replace(/\s+/g,' ')); if(v===undefined) return s; return s.match(/^\s*/)[0]+v+s.match(/\s*$/)[0]; }
+  const NUMRX=/(?<![\w.,:\/#@-])(?<!(?:Python|python|torch|CUDA|cuda|vLLM|vllm|py|cu|rc|v|Python |torch |CUDA |vLLM ))(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+)(?![\d.,]\d|[\w])/g;
+  // E11: one set of unit words in VI (GPU-giờ, GPU-phút, giờ job, phút job)
+  const UNITVI=[[/\bGPU-h\b/g,'GPU-giờ'],[/\bGPU-min\b/g,'GPU-phút'],[/\bjob-h\b/g,'giờ job'],[/\bjob-min\b/g,'phút job']];
+  const numVi=x=>UNITVI.reduce((a,[r,w])=>a.replace(r,w),x.replace(NUMRX,m=>m.replace(/,/g,'\u0001').replace(/\./g,',').replace(/\u0001/g,'.')));
+  function t(s){ if(lang!=='vi'||typeof s!=='string') return s; const k=s.trim(); if(!k) return s; let v=tr(k); if(v===undefined&&/\s{2,}|\n/.test(k)) v=tr(k.replace(/\s+/g,' ')); if(v===undefined) return /\d[.,]\d|GPU-h|GPU-min|job-h|job-min/.test(s)?numVi(s):s; return numVi(s.match(/^\s*/)[0]+v+s.match(/\s*$/)[0]); }
   const orig=new WeakMap();
   function applyNode(n){
     const p=n.parentElement; if(!p||p.closest(SKIP)) return;
@@ -53,6 +57,7 @@ JS = r"""
     if(root.nodeType===3){ applyNode(root); return; }
     if(root.nodeType!==1) return;
     const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while(n=w.nextNode()) applyNode(n);
+    root.querySelectorAll&&root.querySelectorAll('.obsraw').forEach(e=>{if(lang==='vi')e.setAttribute('lang','en');else if(e.getAttribute('lang')==='en')e.removeAttribute('lang');});
     root.querySelectorAll&&root.querySelectorAll('[placeholder]').forEach(e=>{ if(!e.dataset.phEn) e.dataset.phEn=e.getAttribute('placeholder'); e.setAttribute('placeholder',t(e.dataset.phEn)); });
   }
   new MutationObserver(ms=>{ if(lang!=='vi') return; ms.forEach(m=>m.addedNodes.forEach(apply)); }).observe(document.body,{childList:true,subtree:true});
@@ -89,7 +94,13 @@ def put(page, start, end, block, anchor):
 
 def main():
     page = open(PAGE, encoding="utf-8").read()
-    data = json.dumps({"vi": VI, "rules": RULES}, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    vi, rules = dict(VI), list(RULES)
+    for k, v in VI.items():      # "4 · Release trace" -> also "Release trace", so any section number translates (review U8)
+        mk, mv = re.match(r"^\d+[A-Z]? · (.+)$", k), re.match(r"^\d+[A-Z]? · (.+)$", v)
+        if mk and mv and mk.group(1) not in vi:
+            vi[mk.group(1)] = mv.group(1)
+    rules.append([r"^(\d+[A-Z]?) · (.+)$", "$1 · §T($2)"])
+    data = json.dumps({"vi": vi, "rules": rules}, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     page = put(page, "/* I18N:CSS:START */", "/* I18N:CSS:END */", CSS, "@media (max-width:980px)")
     page = put(page, "<!-- I18N:JS:START -->", "<!-- I18N:JS:END -->", JS.replace("__DATA__", data), "</body>")
     # mindmap: translate the label before it is truncated; redraw on language change

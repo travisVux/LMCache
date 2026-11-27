@@ -1,3 +1,35 @@
 __pycache__/
 *.pyc
 
+
+# ── Data and generated outputs never go to git (review 2026-11-27, S1 / 9.2: internal CI data in a public repo) ──
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+third_party/
+LM-762-ci-resource/backups-dev/
+LM-762-ci-resource/etl/lake/
+LM-762-ci-resource/ops-app/data/
+LM-762-ci-resource/ops-app/dist/
+LM-762-ci-resource/ops-app/.wrangler/
+LM-762-ci-resource/ops-app/deploy/pages-functions/.wrangler/
+LM-762-ci-resource/plan-2026-11/06_PR_TO_CI_VISUAL.html
+LM-762-ci-resource/plan-2026-11/outputs/P1_full/
+LM-762-ci-resource/plan-2026-11/outputs/P1*/**/*.csv
+LM-762-ci-resource/plan-2026-11/outputs/P1*/**/*.json
+LM-762-ci-resource/plan-2026-11/outputs/P1*/**/*.jsonl
+LM-762-ci-resource/plan-2026-11/outputs/expert_review/
+LM-762-ci-resource/plan-2026-11/outputs/ux_review/
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/*.log
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/report_cache/
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/overlap_patches.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/entities.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/report_data.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/observe_snapshot.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/ops_ci_24h.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/today.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/mp_pr_builds.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/kb.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/pr_inspector.json
+LM-762-ci-resource/plan-2026-11/outputs/cpu_tests/pr_inspector_cache.json

@@ -6,6 +6,8 @@ Retry policy:
   - 403 / 429 with rate limit spent   -> sleep until the reset time, then retry (does not use a try)
   - 5xx, timeouts, network errors     -> exponential backoff (2, 4, 8 ... max 120 s), up to `tries`
   - remaining quota below `min_remaining` after a call -> sleep until reset before the next call
+    (no_wait: stop instead - every later call of this client fails at once without a request, so a scheduled step
+     ends in time and leaves the rest of the quota alone; the failed partitions are fetched on the next run)
 """
 import json
 import os
@@ -42,11 +44,12 @@ def _bk_token():
 
 
 class Client:
-    def __init__(self, base, token_fn, reset_is_epoch, rem_header, reset_header, min_remaining=60):
+    def __init__(self, base, token_fn, reset_is_epoch, rem_header, reset_header, min_remaining=60, no_wait=False):
         self.base, self._token_fn, self._tok = base, token_fn, None
         self.reset_is_epoch, self.rem_h, self.reset_h, self.min_remaining = reset_is_epoch, rem_header, reset_header, min_remaining
         self._lock = threading.Lock()
         self.calls = 0
+        self.no_wait, self.stopped = no_wait, None
 
     def token(self):
         with self._lock:
@@ -64,6 +67,10 @@ class Client:
     def _after(self, h):
         rem = h.get(self.rem_h)
         if rem is not None and int(rem) < self.min_remaining:
+            if self.no_wait:
+                self.stopped = f"quota floor: {rem} left < {self.min_remaining}"
+                print(f"  [rate] {self.base} remaining {rem} < {self.min_remaining}: no more calls in this run", flush=True)
+                return
             w = self._reset_wait(h)
             print(f"  [rate] {self.base} remaining {rem}, sleeping {w // 60} min {w % 60} s", flush=True)
             time.sleep(w)
@@ -72,6 +79,8 @@ class Client:
         if not url.startswith("http"):
             url = self.base + url.lstrip("/")
         short = url.split("?")[0]
+        if self.stopped:
+            raise RuntimeError(self.stopped)
         last, a = None, 0
         while a < tries:
             hdr = {"Authorization": "Bearer " + self.token(), "Accept": accept, "User-Agent": "CacheAgent-ETL"}
@@ -103,7 +112,9 @@ class Client:
 
 
 BK = Client("https://api.buildkite.com/v2/", _bk_token, reset_is_epoch=False, rem_header="RateLimit-Remaining", reset_header="RateLimit-Reset")
-GH = Client("https://api.github.com/", _gh_token, reset_is_epoch=True, rem_header="X-RateLimit-Remaining", reset_header="X-RateLimit-Reset")
+GH = Client("https://api.github.com/", _gh_token, reset_is_epoch=True, rem_header="X-RateLimit-Remaining", reset_header="X-RateLimit-Reset",
+            min_remaining=int(os.environ.get("ETL_GH_MIN_REMAINING") or 60),   # below it: sleep until the reset
+            no_wait=os.environ.get("ETL_GH_NO_WAIT") == "1")                  # ... or stop calling GitHub in this run
 
 
 def next_link(h):

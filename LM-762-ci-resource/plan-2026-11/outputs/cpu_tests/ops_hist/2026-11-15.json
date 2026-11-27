@@ -166,9 +166,9 @@
   "Accel_rerun": 0.0
  },
  "extras": {
-  "nightly_fail": 10,
-  "feat_tests_pct": 97.7,
-  "roadmap_uncovered": 1,
-  "green_wait": 32
+  "nightly_fail": 9,
+  "feat_tests_pct": 97.3,
+  "roadmap_uncovered": 0,
+  "green_wait": 30
  }
 }

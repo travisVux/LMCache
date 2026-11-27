@@ -44,6 +44,8 @@ def rnd(x, n=1):
 def point(snap):
     from build_observe import CONFIG
     G, B = snap.get("gh") or {}, snap.get("bk")
+    if snap.get("bk_at") and snap.get("bk_at") != snap.get("at"):
+        B = None   # Buildkite half kept from an older run (no token): no Buildkite numbers for this day (round 2)
     c = G.get("counts") or {}
     p = dict(at=snap["at"], day=snap["at"][:10])
     p["prs"] = dict(open=c.get("open"), draft=c.get("draft"), approved=c.get("approved"), changes=c.get("changes"),

@@ -94,6 +94,54 @@ SELECT r.tag, b.pipeline, MAX(b.created_at) AS last_red FROM release r JOIN bk_b
 SELECT s.taken_at, v.verdict FROM release_verdict v JOIN snapshot s ON s.id=v.snapshot_id WHERE v.release_tag='v0.5.8rc1';
 ```
 
+## Living knowledge base (PR Inspector, 2026-11-24)
+
+RFC (one per PR) and FRS (one per code area / feature) are generated from the PR Inspector data by `backend/kb.py`
+(`python -X utf8 kb.py build`, also run by `build_pr_inspector.py` in the page build). A version is never overwritten:
+new facts create a proposal; a person decides it.
+
+```mermaid
+erDiagram
+    kb_doc ||--o{ kb_version : "versions (v1, v2 ...)"
+    kb_doc ||--o{ kb_proposal : "update proposals (open / accepted / rejected / superseded)"
+    kb_doc ||--o{ kb_link : "links"
+    kb_link }o..|| pr : "ref pr:N (about / changes), free text, not a foreign key"
+    kb_link }o--|| feature : "ref feature:area (spec_of / changes), F-id (covers)"
+    kb_link }o--|| ci_gate : "ref gate:name (gated_by)"
+    kb_link }o--|| kb_analysis : "ref bug:sig (risk / analyses)"
+```
+
+| Table | One row = | Key | Filled by |
+|---|---|---|---|
+| `kb_doc` | one RFC (`rfc:6572`) or FRS (`frs:smcore`); its current version, status (draft, reviewed) and `last_seen` (last build whose input still had the subject; older = "frozen") | doc_id | `kb.py build` |
+| `kb_version` | one version: markdown, the facts it was made from (JSON + hash, `facts_made`), author (generator / human), reason, `proposal_id` (accepted proposal), `decided_by`. Append-only: triggers refuse UPDATE / DELETE | doc_id + version | `kb.py build` (v1), `kb.py accept`, `kb.py edit` |
+| `kb_link` | one link from a document to a PR, feature, F-id, CI gate or bug signature (`ref` is free text such as `pr:6572`, not a foreign key) | doc_id + ref + rel | `kb.py build` |
+| `kb_proposal` | one proposed update: base version, triggers (comma separated: ci_change, gate_change, test_change, pr_overlap, pr_change, feature_change), changed facts, diff, new text, `source` (build / simulate), `input_made`, `decided_by`, `decision_reason`, `superseded_by` | proposal_id | `kb.py build` when the facts hash changed |
+| `kb_analysis` | one bug / error analysis: failure signature -> suspect PRs, commits, features, functions | ref | `kb.py build` (backward direction of the Inspector) |
+| `v_kb_open_proposals` (view) | open proposals with their document | | |
+
+| Rule | How |
+|---|---|
+| Never overwrite silently | Same facts (list order ignored) -> nothing, and open proposals of that document are closed as `superseded`. New facts -> a proposal on the current version (older open ones of the same source become `superseded`). New versions come only from `accept` (generator text) or `edit` (human text). A proposal whose base is no longer the current version is closed as `superseded` |
+| Decisions are audited | `accept` / `reject --by <who> --reason <why>` (default `$OPS_KB_REVIEWER`); one decision at a time (`BEGIN IMMEDIATE`, `WHERE status='open'`) |
+| Simulations stay simulations | `--simulate` needs `--db <copy>` (or `--allow-real-db`); its proposals are `source='simulate'` and `accept` refuses them without `--allow-simulated` |
+| Keep human text | Sections titled "(edit)" and any section a person added are copied from the current version into every proposal. `edit` refuses changes to generated sections (they would be lost) unless `--force`, and refuses an empty file |
+| CI or feature changed | FRS facts include the gate pipeline steps and conditions (`.buildkite/k3_tests/*/pipeline.yml` at the clone HEAD), tiers, tests, flaky workloads, bugs and open PRs. A pipeline edit -> trigger `ci_change` for every FRS gated by it |
+| Try it without real changes | `kb.py build --simulate sim.json` (see the docstring); `tests/check_kb.py` does it on a copy of the DB |
+
+## CI impact by version (2026-11-26)
+
+Filled by `backend/collect_ci_impact.py`, computed by `backend/ci_impact.py`, read by `model.ci_impact()` (`/api/impact`, `dist/api/impact.json`, `release_desk.json` `impact`, tab `#obs/impact`). Versions are declared in `backend/ci_versions.json`: v0 = Report 1130 baseline; v1 = #6730 + #6731 + #6854; add v2, v3 ... there.
+
+| Table | Key | Holds |
+|---|---|---|
+| `ci_impact_version` | `id` | v0 .. vN: title (EN, VI), PRs, window `since` / `until`, `days`. A version starts `burn_in_hours` (24) after the last merge of its start PRs and ends where the next one starts |
+| `ci_impact_def` | `key` | One metric: `family` (gpu / mp / gha / rel), EN + VI label, unit, `better` (down / up / info), `min_n`, `after_only`, `headline` (position in the KPI row, 0 = none) |
+| `ci_impact_value` | `key`, `version` | Value of a metric in a version: `value`, `n` (sample), `status` (baseline / ok / collecting / insufficient / new / no_data), `d_base` / `d_base_pct` (vs v0), `d_prev` / `d_prev_pct` (vs the previous version), `note` (JSON [en, vi]) |
+| `ci_impact_meta` | `key` | JSON: cutoffs (merge time + sha per PR), heavy-tier `decisions` and `heavy_reasons` per version, `weekly`, `coverage` (GitHub runs matched to a PR, unmapped GPU minutes), `burn_in_hours`, `min_days` (14), `scope`, `collected_at` |
+
+v0 = the live window of `baseline_days` (default 30) before the first start-PR merge of v1; v0 and v1.. all come from one live fetch on every refresh (Buildkite builds cached per build in `data/ci_impact_cache/bk_builds.json`, finished builds older than 3 days are not asked again), normalized to the P1 table columns (`jobs_before.csv` / `jobs_after.csv`, `gh_jobs_before.csv` / `gh_jobs_after.csv`) and cut per window (2026-11-26: the frozen Report 1130 tables are no longer used). Sample rules (methodology review 2026-11-26): p50 needs N >= 100, p90 N >= 300, rates N >= 200; a window under 14 days is `collecting`; below `min_n` no value is shown (`insufficient`). Never extrapolated. `ci_impact_metric` (first version of this tab) is emptied and unused.
+
 ## Not modeled yet (phase 2)
 
 | Entity | Source today | Value |

@@ -11,8 +11,10 @@ def now_iso():
 
 def connect(path=DB_PATH):
     path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path)
+    # collectors run in parallel (refresh.ps1): wait up to 120 s for another writer instead of 'database is locked'
+    con = sqlite3.connect(path, timeout=120)
     con.row_factory = sqlite3.Row
+    con.execute("PRAGMA busy_timeout = 120000")
     con.execute("PRAGMA foreign_keys = ON")
     con.execute("PRAGMA journal_mode = WAL")
     con.executescript((HERE / "schema.sql").read_text(encoding="utf-8"))
@@ -22,6 +24,14 @@ def connect(path=DB_PATH):
         "for_rc=excluded.for_rc, for_final=excluded.for_final, ord=excluded.ord",
         [(*s, i) for i, s in enumerate(ARTIFACT_SPECS)])
     con.commit()
+    return con
+
+
+def connect_ro(path=DB_PATH):
+    """Read-only connection for the web server: no schema run, no writes possible (SQLite refuses them)."""
+    con = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True, check_same_thread=False)
+    con.row_factory = sqlite3.Row
+    con.execute("PRAGMA query_only = ON")
     return con
 
 

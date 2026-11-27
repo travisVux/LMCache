@@ -237,17 +237,22 @@ def build():
     ta_all = {x["key"]: x for lst in (ops.get("ta") or {}).values() for x in lst}
     published = {r["tag_name"]: r for r in (snap.get("gh") or {}).get("releases") or []}
     releases = []
-    for n in sorted((n for n in nodes.values() if n["kind"] == "release" and n.get("state") != "next"), key=lambda n: n.get("at") or "", reverse=True):
+    drel = desk.get("releases") or {}   # ops.db (fresh): publish runs + publish time per tag (expert review R7)
+    def pub_at(n):
+        return (drel.get(n["id"]) or {}).get("at") or n.get("at") or ""
+    for n in sorted((n for n in nodes.values() if n["kind"] == "release" and n.get("state") != "next"), key=pub_at, reverse=True):
         tag, rk = n["id"], f"release:{n['id']}"
         prs = [e["to"] for e in out_e[rk] if e["rel"] == "contains"]
         feats = collections.Counter(e["to"] for p_ in prs for e in out_e[p_] if e["rel"] == "changes" and e["strength"] == "strong")
-        runs = sorted(pubs.get(tag) or [], key=lambda r: (r.get("created_at") or "", r.get("run_attempt") or 0), reverse=True)
+        runs = pubs.get(tag) or [dict(status=r.get("status"), conclusion=r.get("conclusion"), created_at=r.get("created_at"), html_url=r.get("url"), event=r.get("event"))
+                                  for r in (drel.get(tag) or {}).get("runs") or []]
+        runs = sorted(runs, key=lambda r: (r.get("created_at") or "", r.get("run_attempt") or 0), reverse=True)
         fin = next((r for r in runs if r.get("status") == "completed"), None)
         blockers = [dict(num=x["num"], fix_status=x.get("fix_status"), fix_pr=x.get("fix_pr"), cls=x.get("cls"))
                     for x in ta_all.values() if x.get("tag") == tag and x.get("impact") == "blocks-release"]
         d = DEC.release_verdict(fin, blockers, [r for r in runs if r.get("status") != "completed"])
         dec[rk] = dict(verb=d["verb"], short=d["short"], by=d.get("by", "rule"))
-        releases.append(dict(key=rk, tag=tag, at=n.get("at"), state=n.get("state"), verb=d["verb"], by=d.get("by", "rule"), short=d["short"],
+        releases.append(dict(key=rk, tag=tag, at=pub_at(n) or n.get("at"), state=n.get("state"), verb=d["verb"], by=d.get("by", "rule"), short=d["short"],
                              n_prs=len(prs), feats=[[k, c, (nodes.get(k) or {}).get("status")] for k, c in feats.most_common(5)],
                              n_feats=len(feats), blockers=blockers, published=tag in published,
                              ev=(fin or (runs[0] if runs else {})).get("html_url") or n.get("url"), evl=["publish run", "run publish"] if runs else ["GitHub release", "GitHub release"]))
@@ -340,6 +345,7 @@ HTML = r"""
 
 CSS = r"""
 /* TODAY:CSS:START */
+.tdy-kpi{margin:2px 0 12px;font-size:14px}
 .tdy-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 16px}
 .tdy-tile{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--surface-1)}
 .tdy-tile .l{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted)}
@@ -353,6 +359,7 @@ CSS = r"""
 .tdy-row{display:grid;grid-template-columns:170px minmax(0,1.6fr) minmax(0,1.3fr) max-content;gap:4px 14px;align-items:baseline;padding:8px 4px;border-bottom:1px solid var(--border)}
 .tdy-row.hd{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);padding-top:6px;padding-bottom:6px}
 .tdy-obj{min-width:0;display:flex;gap:8px;align-items:baseline}
+#todaySec .tdy-row.hd,#todaySec .tdy-row.pr .tdy-obj .t{display:none}
 .tdy-obj .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary)}
 .tdy-obj .id{font-weight:650;white-space:nowrap}
 .tdy-why{color:var(--text-primary)}
@@ -428,7 +435,7 @@ JS = r"""
   // one verb chip for the page: rule = solid, Trace Agent = dashed; the rule sentence is the tooltip (decisions.py)
   const chip=(verb,by)=>{const v=D.verbs[verb]||[verb,verb,'info'],rule=D.rules[verb];
     const tip=(by==='agent'?'✦ Trace Agent · ':T('Rule · ','Luật · '))+(rule?L(rule):'');
-    return `<span class="tdy-v t-${v[2]}${by==='agent'?' agent':''}" tabindex="0" data-rule="${esc(tip)}">${by==='agent'?'✦ ':''}${esc(T(v[0],v[1]))}</span>`;};
+    return `<span class="tdy-v t-${v[2]}${by==='agent'?' agent':''}" data-verb="${esc(verb)}" tabindex="0" data-rule="${esc(tip)}">${by==='agent'?'✦ ':''}${esc((s=>s.charAt(0)+s.slice(1).toLowerCase())(String(T(v[0],v[1]))))}</span>`;};   // round 3: sentence case
   window.TODAY.chip=chip;
   const taChip=t=>t?`<span class="tdy-v agent" tabindex="0" data-rule="${esc('✦ Trace Agent · '+(t.tag||'')+' · '+(t.impact||''))}">✦ ${esc(t.cls||'')}</span>`:'';
   const ent=(k,lab)=>k&&window.ENT?ENT.a(k,lab):`<b>${esc(lab)}</b>`;
@@ -456,21 +463,15 @@ JS = r"""
     const srcList=src.map(s=>{const sh=hOf(s.at);return `<div class="${sh!=null&&sh>48?'tdy-old':''}">${esc(T(s.en,s.vi))}: ${fmtAge(sh)}</div>`;}).join('');
     const kinds=D.order.filter(v=>c.by_verb[v]).map(v=>`${c.by_verb[v]} ${T(D.verbs[v][0],D.verbs[v][1]).toLowerCase()}`).join(' · ');
     const t=(l,v,s,cls)=>`<div class="tdy-tile${cls?' '+cls:''}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
-    return `<div class="tdy-tiles">`+
-      t(T('Decide now','Cần quyết'),c.decide,kinds||T('nothing to decide','không có gì cần quyết'))+
-      t(T('Watch','Theo dõi'),c.watch,T(`CI running ${c.watch_parts.ci_running} · post-merge CI ${c.watch_parts.post_merge} · dev known red ${c.watch_parts.known_red}`,`CI đang chạy ${c.watch_parts.ci_running} · CI sau merge ${c.watch_parts.post_merge} · dev đỏ đã biết ${c.watch_parts.known_red}`))+
-      t(T('Done today','Xong hôm nay'),c.done,T(`of ${c.merged_24h} merged in 24 h: post-merge CI green`,`trên ${c.merged_24h} PR merge trong 24 giờ: CI sau merge xanh`))+
-      (oldest?
-        // the oldest input behind the decisions, not the newest one: a fresh snapshot must not hide a 6-day-old finding
-        t(T('Data age (oldest input)','Tuổi dữ liệu (nguồn cũ nhất)'),fmtAge(oldest.h),`<span class="tdy-st"><i></i>${oldest.h>48?esc(T(oldest.en,oldest.vi)):T('all inputs fresh','mọi nguồn đều mới')}</span>`+
-          `<details class="tdy-src"><summary>${T('every source','từng nguồn')}</summary>${srcList}<div>${T('git clone','clone git')}: ${fmtAge(hOf(D.git_at))}</div></details>`,oldest.h>48?'warn':''):
-        t(T('Data age','Tuổi dữ liệu'),fmtAge(h),`<span class="tdy-st"><i></i>${old?T('older than 6 h','cũ hơn 6 giờ'):T('fresh','mới')}</span><br>${T('PR / CI snapshot','Snapshot PR / CI')} ${esc(ut(D.snap_at))}<br>${T('git clone','clone git')} ${esc(ut(D.git_at))}${old?'<br>'+T('Re-run the collectors to refresh (network).','Chạy lại collector để làm mới (cần mạng).'):''}`,old?'warn':''))+
-      `</div>`;}
+    // round 3 (A_visual 4.5): one line of counts instead of 4 cards; the data-age card moved to the header "Data" item
+    return `<p class="tdy-kpi">`+[`<span title="${esc(kinds)}"><b>${c.decide}</b> ${T('to decide','cần quyết')}</span>`,
+      `<span title="${esc(T(`CI running ${c.watch_parts.ci_running} · post-merge CI ${c.watch_parts.post_merge} · dev known red ${c.watch_parts.known_red}`,`CI đang chạy ${c.watch_parts.ci_running} · CI sau merge ${c.watch_parts.post_merge} · dev đỏ đã biết ${c.watch_parts.known_red}`))}"><b>${c.watch}</b> ${T('to watch','theo dõi')}</span>`,
+      `<span title="${esc(T(`of ${c.merged_24h} merged in 24 h: post-merge CI green`,`trên ${c.merged_24h} PR merge trong 24 giờ: CI sau merge xanh`))}"><b>${c.done}</b> ${T('done today','xong hôm nay')}</span>`].join(' · ')+`</p>`;}
   function row(r){
     const obj=r.key?ent(r.key,r.label):`<b>${esc(r.label)}</b>`;
     const ev=r.ev?`<a class="tdy-ev" data-ev href="${esc(r.ev)}"${/^#/.test(r.ev)?'':' target="_blank" rel="noopener"'}>${esc(L(r.evl))}${/^#/.test(r.ev)?' →':' ↗'}</a>`:'';
-    return `<div class="tdy-row"><div>${chip(r.verb,r.by)}${r.by!=='agent'?taChip(r.ta):''}</div>`+
-      `<div class="tdy-obj"><span class="id">${obj}</span><span class="t${r.raw?' obsraw':''}" title="${esc(r.note||r.title||'')}">${esc(r.title||'')}</span></div>`+
+    return `<div class="tdy-row${/^pr:/.test(r.key||'')?' pr':''}"><div>${chip(r.verb,r.by)}${r.by!=='agent'?taChip(r.ta):''}</div>`+
+      `<div class="tdy-obj"${/^pr:/.test(r.key||'')?` title="${esc(r.title||'')}"`:''}><span class="id">${obj}</span><span class="t${r.raw?' obsraw':''}" title="${esc(r.note||r.title||'')}">${esc(r.title||'')}</span></div>`+
       `<div class="tdy-why">${esc(L(r.short))} ${staleChip(r.src)}${(r.errors||[]).filter(e=>e.line).map(e=>`<span class="tdy-err obsraw" title="${esc(e.job)}">${esc(e.line)}</span>`).join('')}</div><div>${ev}</div></div>`;}
   function copyCmd(b){const c=b.dataset.cmd,done=()=>{b.textContent=T('copied','đã copy');setTimeout(()=>{b.textContent=T('copy cmd','copy lệnh');},1500);};
     if(navigator.clipboard)navigator.clipboard.writeText(c).then(done,()=>prompt('',c));else prompt('',c);}
@@ -487,11 +488,12 @@ JS = r"""
   function render(){
     const c=D.counts;
     H.textContent=(document.getElementById('dkWhere')?'4 · ':'0 · ')+T('Today action inbox','Hộp việc hôm nay');
-    SUB.textContent=T(`What needs a person today, most urgent first. Verb = rule from decisions.py (hover a chip for the rule); ✦ dashed = Trace Agent. Snapshot ${ut(D.snap_at)}.`,
-      `Việc cần người làm hôm nay, gấp nhất ở trên. Động từ = luật trong decisions.py (rê chuột lên chip để xem luật); ✦ nét đứt = Trace Agent. Snapshot ${ut(D.snap_at)}.`);
+    SUB.textContent=T(`Most urgent first. Hover a chip for its rule. Snapshot ${ut(D.snap_at)}.`,`Gấp nhất ở trên. Rê chuột lên chip để xem luật. Snapshot ${ut(D.snap_at)}.`);   // round 3 (B_content #38)
     const hd=`<div class="tdy-row hd"><div>${T('Decision','Quyết định')}</div><div>${T('Object','Đối tượng')}</div><div>${T('Why','Vì sao')}</div><div>${T('Evidence','Bằng chứng')}</div></div>`;
     const vis=more?D.rows:D.rows.slice(0,D.visible),rest=D.rows.length-vis.length;
-    const list=D.rows.length?`<div class="tdy-list">${hd}${vis.map(row).join('')}</div>`+(rest>0?`<button type="button" class="tdy-more" id="tdyMore">${T(`Show ${rest} more`,`Hiện thêm ${rest}`)}</button>`:''):
+    // round 2 B4: built from the PR / CI snapshot; when it is old the rows may contradict the verdict banner above
+    const sH=hOf(D.snap_at),stl=sH>48?`<div class="ux-stalebox" style="margin:0 0 8px"><b>${T(`Built from the snapshot of ${ut(D.snap_at)} (${fmtAge(sH)} old).`,`Dựng từ snapshot ${ut(D.snap_at)} (đã ${fmtAge(sH)}).`)}</b> ${T('Rows may be out of date: the verdict banner and the top blocker above use the current release data and win when they disagree.','Các dòng có thể đã cũ: banner verdict và top blocker phía trên dùng dữ liệu release hiện tại và được ưu tiên khi hai bên khác nhau.')}</div>`:'';
+    const list=D.rows.length?`${stl}<div class="tdy-list${sH>48?' tdy-old':''}">${hd}${vis.map(row).join('')}</div>`+(rest>0?`<button type="button" class="tdy-more" id="tdyMore">${T(`Show ${rest} more`,`Hiện thêm ${rest}`)}</button>`:''):
       `<div class="tdy-empty">${T('Nothing needs a decision now.','Hiện không có gì cần quyết.')}</div>`;
     const foot=`<div class="tdy-foot">`+
       (c.release_decisions.length?`<div>${T(`Release Lead decisions still open: ${c.release_decisions.join(', ')}`,`Quyết định của Release Lead còn mở: ${c.release_decisions.join(', ')}`)} · <button type="button" data-goto="obs/coming">${T('Release cockpit','Release cockpit')} →</button></div>`:'')+
@@ -501,7 +503,9 @@ JS = r"""
     const rules=`<details class="tdy-rules"><summary>${T('How each verb is decided (decisions.py)','Mỗi động từ được quyết thế nào (decisions.py)')}</summary><dl>`+
       Object.keys(D.rules).map(v=>`<dt>${chip(v,v==='block'?'agent':'rule')}</dt><dd>${esc(L(D.rules[v]))}</dd>`).join('')+`</dl></details>`;
     // the Release Desk sections (build_desk.py) above already show verdict, $GOOD and blockers: no second Go/No-Go strip then
-    body.innerHTML=(document.getElementById('dkWhere')?'':strip())+tiles()+list+readyBox()+foot+rules;
+    // ready-for-'full' queue: one copy only, on Rebase risk (#ovReady, merged 2026-11-24); here a count + link
+    const readyLine=()=>{const n=(D.ready||[]).length;return n?`<div class="tdy-foot"><div><b>${n}</b> ${T("PRs are green on CPU + GPU unit and wait for a maintainer to add 'full'","PR đã xanh CPU + GPU unit, chờ maintainer gắn 'full'")} · <button type="button" data-goto="obs/overlap">${T('Rebase risk','Rủi ro rebase')} →</button></div></div>`:'';};
+    body.innerHTML=(document.getElementById('dkWhere')?'':strip())+tiles()+list+(document.getElementById('ovReady')?readyLine():readyBox())+foot+rules;
     const m=document.getElementById('tdyMore'); if(m) m.addEventListener('click',()=>{more=true;render();});
     body.querySelectorAll('.tdy-copy').forEach(b=>b.addEventListener('click',()=>copyCmd(b)));
   }
@@ -551,8 +555,10 @@ JS = r"""
   function renderOv(){const sec=document.getElementById('ovReady');if(!sec)return;
     const first=document.querySelector('section[data-view="obs"][data-tab="overlap"]:not(#ovReady)');if(first&&sec.nextElementSibling!==first)first.before(sec);
     document.getElementById('ovReadyH').textContent=T("PR queue · ready for 'full'","Hàng đợi PR · sẵn sàng gắn 'full'");
-    document.getElementById('ovReadySub').textContent=T('Green on DCO, code quality and GPU unit; the required MP suite has not run. The overlap pairs and rebase list follow below.','Đã xanh DCO, code quality và GPU unit; bộ MP bắt buộc chưa chạy. Các cặp PR chồng lấn và danh sách rebase ở bên dưới.');
+    document.getElementById('ovReadySub').textContent=T('Green on DCO, code quality and GPU unit; the required MP suite has not run. "Rebase now" is above; the overlap pairs follow below.','Đã xanh DCO, code quality và GPU unit; bộ MP bắt buộc chưa chạy. "Rebase ngay" ở phía trên; các cặp PR chồng lấn ở bên dưới.');
     const b=document.getElementById('ovReadyBody');b.innerHTML=readyBox().replace('<details class="tdy-ready">','<details class="tdy-ready" open>');
+    {const rows=[...b.querySelectorAll('tbody tr')],sc=b.querySelector('.tdy-scroll');if(rows.length>5&&sc){rows.slice(5).forEach(r=>r.hidden=true);   // round 3 (C_ia P4): top 5 + more
+      const m=document.createElement('button');m.type='button';m.className='tdy-copy';m.textContent=T(`Show ${rows.length-5} more`,`Hiện thêm ${rows.length-5}`);m.addEventListener('click',()=>{rows.forEach(r=>r.hidden=false);m.remove();});sc.after(m);}}
     b.querySelectorAll('.tdy-copy').forEach(x=>x.addEventListener('click',()=>copyCmd(x)));}
   const start=()=>{render();renderRel();renderOv();addEventListener('langchange',()=>{render();renderRel();renderOv();});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();

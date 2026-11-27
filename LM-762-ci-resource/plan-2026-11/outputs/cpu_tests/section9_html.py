@@ -4,13 +4,13 @@ HTML = r"""
 <!-- CPU-TESTS:START -->
 <section class="card" id="cpu" data-view="cpu" data-tab="overview">
   <div class="head"><h2>1 · CPU tests at a glance</h2>
-  <p class="sub">GHA run <code>42189301949</code> + Buildkite <code>k3-unit-tests #14829</code>, same commit <code>05d8eb84</code> (2026-11-06).</p></div>
+  <p class="sub">Size of the unit-test suite on the CPU job and on the required GPU unit pod.</p></div>
   <div class="tiles" id="cpuTiles"></div>
 </section>
 
 <section class="card" data-view="cpu" data-tab="overview">
   <div class="head"><h2>2 · Which unit tests run where</h2>
-  <p class="sub">Same commit, measured test by test. Who gates what: <a class="xlink" data-goto="gates/overview">Gates &amp; tiers → 1</a></p></div>
+  <p class="sub">Same commit, measured test by test. Who gates what: <a class="xlink" data-goto="gates/guide">Gates &amp; tiers → 1</a></p></div>
   <div class="ovl" id="ovl"></div>
   <div class="legend" id="ovlLegend"></div>
   <p class="callout">→ 327 vLLM-connector / lazy-offload tests run only on GHA Test (advisory): k3 has no vLLM, so no merge gate covers them.</p>
@@ -18,7 +18,7 @@ HTML = r"""
 
 <section class="card" data-view="cpu" data-tab="tiers">
   <div class="head"><h2>3 · Feature matrix</h2>
-  <p class="sub">Click a row → what · why · setup · code · files.</p></div>
+  <p class="sub">One row per feature area: tests, time and files on the CPU job.</p></div>
   <div class="fm-tools"><button type="button" class="chip" id="fmOpen">Expand all</button><button type="button" class="chip" id="fmClose">Collapse all</button></div>
   <table class="fm" id="fm">
     <thead><tr><th>Feature area</th><th>Tests passed</th><th>Time in job</th><th class="num">Files</th><th class="num">Skipped</th><th class="num">CPU-excluded</th></tr></thead>
@@ -29,7 +29,7 @@ HTML = r"""
 
 <section class="card" data-view="cpu" data-tab="tiers">
   <div class="head"><h2>4 · Setup matrix</h2>
-  <p class="sub">Files per area using each technique. Socket / subprocess columns = where port and timing flakes come from.</p></div>
+  <p class="sub">Files per area using each setup technique (mock, asyncio, subprocess, socket …).</p></div>
   <div style="overflow-x:auto;padding-right:80px"><table class="hm" id="hm"></table></div>
   <div class="legend" id="hmLegend"></div>
 </section>
@@ -38,8 +38,8 @@ HTML = r"""
   <div class="head"><h2>4 · CPU E2E: one script, two runners</h2>
   <p class="sub"><code>.github/scripts/run-cpu-e2e-validation.sh</code> — real vLLM-CPU + LMCache server.</p></div>
   <div class="runners">
-    <div class="runner"><span class="badge req">required</span><b>Buildkite cpu_e2e_validation</b><span>in k3-multiprocess-test · 3 transfer modes · 3.6 min p50 · 1,034 runs / 30 d</span></div>
-    <div class="runner"><span class="badge adv">advisory</span><b>GHA cpu_device.yml</b><span>7 legs · Ubuntu + macOS · opt-125m + DeepSeek-V2-Lite (MLA, dummy) · zmq / grpc / aio / native</span></div>
+    <div class="runner"><span class="badge adv">advisory</span><b>Buildkite cpu_e2e_validation</b><span>in k3-multiprocess-smoke on every ready PR · 3 transfer modes · 3.6 min p50</span></div>
+    <div class="runner"><span class="badge adv">advisory</span><b>GHA cpu_device.yml</b><span>6 legs · Ubuntu + macOS · opt-125m + DeepSeek-V2-Lite (MLA, dummy) · grpc / grpc-aio / grpc-native</span></div>
   </div>
   <ol class="flow">
     <li><b>Start</b><span>server + vLLM serve</span></li>
@@ -51,7 +51,7 @@ HTML = r"""
     <li><b>Same output</b><span>5 runs identical</span></li>
     <li><b>No false hit</b><span>other prompt misses</span></li>
   </ol>
-  <p class="note">GHA legs also run <code>lmcache bench server</code> (2 modes) first. Newest 200 cpu_device runs (2026-11-06 → 11-08, gh run list on 2026-11-09): 124 skipped by the path filter; of the 76 that ran, 39 ok · 9 fail · 12 cancelled · 16 waiting for approval.</p>
+  <p class="note">GHA legs also run <code>lmcache bench server</code> (2 modes) first.</p>
 </section>
 
 <section class="card" data-view="cpu" data-tab="tiers">
@@ -63,16 +63,16 @@ HTML = r"""
 
 <section class="card" data-view="cpu" data-tab="cost">
   <div class="head"><h2>6 · Time: same unit tests, two runners</h2>
-  <p class="sub">Commit 05d8eb84. The CPU job is done ≈30 min before the required GPU unit pod starts.</p></div>
+  <p class="sub">The same unit tests on the CPU job and on the GPU unit pod, plus the slowest files.</p></div>
   <div class="tline" id="tline"></div>
-  <p class="callout"><b>→ Use GHA Test as the early-fail signal for k3-unit-tests.</b> Cost per push: ≈95 CPU runner-min (5 versions × ≈19 min = 2.3 disk + 3.3 install + 12.5 pytest).</p>
+  <p class="callout"><b>→ Use GHA Test as the early-fail signal for k3-unit-tests.</b> Cost per push: ≈76 CPU runner-min (4 Python versions × ≈19 min = 2.3 disk + 3.3 install + 12.5 pytest; drafts: 3.12 only).</p>
   <h3 class="h3">Slowest 15 files (CPU job)</h3>
   <div class="slow" id="slow"></div>
 </section>
 
 <section class="card" data-view="cpu" data-tab="findings">
   <div class="head"><h2>7 · Fail-fast findings</h2>
-  <p class="sub">Checked by an independent review (REVIEW_ponytail.md). Hover a card for evidence.</p></div>
+  <p class="sub">Actionable findings from the CI logs; hover a card for evidence.</p></div>
   <div class="ffg" id="ffg"></div>
 </section>
 
@@ -165,8 +165,34 @@ body.nodesc .sdesc{display:none}
 @media (max-width:980px){.flow{grid-template-columns:repeat(4,1fr)}.runners{grid-template-columns:1fr}}
 """
 
+def _fastfail_card():
+    """G6 (round 2): the fast-fail headline uses the RECOMMENDED trigger (required checks), read from
+    fastfail_savings.json; the widest trigger stays as a secondary figure. Returns (title, detail, vi)."""
+    import json as _json
+    import os as _os
+    f = _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "fastfail_savings.json"), encoding="utf-8"))
+    tr = f["triggers"]
+    req, allt = tr["required (quality+k3_unit)"]["real"], tr["all three"]["real"]
+    shares = [v["real"]["share"] * 100 for v in tr.values()]
+    lo, hi = min(shares), max(shares)
+    a, b = f["window"].split(" ")[0].split("..")
+    n, base = f["mp_pr_builds"], f["mp_pr_gpu_hours"]
+    rp, ap = req["share"] * 100, allt["share"] * 100
+    t_en = f"Fast-fail cancel on required checks: upper bound ≈{rp:.1f}% of MP GPU time (replay, n = {n})"
+    t_vi = f"Fast-fail huỷ theo check bắt buộc: tối đa ≈{rp:.1f}% GPU của MP (mô phỏng lại, n = {n})"
+    d_en = (f"Replay of the {n} MP PR builds that ran GPU jobs, {a} → {b}: cancelling when a required check (Code Quality or k3-unit) fails "
+            f"saves at most {req['gpu_hours']:,} GPU-h of {base:,} GPU-h ({rp:.1f}%). By trigger {lo:.1f}–{hi:.1f}%; all three incl. the advisory GHA Test: "
+            f"{allt['gpu_hours']:,} GPU-h ({ap:.1f}%). An upper bound, not a measured saving; track the real effect in 4C / 5C. Numbers: Release Management → GPU load.")
+    d_vi = (f"Mô phỏng lại {n} build PR của MP có chạy job GPU, {a} → {b}: huỷ khi một check bắt buộc (Code Quality hoặc k3-unit) fail "
+            f"tiết kiệm tối đa {req['gpu_hours']:,} GPU-giờ trên {base:,} GPU-giờ ({rp:.1f}%). Theo từng trigger {lo:.1f}–{hi:.1f}%; cả ba gồm cả GHA Test (không bắt buộc): "
+            f"{allt['gpu_hours']:,} GPU-giờ ({ap:.1f}%). Là mức tối đa, không phải tiết kiệm đo được; theo dõi hiệu quả thật ở 4C / 5C. Số liệu: Release Management → tải GPU.")
+    return t_en, d_en, {t_en: t_vi, d_en: d_vi}
+
+
+_FF_T, _FF_D, FF_VI = _fastfail_card()
+
 FINDINGS = [
-    # badge, title, detail, action, evidence
+    # badge, title, detail, action, evidence. Only actionable items: gate facts live in the Gates table, cost in §6.
     ["new", "327 vLLM-connector unit tests are in no merge gate",
      "They importorskip vllm; k3-unit-tests installs no vLLM, so they run only in GHA Test (advisory). These files broke in recent PRs (lazy_offload, lora_keys).",
      "Gate them: make GHA Test (or a vLLM-only subset) required, or install vLLM in the k3 unit pod.",
@@ -179,26 +205,14 @@ FINDINGS = [
      "Time per test from the k3 log: 8,981 CPU-portable tests = 12.5 min, 1,267 k3-only tests = 8.8 min (41% of pytest), setup 2.2 min.",
      "Split k3-unit-tests into a CPU job + a GPU job with only the k3-only tests: GPU pod ≈11 min instead of 24.",
      "k3_durations.py · k3-unit-tests #14829 line timestamps · see PR / Release watch → Trend"],
-    ["new", "Fast-fail cancel saves ≈6% of MP GPU time",
-     "Replay of 401 MP PR builds (30 d). Numbers: Release Management → GPU load.",
+    ["new", _FF_T,
+     _FF_D,
      "Still build it (cheap), but trigger on required checks; bigger levers are retries, canceled builds and queue p90.",
      "fastfail_savings.py · ../P1/jobs_all_30d.csv + GHA Test / Code Quality runs + k3-unit-tests builds"],
-    ["ok", "GHA Test is advisory for merge, but gates release",
-     "Not in the required list; publish.yml needs it to succeed.",
-     "Decide: make it required (then stabilise it) or keep advisory + rerun rule for release.",
-     "gh api repos/LMCache/LMCache/branches/dev · publish.yml:183-214"],
     ["ok", "Matrix fail-fast works, but the failing leg runs to the end",
      "Other versions get cancelled; the failing leg still runs 12–15 min (no --maxfail; k3 uses --maxfail=1).",
-     "Add --maxfail; run all 5 versions nightly without fail-fast to learn if failures are version-specific.",
+     "Add --maxfail; run all 4 versions nightly without fail-fast to learn if failures are version-specific.",
      "40 failed runs: 29–34 cancelled per version · test.yml pytest line · unit/run.sh:38"],
-    ["part", "Failures: 3 classes, and the big one is already fixed",
-     "21 failed runs: test_profiling 16 (perf counters blocked on the Azure runner, perf_event_paranoid; fixed on dev by #6350 on 11-06), the rest real PR bugs, 1 ZMQ port collision.",
-     "Quarantine flaky tests from per-test history over ≥30 days, not from this snapshot.",
-     "REVIEW_ponytail F12 · c5a285ea · port collision in ip_store test_p2p_backend_with_controller (run 42189249028)"],
-    ["ok", "≈19 min per Python version, 5 versions per push",
-     "136 s free disk + 200 s install + 751 s pytest ≈ 95 runner-min per push.",
-     "Cut PR versions only after the nightly data above.",
-     "job 127850987819 step timings"],
     ["ok", "~6.5k lines of storage-logic tests skip on CPU only because of a device guard",
      "test_l1_manager, test_prefetch_controller, test_distributed_storage_manager, test_store_controller: the only device use is the skip guard.",
      "Task 2: remove the guard / use CPU tensors; test_multi_l1_serving already runs StorageManager on CPU.",
@@ -211,10 +225,6 @@ FINDINGS = [
      "test_create_workload.py: 13 real requests (12 × 401). Passes today = latent flaky test.",
      "Mock the tokenizer download (test double).",
      "job312.log ~2938-2956"],
-    ["ok", "Collection quirks",
-     "No testpaths → examples/ is collected; marker supa is not in the -m filter.",
-     "Keep in mind when defining the L0 smoke tier.",
-     "pytest.ini · test.yml"],
 ]
 
 JS_ADD = r"""

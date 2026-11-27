@@ -1,0 +1,58 @@
+# Release Desk — reverse proxy (Caddy 2). TLS (Let's Encrypt, automatic), basic auth, gzip/zstd, proxy to server.py.
+#
+# Values come from deploy/ops-app.env (caddy run --envfile ops-app.env; never committed):
+#   OPS_DOMAIN      public DNS name pointing at this machine, e.g. release-desk.example.com
+#   (Let's Encrypt works without a contact e-mail; to get expiry notices add "email you@domain" in the global block)
+#   OPS_AUTH_USER   basic-auth user name
+#   OPS_AUTH_HASH   bcrypt hash from:  caddy hash-password --plaintext '<password>'
+#   OPS_LOG_DIR     folder for the access log (default ../logs = ops-app/logs when started from deploy/)
+# Ports 80 and 443 must reach this machine (router port-forward + Windows firewall) for the certificate.
+#
+# Check:  caddy validate --config Caddyfile --adapter caddyfile --envfile ops-app.env   (run from deploy/)
+# Run:    caddy run      --config Caddyfile --adapter caddyfile --envfile ops-app.env
+
+{
+	admin localhost:2019
+}
+
+{$OPS_DOMAIN} {
+	encode zstd gzip
+
+	# /healthz stays open for uptime monitors: through the proxy it shows only ok/status, release name and data ages
+	# (no versions, git sha or paths: see server.py healthz). Monitor /healthz?strict=1 (503 when data is stale).
+	@protected not path /healthz
+	basic_auth @protected {
+		{$OPS_AUTH_USER} {$OPS_AUTH_HASH}
+	}
+
+	# who may connect at all (expert review O8): LAN + Tailscale by default; widen OPS_ALLOW_IPS only on purpose.
+	# Prefer Tailscale / Cloudflare Access over a router port-forward.
+	@outside not remote_ip {$OPS_ALLOW_IPS:private_ranges 100.64.0.0/10}
+	respond @outside "forbidden" 403
+
+	# read-only site: refuse every method except GET/HEAD before it reaches Python
+	@write not method GET HEAD
+	respond @write "method not allowed" 405
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "same-origin"
+		# the page is one self-contained file: inline script/style, no CDN; the optional in-page "Refresh" calls GitHub / Buildkite
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.github.com https://api.buildkite.com; frame-ancestors 'self'; base-uri 'self'; form-action 'none'; object-src 'none'"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:8765 {
+		header_up X-Forwarded-For {remote_host}
+	}
+
+	log {
+		output file {$OPS_LOG_DIR:../logs}/caddy-access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}

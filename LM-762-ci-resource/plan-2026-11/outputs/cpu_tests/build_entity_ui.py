@@ -301,17 +301,19 @@ JS = r"""
     back.hidden=!stack.length; back.setAttribute('aria-label',T('Back','Quay lại')); document.getElementById('entClose').setAttribute('aria-label',T('Close','Đóng'));
     body.scrollTop=0; return true;
   }
+  const WS=window.WSTACK||(window.WSTACK=(function(){const S=[];const z=()=>S.forEach((x,i)=>{x.el.style.zIndex=String(80+i);});const drop=el=>{const i=S.findIndex(x=>x.el===el);if(i>=0)S.splice(i,1);};const live=()=>{for(let i=S.length-1;i>=0;i--){if(S[i].el.isConnected&&S[i].on())return S[i];S.splice(i,1);}return null;};addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented)return;const t=e.target;if(t&&t.closest&&t.closest('input,textarea,select'))return;const top=live();if(!top)return;e.preventDefault();e.stopImmediatePropagation();top.close();},true);return{push(el,close,on){drop(el);S.push({el,close,on:on||(()=>el.classList.contains('on'))});el.inert=false;z();},pop(el){drop(el);el.style.zIndex='';z();},top(){const t=live();return t&&t.el;},has(el){return S.some(x=>x.el===el);}};})());
   function open(k,push){
+    if(/^(pr:\d+(\/(v[1-5]|back|docs))?|doc:.+)$/.test(k)&&window.piOpen&&window.piOpen(k)) return true;   // PR Inspector (build_pr_inspector.py) is the one place for PR detail
     if(!N[k]) return false;
     if(!drawer.classList.contains('on')){opener=document.activeElement;stack=[];}
     else if(push!==false&&cur&&cur!==k) stack.push(cur);
-    render(k); drawer.classList.add('on'); drawer.setAttribute('aria-hidden','false');
+    render(k); drawer.classList.add('on'); drawer.setAttribute('aria-hidden','false'); WS.push(drawer,close);
     const h='#e/'+N[k].kind+'/'+encodeURIComponent(N[k].id).replace(/%2F/g,'/'); if(location.hash!==h) history.replaceState(null,'',h);
     document.getElementById('entClose').focus({preventScroll:true}); return true;
   }
   function close(){
     if(!drawer.classList.contains('on')) return;
-    drawer.classList.remove('on'); drawer.setAttribute('aria-hidden','true'); cur=null; stack=[];
+    drawer.classList.remove('on'); drawer.setAttribute('aria-hidden','true'); WS.pop(drawer); cur=null; stack=[];
     const s=window.vizNav&&vizNav.state; if(s) history.replaceState(null,'','#'+s.v+'/'+s.t);
     if(opener&&opener.isConnected&&opener.focus) opener.focus({preventScroll:true}); opener=null;
   }

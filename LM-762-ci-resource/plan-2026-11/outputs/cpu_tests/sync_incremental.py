@@ -15,6 +15,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(HERE, "report_data.json")
 HTML_FILE = os.path.join(HERE, "..", "..", "06_PR_TO_CI_VISUAL.html")
 REPO = "LMCache/LMCache"
+# Pruning window in days: 0 (default) = keep everything. Override with env R1130_SYNC_DAYS or --days N.
+# --no-build: update report_data.json only (do not rebuild the page).
+SLIDING_WINDOW_DAYS = int(os.environ.get("R1130_SYNC_DAYS") or 0)
+if "--days" in sys.argv:
+    SLIDING_WINDOW_DAYS = int(sys.argv[sys.argv.index("--days") + 1])
+NO_BUILD = "--no-build" in sys.argv
 
 def run_gh_json(args):
     try:
@@ -130,19 +136,21 @@ def main():
         }
     data["nightly"] = sorted(nightly_map.values(), key=lambda x: x.get("created_at") or "")
 
-    # 6. Sliding Window Pruning (Max 90 days to prevent bloat & keep HTML lightweight)
+    # 6. Optional sliding-window pruning. Default 0 = keep the full history, so the CI Baseline tab
+    #    (#r1130, weekly / monthly merges) never loses old PRs. Set R1130_SYNC_DAYS=N or --days N to cap it.
     now_utc = datetime.now(timezone.utc)
-    SLIDING_WINDOW_DAYS = 90
-    cutoff_date = (now_utc - timedelta(days=SLIDING_WINDOW_DAYS)).strftime("%Y-%m-%d")
-    print(f"[*] Pruning data older than {cutoff_date} (90-day sliding window)...")
-    
-    before_pr = len(data.get("merged_prs", []))
-    data["merged_prs"] = [p for p in data.get("merged_prs", []) if (p.get("m") or p.get("c") or "")[:10] >= cutoff_date]
-    data["opened_prs"] = [p for p in data.get("opened_prs", []) if (p.get("c") or "")[:10] >= cutoff_date]
-    data["publish"] = [r for r in data.get("publish", []) if (r.get("created_at") or "")[:10] >= cutoff_date]
-    data["nightly"] = [r for r in data.get("nightly", []) if (r.get("created_at") or "")[:10] >= cutoff_date]
-    data["start"] = max(data.get("start", cutoff_date), cutoff_date)
-    print(f"    -> Kept {len(data['merged_prs'])}/{before_pr} merged PRs within 90-day window.")
+    if SLIDING_WINDOW_DAYS > 0:
+        cutoff_date = (now_utc - timedelta(days=SLIDING_WINDOW_DAYS)).strftime("%Y-%m-%d")
+        print(f"[*] Pruning data older than {cutoff_date} ({SLIDING_WINDOW_DAYS}-day sliding window)...")
+        before_pr = len(data.get("merged_prs", []))
+        data["merged_prs"] = [p for p in data.get("merged_prs", []) if (p.get("m") or p.get("c") or "")[:10] >= cutoff_date]
+        data["opened_prs"] = [p for p in data.get("opened_prs", []) if (p.get("c") or "")[:10] >= cutoff_date]
+        data["publish"] = [r for r in data.get("publish", []) if (r.get("created_at") or "")[:10] >= cutoff_date]
+        data["nightly"] = [r for r in data.get("nightly", []) if (r.get("created_at") or "")[:10] >= cutoff_date]
+        data["start"] = max(data.get("start", cutoff_date), cutoff_date)
+        print(f"    -> Kept {len(data['merged_prs'])}/{before_pr} merged PRs within the {SLIDING_WINDOW_DAYS}-day window.")
+    else:
+        print(f"[*] No pruning (full history): {len(data.get('merged_prs', []))} merged PRs since {data.get('start')}.")
 
     # 7. Update Checkpoint Watermark
     data["end"] = now_utc.strftime("%Y-%m-%d")
@@ -153,6 +161,9 @@ def main():
     print(f"[✓] Checkpoint saved: {data['made']}")
 
     # 7. Rebuild Model & Visualizer
+    if NO_BUILD:
+        print("[*] --no-build: report_data.json updated, page not rebuilt.")
+        return
     print("[*] Rebuilding report model and HTML dashboard...")
     subprocess.run([sys.executable, "-I", os.path.join(HERE, "build_page.py")], check=True)
     print(f"[✓] Successfully updated {HTML_FILE}!")
