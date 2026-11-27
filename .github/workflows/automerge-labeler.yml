@@ -4,6 +4,10 @@ on:
   pull_request_target:
     types: [ auto_merge_enabled, auto_merge_disabled ]
 
+concurrency:
+  group: automerge-labeler-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   pull-requests: write
 
@@ -11,7 +15,21 @@ jobs:
   add_remove_labels:
     runs-on: ubuntu-24.04
     steps:
-      - uses: ubuntudroid/automerge-labeler@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          label: 'full'
+      - name: Sync auto-merge label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ACTION: ${{ github.event.action }}
+        run: |
+          if [[ "$ACTION" == "auto_merge_enabled" ]]; then
+            if gh label list --repo "$REPO" --search "full" --json name --jq '.[].name' | grep -qx "full"; then
+              gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "full"
+            else
+              echo "Label 'full' not found in $REPO; skipping."
+            fi
+          else
+            if gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name' | grep -qx "full"; then
+              gh pr edit "$PR_NUMBER" --repo "$REPO" --remove-label "full"
+            fi
+          fi
