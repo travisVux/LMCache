@@ -59,23 +59,6 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Checkout scope script
-        if: >-
-          steps.filter.outputs.lmcache != 'true' &&
-          (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          sparse-checkout: .github/scripts/pr-ci-scope.sh
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
-      - name: Read the CI scope checklist
-        id: scope
-        if: github.base_ref == 'dev' || startsWith(github.base_ref, 'release-')
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: bash .github/scripts/pr-ci-scope.sh
-
       - name: Setup Python 3.12
         if: steps.filter.outputs.lmcache == 'true'
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
@@ -91,6 +74,24 @@ jobs:
         uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
         with:
           extra_args: --all-files
+
+      - name: Checkout scope script
+        if: >-
+          steps.filter.outputs.lmcache != 'true' &&
+          (github.base_ref == 'dev' || startsWith(github.base_ref, 'release-'))
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: .github/scripts/pr-ci-scope.sh
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Read the CI scope checklist
+        id: scope
+        continue-on-error: true
+        if: github.base_ref == 'dev' || startsWith(github.base_ref, 'release-')
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: bash .github/scripts/pr-ci-scope.sh
 
   # Reusable workflows called from here, since GitHub has no needs: across
   # workflows. Drafts skip pre-commit, so the draft leg needs !cancelled() to

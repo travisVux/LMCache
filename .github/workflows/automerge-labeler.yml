@@ -23,7 +23,13 @@ jobs:
           ACTION: ${{ github.event.action }}
         run: |
           if [[ "$ACTION" == "auto_merge_enabled" ]]; then
-            gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "full"
+            if gh label list --repo "$REPO" --search "full" --json name --jq '.[].name' | grep -qx "full"; then
+              gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "full"
+            else
+              echo "Label 'full' not found in $REPO; skipping."
+            fi
           else
-            gh pr edit "$PR_NUMBER" --repo "$REPO" --remove-label "full"
+            if gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name' | grep -qx "full"; then
+              gh pr edit "$PR_NUMBER" --repo "$REPO" --remove-label "full"
+            fi
           fi
