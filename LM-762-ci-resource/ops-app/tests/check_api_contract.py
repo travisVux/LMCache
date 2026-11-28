@@ -4,6 +4,7 @@
   python -X utf8 check_api_contract.py --pc http://127.0.0.1:8797 --cf http://127.0.0.1:8796 [--cf-auth user:password]
 
 Set up both on ONE snapshot: server.py --root <releases dir> (release R), and `wrangler pages dev` on a copy of
+(push with OPS_D1_DAYS=0: the PC serves all history, the public D1 only its window, so a windowed copy differs by design)
 deploy/pages-functions whose local D1 holds R (d1_sync.py push --target sqlite:<file>, then load its dump with
 `wrangler d1 execute --local --file`). Compared: status codes, error codes, key sets, row order and values, total,
 next_offset, filters applied. Known differences by design (not compared): `source`, `pinned` on views, the `d1` / `run`

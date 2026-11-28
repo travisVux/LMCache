@@ -6,6 +6,7 @@ Cases: first push equals ops.db; a delta push writes only the changed rows; a pu
 readers and is cleaned by the next one; rollback; a new column; the ops.db views give the same answers on the copy.
 """
 import argparse
+import os
 import shutil
 import sqlite3
 import sys
@@ -154,6 +155,42 @@ def main():
         check("second rollback stays above gc_floor", cur1 > floor and cur2 > floor, f"floor {floor}, rollbacks -> {cur1}, {cur2}, last {last}")
         D.push(tg, db, "t10", "b10", log=quiet)
         check("push after rollbacks: copy equals ops.db", D.verify(tg, db, log=quiet))
+        # public window: D1 holds only the last N days, local keeps all; verify compares against the same window
+        asof = loc.execute("SELECT MAX(created_at) FROM pr").fetchone()[0] or D.now()
+        D.push(tg, db, "w1", "w1", log=quiet, as_of=asof, days=30)
+        cut = D.window_cut(30, asof)
+        n_loc = loc.execute("SELECT COUNT(*) FROM wf_run").fetchone()[0]
+        n_pub = tg.con.execute("SELECT COUNT(*) FROM wf_run").fetchone()[0]
+        old_pub = tg.con.execute("SELECT COUNT(*) FROM wf_run WHERE created_at < ?", (cut,)).fetchone()[0]
+        orphan = tg.con.execute("SELECT COUNT(*) FROM wf_job WHERE run_id NOT IN (SELECT run_id FROM wf_run)").fetchone()[0]
+        open_loc = loc.execute("SELECT COUNT(*) FROM pr WHERE merged_at IS NULL AND closed_at IS NULL").fetchone()[0]
+        open_pub = tg.con.execute("SELECT COUNT(*) FROM pr WHERE merged_at IS NULL AND closed_at IS NULL").fetchone()[0]
+        check("window: D1 drops rows older than the cut, keeps open PRs, no orphan jobs",
+              n_pub < n_loc and old_pub == 0 and orphan == 0 and open_pub == open_loc, f"wf_run {n_loc} -> {n_pub}, cut {cut}")
+        check("window: verify with the same window says equal", D.verify(tg, db, log=quiet, days=30, as_of=asof))
+        check("window: verify without the window sees the difference", not D.verify(tg, db, log=quiet))
+        D.push(tg, db, "w2", "w2", log=quiet, as_of=asof, days=30)
+        w2 = tg.con.execute("SELECT rows_in, rows_out FROM rd_sync ORDER BY sync_id DESC LIMIT 1").fetchone()
+        check("window: same data, same window -> 0 rows written", tuple(w2) == (0, 0), str(tuple(w2)))
+        # write budget: a push that would not fit stops before its first write (snapshot and rows unchanged)
+        cur_b = tg.con.execute("SELECT v FROM rd_meta WHERE k='current'").fetchone()[0]
+        n_b = sum(tg.con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for (t,) in
+                  tg.con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'h_%'").fetchall())
+        os.environ["OPS_D1_DAILY_WRITES"] = "10"
+        try:
+            D.push(tg, db, "b1", "b1", log=quiet)   # no window: the old rows come back = many writes
+            refused = False
+        except RuntimeError as e:
+            refused = "write budget" in str(e)
+        finally:
+            del os.environ["OPS_D1_DAILY_WRITES"]
+        n_a = sum(tg.con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for (t,) in
+                  tg.con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'h_%'").fetchall())
+        cur_a = tg.con.execute("SELECT v FROM rd_meta WHERE k='current'").fetchone()[0]
+        check("budget: an over-budget push writes no row and keeps the snapshot", refused and n_a == n_b and cur_a == cur_b,
+              f"refused={refused}, rows {n_b}->{n_a}, current {cur_b}->{cur_a}")
+        D.push(tg, db, "b2", "b2", log=quiet)
+        check("budget: the next push (in budget) cleans up and goes live", D.verify(tg, db, log=quiet))
         loc.close()
     finally:
         try:

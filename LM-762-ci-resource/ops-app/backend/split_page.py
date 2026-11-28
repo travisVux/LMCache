@@ -71,10 +71,10 @@ function chip(){
   var st=WORD[s.sync_status]?s.sync_status:'unknown',w=WORD[st],at=String(s.last_synced_at||s.page_made||'').slice(0,16).replace('T',' ');
   var pe=(s.partial_errors||[]).length,tip=['snapshot '+(s.label||'?'),'data '+(s.data_build||C.build),s.sync_id?'D1 #'+s.sync_id:'',s.in_sync===false?T('web copy and database differ','bản web và database đang lệch'):'',pe?pe+T(' source error(s)',' lỗi nguồn'):''].filter(Boolean).join(' · ');
   c.title=tip;c.innerHTML='<span style="width:8px;height:8px;border-radius:50%;background:'+DOT[st]+'"></span>'+T(w[0],w[1])+(at?' · '+at+' UTC':'')+(s.sync_id?' · #'+s.sync_id:'')+(s.in_sync===false?' · ⚠':'');}
- function get(){fetch('api/sync-status',{cache:'no-store',credentials:'same-origin'}).then(function(r){if(!r.ok)throw 0;return r.json();})
+ function get(){if(D.hidden)return;fetch('api/sync-status',{cache:'no-store',credentials:'same-origin'}).then(function(r){if(!r.ok)throw 0;return r.json();})
   .catch(function(){return fetch(C.manifest,{cache:'no-store',credentials:'same-origin'}).then(function(r){return r.ok?r.json():null;}).then(function(m){return m&&{sync_status:(m.partial_errors||[]).length?'partial':'synced',label:null,data_build:m.build,page_made:m.made,partial_errors:m.partial_errors};});})
   .then(function(s){if(s)show(s);}).catch(function(){});}
- get();setInterval(get,60000);
+ get();setInterval(get,C.poll_s*1000);
  try{new MutationObserver(function(){if(last)show(last);}).observe(D.documentElement,{attributes:true,attributeFilter:['lang']});}catch(e){}D.addEventListener('visibilitychange',function(){if(!D.hidden)get();});
 }
 function watch(){

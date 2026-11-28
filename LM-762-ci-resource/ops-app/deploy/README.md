@@ -10,7 +10,7 @@ it is served from changed.
 |---|---|---|
 | `ops-app-server` (scheduled task) | `backend/server.py`: Python stdlib, read-only. Serves `releases/<CURRENT>/site` and the API from that release's `ops.db` | `127.0.0.1:8765` (local only) |
 | `ops-app-caddy` (scheduled task) | Caddy 2: TLS (Let's Encrypt), basic auth, gzip/zstd, refuses every method except GET/HEAD | `:80`, `:443` → `127.0.0.1:8765` |
-| `ops-app-refresh` (scheduled task) | `refresh.ps1`, mode C: collect → build → check → publish | daily at 07:00 host time = 07:00 Viet Nam time (host is UTC+7) |
+| `ops-app-refresh` (scheduled task) | `refresh.ps1`, mode C: collect → build → check → publish | daily at 07:00 host time = 07:00 Viet Nam time (host is UTC+7); `install-services.ps1 -RefreshEveryMin 60` = hourly |
 | `ops-app-backup` (scheduled task) | `backup.py`: `data/ops.db` and `etl/lake/state.db` → `backups/<date>/`, keeps 14 | daily 03:00 |
 
 All 4 tasks run as a normal user (not admin, not SYSTEM). They start at boot without anyone logged on.
@@ -90,6 +90,7 @@ FAIL = nothing goes live; known gaps go to `manifest.json` `partial_errors`) →
 |---|---|
 | What | `deploy/d1_sync.py` copies the live release's `ops.db` to Cloudflare D1 (`OPS_D1_DB`). Each ops.db table `t` is `h_t` in D1 with `_from` / `_to` snapshot numbers, and a view `t` shows the current snapshot, so ops.db's queries and views run unchanged there |
 | Atomic | a push writes only changed rows (invisible until the switch), then ONE `UPDATE rd_meta` makes the new snapshot current. A push that stops half way is invisible and is cleaned by the next push. `d1_sync.py rollback [--to N]` goes back (last `OPS_D1_KEEP`=7 kept) |
+| Public window | the local `ops.db` keeps all history; D1 (the public copy) gets only the last `OPS_D1_DAYS`=90 days, counted from the snapshot time. Event tables by their own time (`pr`, `wf_run`, `bk_build`, `kpi_daily`, …), child tables follow their parent (`pr_label` → `pr`, `wf_job` → `wf_run`), open PRs always kept, definition / state / KB tables whole. `d1_sync.py verify` compares with the same window. `OPS_D1_DAYS=0` = everything |
 | Cost | first push ~27k rows (~10 min); a daily push writes only the delta (no change: 13 calls, ~15 s). `d1_verify` compares every row hash (~1 min) |
 | If it fails | the local site stays live, D1 keeps its last snapshot, `last-refresh.json` says `warn` and the run is `partial` |
 | API (same shape on the release PC and on Pages) | `GET /api/sync-status` → `{sync_id, label, last_synced_at, sync_status, partial_errors, data_build, page_build, in_sync}`; `GET /api/db` (tables, views, columns); `GET /api/db/<name>?tag=&branch=&env=&range=30d&since=&until=&<column>=&limit=&offset=` (rows of one snapshot, header `X-Sync-Id`); `POST /api/sync` (= `/api/refresh`) |

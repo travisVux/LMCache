@@ -923,8 +923,8 @@ def stage_costs_30d():
     import baseline   # the same folder as the CI Baseline tab (build_report1130): one window, one set of totals
     base, src = baseline.folder(), baseline.pick()
     try:
-        w = json.load(open(os.path.join(base, "window.json"), encoding="utf-8"))
-        d0, d1 = datetime.fromisoformat(w["since"][:10]).date(), datetime.fromisoformat(w["until"][:10]).date()
+        lo, hi = baseline.data_range(base)   # the days the data covers: the same window as the CI Baseline tab
+        d0, d1 = datetime.fromisoformat(lo[:10]).date(), datetime.fromisoformat(hi[:10]).date()
         days = [str(d0 + timedelta(days=i)) for i in range((d1 - d0).days)]
         cells = collections.defaultdict(collections.Counter)
         runs = collections.defaultdict(list)

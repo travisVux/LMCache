@@ -15,6 +15,7 @@
 param(
     [string]$User = "$env:USERDOMAIN\$env:USERNAME",
     [string[]]$RefreshAt = @('07:00'),   # host clock; this host is UTC+7 (SE Asia Standard Time) = 07:00 Viet Nam time
+    [int]$RefreshEveryMin = 0,           # >0: again every N minutes all day (default once a day); a run takes ~15 min
     [switch]$NoRefresh,
     [switch]$Uninstall
 )
@@ -75,7 +76,13 @@ Set-OpsTask 'ops-app-caddy' `
     (New-ScheduledTaskTrigger -AtStartup) $always 'Release Desk reverse proxy: TLS, basic auth, gzip'
 
 if (-not $NoRefresh) {
-    $trig = @($RefreshAt | ForEach-Object { New-ScheduledTaskTrigger -Daily -At $_ })
+    $trig = @($RefreshAt | ForEach-Object {
+        $t = New-ScheduledTaskTrigger -Daily -At $_
+        if ($RefreshEveryMin -gt 0) {   # data stays fresh through the day; IgnoreNew + refresh.ps1's busy check stop overlaps
+            $t.Repetition = (New-ScheduledTaskTrigger -Once -At $_ -RepetitionInterval (New-TimeSpan -Minutes $RefreshEveryMin) `
+                -RepetitionDuration (New-TimeSpan -Days 1)).Repetition
+        }
+        $t })
     Set-OpsTask 'ops-app-refresh' `
         (New-ScheduledTaskAction -Execute $ps -WorkingDirectory $Deploy `
             -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$Deploy\refresh.ps1`"") `

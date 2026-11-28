@@ -98,21 +98,9 @@ def csvr(name):
 
 
 def data_range():
-    """[since, until) from the data itself: first and last PR build / check-suite timestamp, as whole UTC days
-    (until = day after the last one). R1130_SINCE / R1130_UNTIL (YYYY-MM-DD, until exclusive) narrow it on purpose."""
-    ts = [r["build_created"] for r in csvr("jobs_all.csv") if r.get("is_pr") == "1" and r.get("build_created")]
-    ts += [r["suite_created"] for r in csvr("gh_jobs.csv") if r.get("suite_created")]
-    if ts:
-        lo, hi = min(ts)[:10], max(ts)[:10]
-        since, until = lo + "T00:00:00Z", (dt(hi + "T00:00:00Z") + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    else:   # empty export: fall back to the window the ETL wrote
-        w = json.load(open(os.path.join(P1, "window.json"), encoding="utf-8"))
-        since, until = w["since"], w["until"]
-    if os.environ.get("R1130_SINCE"):
-        since = os.environ["R1130_SINCE"][:10] + "T00:00:00Z"
-    if os.environ.get("R1130_UNTIL"):
-        until = os.environ["R1130_UNTIL"][:10] + "T00:00:00Z"
-    return since, until
+    """[since, until) from the data itself (baseline.data_range: the same rule Optimal CI uses)."""
+    import baseline
+    return baseline.data_range(P1)
 
 
 def p5090(vals, k=1.0, nd=1):

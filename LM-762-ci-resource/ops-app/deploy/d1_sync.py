@@ -10,7 +10,7 @@
   --target sqlite:<file>   instead of D1: same algorithm against a local SQLite file (tests, a local mirror)
 
 Settings (deploy/ops-app.env): CLOUDFLARE_API_TOKEN (needs "D1: Edit"), CLOUDFLARE_ACCOUNT_ID, OPS_D1_DB (database id,
-printed by init), OPS_D1_NAME (default release-desk), OPS_D1_KEEP.
+printed by init), OPS_D1_NAME (default release-desk), OPS_D1_KEEP, OPS_D1_DAYS (public window, default 90), OPS_D1_DAILY_WRITES (write budget, default 90000).
 
 How the copy stays consistent (no multi-statement transaction needed):
   * every ops.db table t is stored in D1 as h_t with 4 extra columns: _k (primary key as JSON), _h (row hash),
@@ -24,6 +24,11 @@ How the copy stays consistent (no multi-statement transaction needed):
     them first, so they never become visible;
   * a lock row in rd_meta (expires after 30 min) keeps two pushes apart; old versions are dropped after OPS_D1_KEEP
     snapshots, which is also how far rollback can go.
+
+Public window (OPS_D1_DAYS, default 90; 0 = everything): the local ops.db keeps all history, D1 gets only the last N
+days, counted back from the snapshot's as_of (whole days, so push and verify agree). Rules per table in WINDOW: event
+tables by their own time, child tables follow their parent (pr_label follows pr, wf_job follows wf_run), open PRs are
+current state and always kept, tables without a rule (definitions, current state, KB) are copied whole.
 """
 import argparse
 import datetime as dt
@@ -183,7 +188,8 @@ def local_schema(con):
 # Bookkeeping columns: re-stamped by every ingest although the data did not change (review 2026-11-27: one offline
 # rebuild re-wrote 6,514 of 6,940 bk_build rows only because snapshot_id moved). They are copied when a row changes
 # for another reason, but a change in them alone is not a change.
-VOLATILE = {"snapshot_id", "last_seen", "ingested_at", "updated_at"}
+# checked_at: artifact rows are re-checked every run (360 rows re-written per run for a new time only, 2026-11-28)
+VOLATILE = {"snapshot_id", "last_seen", "ingested_at", "updated_at", "checked_at"}
 HASH_V = "2"   # bump when the hash definition changes (the next push re-hashes stored rows once, rewrites none)
 
 
@@ -200,12 +206,78 @@ def mask_of(cols):
     return {i for i, c in enumerate(cols) if c in VOLATILE}
 
 
-def local_rows(con, t, spec):
+# public window: table -> WHERE (":cut" = first instant kept, ":day" = its date). A table missing here is copied whole.
+_PR_KEPT = "(merged_at IS NULL AND closed_at IS NULL) OR COALESCE(merged_at, closed_at, created_at) >= :cut"
+_PR_CHILD = f"pr IN (SELECT number FROM pr WHERE {_PR_KEPT})"
+WINDOW = {
+    "pr": _PR_KEPT,
+    "pr_assignee": _PR_CHILD, "pr_feature": _PR_CHILD, "pr_label": _PR_CHILD, "pr_release": _PR_CHILD,
+    # one row per collector snapshot (grows with every run): also only the snapshots inside the window
+    "pr_state": f"({_PR_CHILD}) AND snapshot_id IN (SELECT id FROM snapshot WHERE taken_at >= :cut)",
+    "release_verdict": "snapshot_id IN (SELECT id FROM snapshot WHERE taken_at >= :cut)",
+    "snapshot": "taken_at >= :cut",
+    "wf_run": "created_at >= :cut",
+    "wf_job": "run_id IN (SELECT run_id FROM wf_run WHERE created_at >= :cut)",
+    "bk_build": "created_at >= :cut",
+    "artifact": "published_at IS NULL OR published_at >= :cut",
+    "release": "COALESCE(tagged_at, published_at) IS NULL OR COALESCE(tagged_at, published_at) >= :cut",
+    "kpi_daily": "day >= :day",
+    "weekly_gha_run": "created_at >= :cut",
+    "weekly_gha_lane": "started_at IS NULL OR started_at >= :cut",
+}
+
+
+# D1 bills an index row too: a new row = table + h_t_cur index; a closed row = UPDATE _to (table + index entry moved)
+# now, and its DELETE (table + index) when it falls out of OPS_D1_KEEP. Rough on purpose, on the safe side.
+WRITE_COST = {"new": 2, "gone": 5}
+
+
+def d1_written_today():
+    """rows written on this account today (UTC) from Cloudflare analytics; None when it cannot be read"""
+    acc, tok = os.environ.get("CLOUDFLARE_ACCOUNT_ID"), os.environ.get("CLOUDFLARE_API_TOKEN")
+    if not acc or not tok:
+        return None
+    q = ("query($a:String!,$d:Date!){viewer{accounts(filter:{accountTag:$a}){"
+         "d1AnalyticsAdaptiveGroups(limit:100,filter:{date:$d}){sum{rowsWritten}}}}}")
+    body = json.dumps({"query": q, "variables": {"a": acc, "d": now()[:10]}}).encode()
+    req = urllib.request.Request("https://api.cloudflare.com/client/v4/graphql", body,
+                                 {"Authorization": "Bearer " + tok, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            g = json.load(r)["data"]["viewer"]["accounts"][0]["d1AnalyticsAdaptiveGroups"]
+        return sum(x["sum"]["rowsWritten"] for x in g)
+    except Exception:  # noqa: BLE001  (analytics are a hint; the static budget still applies)
+        return None
+
+
+def budget_check(tg, est, log=print):
+    """raise before the first write when this push would go past OPS_D1_DAILY_WRITES (default 90,000 of the free 100k)"""
+    cap = int(os.environ.get("OPS_D1_DAILY_WRITES", "90000"))
+    used = d1_written_today() if isinstance(tg, D1Target) else 0
+    if est + (used or 0) > cap:
+        raise RuntimeError(f"D1 write budget: this push needs ~{est} rows written, {used if used is not None else '?'} already "
+                           f"used today, cap {cap} (OPS_D1_DAILY_WRITES). Nothing written; the web keeps its snapshot. "
+                           "It resets 00:00 UTC; a smaller OPS_D1_DAYS also lowers it.")
+    log(f"d1 budget: ~{est} rows written planned, {used if used is not None else '?'} used today, cap {cap}")
+
+
+def window_cut(days, as_of=None):
+    """first instant D1 keeps: midnight UTC of (as_of's day - days); None = no window"""
+    if not days:
+        return None
+    base = dt.date.fromisoformat((as_of or now())[:10])
+    return (base - dt.timedelta(days=int(days))).isoformat() + "T00:00:00Z"
+
+
+def local_rows(con, t, spec, cut=None):
     cols = [c for c, _ in spec["cols"]]
     idx = [cols.index(p) for p in spec["pk"]]
     mask = mask_of(cols)
     out = {}
-    for r in con.execute(f"SELECT {', '.join(qi(c) for c in cols)} FROM {qi(t)}"):
+    sql, par = f"SELECT {', '.join(qi(c) for c in cols)} FROM {qi(t)}", {}
+    if cut and t in WINDOW:
+        sql, par = sql + f" WHERE {WINDOW[t]}", {"cut": cut, "day": cut[:10]}
+    for r in con.execute(sql, par):
         vals = list(r)
         out[json.dumps([vals[i] for i in idx], ensure_ascii=False, default=str, separators=(",", ":"))] = (row_hash(vals, mask), vals)
     return out
@@ -313,7 +385,7 @@ def chunks(head, items, tail=""):
 
 
 # ───────────── commands ─────────────
-def push(tg, db, label, data_build=None, errors=None, keep=7, log=print, as_of=None):
+def push(tg, db, label, data_build=None, errors=None, keep=7, log=print, as_of=None, days=0):
     src = sqlite3.connect(f"{Path(db).resolve().as_uri()}?mode=ro", uri=True)
     tabs, views = local_schema(src)
     for st in META_DDL:   # the lock row must exist before the lock is taken
@@ -339,13 +411,14 @@ def push(tg, db, label, data_build=None, errors=None, keep=7, log=print, as_of=N
                                         json.dumps(errors or [])))
         rows_in = rows_out = 0
         changed = []
+        cut = window_cut(days, as_of)
+        plan = []   # (t, spec, rows, th, remote): every table is diffed BEFORE anything is written
         for t, spec in tabs.items():
             h = "h_" + t
-            rows = local_rows(src, t, spec)
+            rows = local_rows(src, t, spec, cut)
             th = HASH_V + ":" + table_hash(rows)
             if not dirty and (m.get("th:" + t) or {}).get("s") == th:
                 continue
-            renew(tg, me)   # only for tables that are written: a long first push keeps its lock
             if dirty:   # a push stopped half way: drop rows it added, reopen rows it closed (none of them is visible)
                 tg.q(f"DELETE FROM {qi(h)} WHERE _from > ?", (cur,))
                 tg.q(f"UPDATE {qi(h)} SET _to = NULL WHERE _to > ?", (cur,))
@@ -355,6 +428,20 @@ def push(tg, db, label, data_build=None, errors=None, keep=7, log=print, as_of=N
             mk = mask_of(cl)
             remote = {r["_k"]: row_hash([r[c] for c in cl], mk) for r in
                       tg.q(f"SELECT _k, {', '.join(qi(c) for c in cl)} FROM {qi(h)} WHERE _to IS NULL")[0]}
+            plan.append((t, spec, rows, th, remote))
+        # write budget (D1 free plan: 100k rows written / day, index rows included; review 2026-11-28): estimate this
+        # push (+ the later clean-up of what it closes) and stop BEFORE writing when it would not fit today
+        est = 0
+        for t, spec, rows, th, remote in plan:
+            n_gone = sum(1 for k in remote if k not in rows or rows[k][0] != remote[k])
+            n_new = sum(1 for k in rows if remote.get(k) != rows[k][0])
+            est += WRITE_COST["new"] * n_new + WRITE_COST["gone"] * n_gone
+        est += 20 + 2 * len(plan)   # rd_meta / rd_sync bookkeeping
+        budget_check(tg, est, log)
+        for t, spec, rows, th, remote in plan:
+            h = "h_" + t
+            renew(tg, me)   # only for tables that are written: a long first push keeps its lock
+            cl = [c for c, _ in spec["cols"]]
             gone = [k for k in remote if k not in rows or rows[k][0] != remote[k]]
             new = [k for k in rows if remote.get(k) != rows[k][0]]
             for st in chunks(f"UPDATE {qi(h)} SET _to = {S} WHERE _to IS NULL AND _k IN (", [lit(k) for k in gone], ")"):
@@ -379,7 +466,8 @@ def push(tg, db, label, data_build=None, errors=None, keep=7, log=print, as_of=N
             # snapshots <= old are incomplete from now on: rollback must never go there (review 4.2)
             tg.q("INSERT INTO rd_meta(k, v, s) VALUES ('gc_floor', ?, NULL) "
                  "ON CONFLICT(k) DO UPDATE SET v = MAX(COALESCE(v, 0), excluded.v)", (old,))
-        log(f"d1 push: snapshot {S} ({label}) is live on {tg.name}: {rows_in} rows written, {rows_out} removed, "
+        log(f"d1 push: snapshot {S} ({label}) is live on {tg.name}" + (f" (window: since {cut[:10]})" if cut else "") +
+            f": {rows_in} rows written, {rows_out} removed, ~{est} D1 rows-written used, "
             f"{len(changed)} table(s) changed{': ' + ', '.join(changed[:8]) if changed else ''}; {tg.calls} calls")
         return S
     except BaseException:
@@ -392,13 +480,14 @@ def push(tg, db, label, data_build=None, errors=None, keep=7, log=print, as_of=N
         unlock(tg, me)
 
 
-def verify(tg, db, log=print):
+def verify(tg, db, log=print, days=0, as_of=None):
     src = sqlite3.connect(f"{Path(db).resolve().as_uri()}?mode=ro", uri=True)
     tabs, _ = local_schema(src)
     cur = int(meta(tg)["current"]["v"] or 0)
+    cut = window_cut(days, as_of)
     bad = []
     for t, spec in tabs.items():
-        rows = local_rows(src, t, spec)
+        rows = local_rows(src, t, spec, cut)
         cl = [c for c, _ in spec["cols"]]
         mk = mask_of(cl)
         r = {x["_k"]: row_hash([x[c] for c in cl], mk) for x in
@@ -499,8 +588,12 @@ def main():
     db = local_db(a.db)
     if not db.is_file():
         sys.exit(f"no local database {db}")
+    days = int(os.environ.get("OPS_D1_DAYS", "90"))
+    # as_of = when the release went live on the PC: the same time /api/sync-status and range= use there
+    rel = db.parent / "release.json"
+    as_of = json.loads(rel.read_text(encoding="utf-8")).get("published_at") if rel.is_file() else None
     if a.cmd == "verify":
-        sys.exit(0 if verify(tg, db) else 1)
+        sys.exit(0 if verify(tg, db, days=days, as_of=as_of) else 1)
     label = a.label or (RELEASES / "CURRENT").read_text(encoding="utf-8").strip()
     # the snapshot carries the release's data build and its partial errors (manifest.json, written by check_sync.py),
     # so /api/sync-status answers the same on the release PC and on Cloudflare
@@ -514,10 +607,7 @@ def main():
     if hits:
         sys.exit(f"privacy scan of {db.name}: {len(hits)} hit(s) - nothing pushed")
     t0 = time.time()
-    # as_of = when the release went live on the PC: the same time /api/sync-status and range= use there
-    rel = db.parent / "release.json"
-    as_of = json.loads(rel.read_text(encoding="utf-8")).get("published_at") if rel.is_file() else None
-    S = push(tg, db, label, build, errors, int(os.environ.get("OPS_D1_KEEP", "7")), as_of=as_of)
+    S = push(tg, db, label, build, errors, int(os.environ.get("OPS_D1_KEEP", "7")), as_of=as_of, days=days)
     LOGS.mkdir(exist_ok=True)
     (LOGS / "last-d1-push.json").write_text(json.dumps(dict(at=now(), sync_id=S, label=label, data_build=build, target=tg.name,
                                                             seconds=round(time.time() - t0, 1))), encoding="utf-8")
